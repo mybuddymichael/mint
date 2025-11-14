@@ -1,0 +1,10 @@
+prefix: mt-
+issues:
+  mt-h80zxca:
+    id: mt-h80zxca
+    title: First issue
+    status: open
+  mt-qd667b0:
+    id: mt-qd667b0
+    title: Another issue
+    status: open

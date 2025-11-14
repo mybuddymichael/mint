@@ -55,6 +55,9 @@ Closed issue mt-a8 with reason "Done"
 
 → mt delete mt-a8
 Deleted issue mt-a8
+
+→ mt set-prefix am
+Prefix set to "am" and all issues updated
 ```
 
 ## Backend
