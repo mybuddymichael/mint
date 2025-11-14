@@ -19,17 +19,19 @@ func main() {
 func newCommand() *cli.Command {
 	return &cli.Command{
 		Name:  "mt",
-		Usage: "Simple command line tool to create and track work on a software project",
-		Action: func(ctx context.Context, cmd *cli.Command) error {
-			_, err := fmt.Fprintln(cmd.Writer, "Mint issue tracker")
-			return err
-		},
+		Usage: "A simple command line tool to create and track work.",
 		Commands: []*cli.Command{
 			{
 				Name:      "create",
 				Usage:     "Create a new issue",
 				ArgsUsage: "<title>",
 				Action:    createAction,
+			},
+			{
+				Name:      "show",
+				Usage:     "Show an issue and its details",
+				ArgsUsage: "<issue-id>",
+				Action:    showAction,
 			},
 		},
 	}
@@ -62,5 +64,38 @@ func createAction(ctx context.Context, cmd *cli.Command) error {
 	}
 
 	_, err = fmt.Fprintf(cmd.Root().Writer, "Created issue %s\n", issue.ID)
+	return err
+}
+
+func showAction(ctx context.Context, cmd *cli.Command) error {
+	if cmd.Args().Len() == 0 {
+		return fmt.Errorf("issue ID is required")
+	}
+
+	id := cmd.Args().First()
+
+	filePath, err := GetStoreFilePath()
+	if err != nil {
+		return err
+	}
+
+	store, err := LoadStore(filePath)
+	if err != nil {
+		return err
+	}
+
+	issue, err := store.GetIssue(id)
+	if err != nil {
+		return err
+	}
+
+	w := cmd.Root().Writer
+	if _, err := fmt.Fprintf(w, "ID:      %s\n", issue.ID); err != nil {
+		return err
+	}
+	if _, err := fmt.Fprintf(w, "Title:   \"%s\"\n", issue.Title); err != nil {
+		return err
+	}
+	_, err = fmt.Fprintf(w, "Status:  %s\n", issue.Status)
 	return err
 }

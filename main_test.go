@@ -117,3 +117,62 @@ func TestCreateCommandNoTitle(t *testing.T) {
 		t.Error("expected error when no title provided")
 	}
 }
+
+func TestShowCommand(t *testing.T) {
+	tmpDir := t.TempDir()
+	filePath := filepath.Join(tmpDir, "mint-issues.yaml")
+
+	t.Setenv("MINT_STORE_FILE", filePath)
+
+	// Create issue directly via Store
+	store, err := LoadStore(filePath)
+	if err != nil {
+		t.Fatalf("failed to load store: %v", err)
+	}
+
+	issue, err := store.AddIssue("Test show issue")
+	if err != nil {
+		t.Fatalf("failed to add issue: %v", err)
+	}
+
+	if err := store.Save(filePath); err != nil {
+		t.Fatalf("failed to save store: %v", err)
+	}
+
+	// Test show command
+	cmd := newCommand()
+	var buf bytes.Buffer
+	cmd.Writer = &buf
+
+	err = cmd.Run(context.Background(), []string{"mt", "show", issue.ID})
+	if err != nil {
+		t.Fatalf("show command failed: %v", err)
+	}
+
+	output := buf.String()
+	if !strings.Contains(output, "ID:      "+issue.ID) {
+		t.Errorf("expected output to contain 'ID:      %s', got: %s", issue.ID, output)
+	}
+	if !strings.Contains(output, "Title:   \"Test show issue\"") {
+		t.Errorf("expected output to contain 'Title:   \"Test show issue\"', got: %s", output)
+	}
+	if !strings.Contains(output, "Status:  open") {
+		t.Errorf("expected output to contain 'Status:  open', got: %s", output)
+	}
+}
+
+func TestShowCommandNonExistent(t *testing.T) {
+	tmpDir := t.TempDir()
+	filePath := filepath.Join(tmpDir, "mint-issues.yaml")
+
+	cmd := newCommand()
+	var buf bytes.Buffer
+	cmd.Writer = &buf
+
+	t.Setenv("MINT_STORE_FILE", filePath)
+
+	err := cmd.Run(context.Background(), []string{"mt", "show", "mt-nonexistent"})
+	if err == nil {
+		t.Error("expected error when showing non-existent issue")
+	}
+}

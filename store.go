@@ -84,6 +84,15 @@ func (s *Store) AddIssue(title string) (*Issue, error) {
 	return issue, nil
 }
 
+// GetIssue retrieves an issue by ID
+func (s *Store) GetIssue(id string) (*Issue, error) {
+	issue, exists := s.Issues[id]
+	if !exists {
+		return nil, fmt.Errorf("issue %s not found", id)
+	}
+	return issue, nil
+}
+
 // GetStoreFilePath returns the path to the mint-issues.yaml file
 // Checks MINT_STORE_FILE env var first (for tests)
 // Then looks for .git walking up from current directory
