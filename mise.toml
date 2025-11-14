@@ -7,6 +7,9 @@ run = "go test ./..."
 [tasks.build]
 run = "go build -o /dev/null ."
 
+[tasks.run]
+run = "go run ."
+
 [tasks.format]
 run = "gofumpt -l -w ."
 

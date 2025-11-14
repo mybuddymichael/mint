@@ -1,3 +1,4 @@
 - Always read README.md before starting a task.
 - Always include tests for new code.
 - Write tests first. Confirm they fail. Write the code to make them pass. Confirm they pass.
+- Use mise for all build, test, etc. commands.
