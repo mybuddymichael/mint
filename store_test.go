@@ -1,8 +1,10 @@
 package main
 
 import (
+	"bytes"
 	"os"
 	"path/filepath"
+	"strings"
 	"testing"
 )
 
@@ -92,5 +94,87 @@ func TestLoadStoreNonExistent(t *testing.T) {
 
 	if len(store.Issues) != 0 {
 		t.Errorf("expected empty issues map, got %d issues", len(store.Issues))
+	}
+}
+
+func TestStoreSaveOrderDeterministic(t *testing.T) {
+	tmpDir := t.TempDir()
+	filePath := filepath.Join(tmpDir, "mint-issues.yaml")
+
+	// Create store with issues in non-alphabetical order
+	store := NewStore()
+	store.Issues = map[string]*Issue{
+		"mt-zzz": {ID: "mt-zzz", Title: "Last", Status: "open"},
+		"mt-aaa": {ID: "mt-aaa", Title: "First", Status: "open"},
+		"mt-mmm": {ID: "mt-mmm", Title: "Middle", Status: "open"},
+	}
+
+	// Save multiple times
+	err := store.Save(filePath)
+	if err != nil {
+		t.Fatalf("first Save() failed: %v", err)
+	}
+
+	firstSave, err := os.ReadFile(filePath)
+	if err != nil {
+		t.Fatalf("failed to read first save: %v", err)
+	}
+
+	// Save again
+	err = store.Save(filePath)
+	if err != nil {
+		t.Fatalf("second Save() failed: %v", err)
+	}
+
+	secondSave, err := os.ReadFile(filePath)
+	if err != nil {
+		t.Fatalf("failed to read second save: %v", err)
+	}
+
+	// Both saves should be identical
+	if !bytes.Equal(firstSave, secondSave) {
+		t.Error("multiple saves produced different output")
+		t.Logf("First:\n%s", firstSave)
+		t.Logf("Second:\n%s", secondSave)
+	}
+}
+
+func TestStoreSaveOrderSorted(t *testing.T) {
+	tmpDir := t.TempDir()
+	filePath := filepath.Join(tmpDir, "mint-issues.yaml")
+
+	// Create store with issues in non-alphabetical order
+	store := NewStore()
+	store.Issues = map[string]*Issue{
+		"mt-zzz": {ID: "mt-zzz", Title: "Last", Status: "open"},
+		"mt-aaa": {ID: "mt-aaa", Title: "First", Status: "open"},
+		"mt-mmm": {ID: "mt-mmm", Title: "Middle", Status: "open"},
+	}
+
+	err := store.Save(filePath)
+	if err != nil {
+		t.Fatalf("Save() failed: %v", err)
+	}
+
+	content, err := os.ReadFile(filePath)
+	if err != nil {
+		t.Fatalf("failed to read file: %v", err)
+	}
+
+	contentStr := string(content)
+
+	// Find positions of each issue ID in the file
+	posAAA := strings.Index(contentStr, "mt-aaa")
+	posMMM := strings.Index(contentStr, "mt-mmm")
+	posZZZ := strings.Index(contentStr, "mt-zzz")
+
+	if posAAA == -1 || posMMM == -1 || posZZZ == -1 {
+		t.Fatal("not all issue IDs found in output")
+	}
+
+	// Verify they appear in alphabetical order
+	if posAAA >= posMMM || posMMM >= posZZZ {
+		t.Errorf("issues not in alphabetical order: aaa=%d, mmm=%d, zzz=%d", posAAA, posMMM, posZZZ)
+		t.Logf("Content:\n%s", contentStr)
 	}
 }
