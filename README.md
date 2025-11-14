@@ -23,21 +23,23 @@ Created issue mt-a8
 Updated mt-a8 with new title "Support closing issues with dependencies"
 
 → mt update mt-a8 --depends-on mt-j0
-Updated mt-a8 to depend on mt-j0
-Updated mt-j0 to block mt-a8
+Updated mt-j0 "Add initial code structure"
+  [blocks] mt-a8 "Support closing issues"
 
-→ mt update mt-a8 --blocks mt-8G
-Updated issue mt-a8 to block mt-8G
-Updated issue mt-8G to depend on mt-a8
+→ mt update mt-a8 --blocks mt-8G mt-Lw
+Updated mt-a8 "Support closing issues"
+  [blocks]
+    mt-8G "Write tests for closing issues"
+    mt-Lw "Update README for closing issues"
 
 → mt show mt-a8
 ID: mt-a8
 Title: Support closing issues
 Status: open
 Depends on:
-  mt-j0
+  mt-j0 "Add initial code structure"
 Blocks:
-  mt-8G
+  mt-8G "Write tests for closing issues"
 
 → mt ready
 Issues with no blockers:
