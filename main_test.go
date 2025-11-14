@@ -176,3 +176,132 @@ func TestShowCommandNonExistent(t *testing.T) {
 		t.Error("expected error when showing non-existent issue")
 	}
 }
+
+func TestListCommand(t *testing.T) {
+	tmpDir := t.TempDir()
+	filePath := filepath.Join(tmpDir, "mint-issues.yaml")
+
+	t.Setenv("MINT_STORE_FILE", filePath)
+
+	// Create issues directly via Store
+	store, err := LoadStore(filePath)
+	if err != nil {
+		t.Fatalf("failed to load store: %v", err)
+	}
+
+	issue1, err := store.AddIssue("First issue")
+	if err != nil {
+		t.Fatalf("failed to add issue: %v", err)
+	}
+
+	issue2, err := store.AddIssue("Second issue")
+	if err != nil {
+		t.Fatalf("failed to add issue: %v", err)
+	}
+
+	issue3, err := store.AddIssue("Third issue")
+	if err != nil {
+		t.Fatalf("failed to add issue: %v", err)
+	}
+
+	if err := store.Save(filePath); err != nil {
+		t.Fatalf("failed to save store: %v", err)
+	}
+
+	// Test list command
+	cmd := newCommand()
+	var buf bytes.Buffer
+	cmd.Writer = &buf
+
+	err = cmd.Run(context.Background(), []string{"mt", "list"})
+	if err != nil {
+		t.Fatalf("list command failed: %v", err)
+	}
+
+	output := buf.String()
+	if !strings.Contains(output, "All issues:") {
+		t.Errorf("expected output to contain 'All issues:', got: %s", output)
+	}
+
+	if !strings.Contains(output, issue1.ID+" \"First issue\"") {
+		t.Errorf("expected output to contain issue1, got: %s", output)
+	}
+	if !strings.Contains(output, issue2.ID+" \"Second issue\"") {
+		t.Errorf("expected output to contain issue2, got: %s", output)
+	}
+	if !strings.Contains(output, issue3.ID+" \"Third issue\"") {
+		t.Errorf("expected output to contain issue3, got: %s", output)
+	}
+
+	// Verify issues are sorted by ID
+	lines := strings.Split(strings.TrimSpace(output), "\n")
+	if len(lines) != 4 {
+		t.Fatalf("expected 4 lines of output, got %d", len(lines))
+	}
+
+	// Extract IDs from output lines (skip "All issues:" header)
+	var outputIDs []string
+	for i := 1; i < len(lines); i++ {
+		parts := strings.SplitN(lines[i], " ", 2)
+		if len(parts) > 0 {
+			outputIDs = append(outputIDs, parts[0])
+		}
+	}
+
+	// Verify sorted
+	for i := 1; i < len(outputIDs); i++ {
+		if outputIDs[i-1] >= outputIDs[i] {
+			t.Errorf("IDs not sorted: %s >= %s", outputIDs[i-1], outputIDs[i])
+		}
+	}
+}
+
+func TestListCommandEmpty(t *testing.T) {
+	tmpDir := t.TempDir()
+	filePath := filepath.Join(tmpDir, "mint-issues.yaml")
+
+	t.Setenv("MINT_STORE_FILE", filePath)
+
+	// Create empty store
+	store := NewStore()
+	if err := store.Save(filePath); err != nil {
+		t.Fatalf("failed to save empty store: %v", err)
+	}
+
+	cmd := newCommand()
+	var buf bytes.Buffer
+	cmd.Writer = &buf
+
+	err := cmd.Run(context.Background(), []string{"mt", "list"})
+	if err != nil {
+		t.Fatalf("list command failed on empty store: %v", err)
+	}
+
+	output := buf.String()
+	expected := "No issues found.\n"
+	if output != expected {
+		t.Errorf("expected %q, got: %q", expected, output)
+	}
+}
+
+func TestListCommandNoFile(t *testing.T) {
+	tmpDir := t.TempDir()
+	filePath := filepath.Join(tmpDir, "mint-issues.yaml")
+
+	t.Setenv("MINT_STORE_FILE", filePath)
+
+	cmd := newCommand()
+	var buf bytes.Buffer
+	cmd.Writer = &buf
+
+	err := cmd.Run(context.Background(), []string{"mt", "list"})
+	if err != nil {
+		t.Fatalf("list command failed when no file exists: %v", err)
+	}
+
+	output := buf.String()
+	expected := "No issues file found.\n"
+	if output != expected {
+		t.Errorf("expected %q, got: %q", expected, output)
+	}
+}

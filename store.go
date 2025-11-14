@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"os"
 	"path/filepath"
+	"sort"
 
 	"github.com/goccy/go-yaml"
 )
@@ -91,6 +92,18 @@ func (s *Store) GetIssue(id string) (*Issue, error) {
 		return nil, fmt.Errorf("issue %s not found", id)
 	}
 	return issue, nil
+}
+
+// ListIssues returns all issues sorted by ID
+func (s *Store) ListIssues() []*Issue {
+	issues := make([]*Issue, 0, len(s.Issues))
+	for _, issue := range s.Issues {
+		issues = append(issues, issue)
+	}
+	sort.Slice(issues, func(i, j int) bool {
+		return issues[i].ID < issues[j].ID
+	})
+	return issues
 }
 
 // GetStoreFilePath returns the path to the mint-issues.yaml file

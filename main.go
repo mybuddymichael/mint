@@ -28,6 +28,11 @@ func newCommand() *cli.Command {
 				Action:    createAction,
 			},
 			{
+				Name:   "list",
+				Usage:  "List all issues",
+				Action: listAction,
+			},
+			{
 				Name:      "show",
 				Usage:     "Show an issue and its details",
 				ArgsUsage: "<issue-id>",
@@ -65,6 +70,46 @@ func createAction(ctx context.Context, cmd *cli.Command) error {
 
 	_, err = fmt.Fprintf(cmd.Root().Writer, "Created issue %s\n", issue.ID)
 	return err
+}
+
+func listAction(ctx context.Context, cmd *cli.Command) error {
+	filePath, err := GetStoreFilePath()
+	if err != nil {
+		return err
+	}
+
+	w := cmd.Root().Writer
+
+	// Check if file exists
+	if _, err := os.Stat(filePath); os.IsNotExist(err) {
+		_, err := fmt.Fprintln(w, "No issues file found.")
+		return err
+	}
+
+	store, err := LoadStore(filePath)
+	if err != nil {
+		return err
+	}
+
+	issues := store.ListIssues()
+
+	// Handle empty store
+	if len(issues) == 0 {
+		_, err := fmt.Fprintln(w, "No issues found.")
+		return err
+	}
+
+	if _, err := fmt.Fprintln(w, "All issues:"); err != nil {
+		return err
+	}
+
+	for _, issue := range issues {
+		if _, err := fmt.Fprintf(w, "%s \"%s\"\n", issue.ID, issue.Title); err != nil {
+			return err
+		}
+	}
+
+	return nil
 }
 
 func showAction(ctx context.Context, cmd *cli.Command) error {
