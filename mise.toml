@@ -1,0 +1,24 @@
+[tools]
+go = "1.25.3"
+
+[tasks.test]
+run = "go test ./..."
+
+[tasks.build]
+run = "go build -o /dev/null ."
+
+[tasks.format]
+run = "gofumpt -l -w ."
+
+[tasks.lint]
+run = "golangci-lint run"
+
+[tasks.check]
+depends = ["format", "lint", "test", "build"]
+
+[tasks.changelog]
+run = "git-cliff -o CHANGELOG.md"
+
+# [tasks.release]
+# description = "Create a new release"
+# file = "scripts/release.sh"
