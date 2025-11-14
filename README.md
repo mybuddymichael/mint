@@ -4,6 +4,8 @@ Mint (`mt`) is a (very) simple command line tool to create and track work on a s
 
 I made it for myself. Other tools (see below) might be a much better solution for you.
 
+The interface might change as bettern patterns emerge.
+
 ## Features
 
 - A simple, intuitive command line interface.
