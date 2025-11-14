@@ -15,15 +15,43 @@ I made it for myself. Other tools (see below) might be a much better solution fo
 
 ## Usage
 
-`mt create "Support closing issues"`
-`mt show mt-a8`
-`mt update mt-a8 --title "Support closing issues with dependencies"`
-`mt update mt-a8 --depends-on mt-j0`
-`mt update mt-a8 --blocks mt-8G`
-`mt update mt-a8 --comment "The problem is in main.go:123."`
-`mt close mt-a8 --reason "Done"`
-`mt close mt-a8 "Done"`
-`mt delete mt-a8`
+```bash
+→ mt create "Support closing issues"
+Created issue mt-a8
+
+→ mt update mt-a8 --title "Support closing issues with dependencies"
+Updated mt-a8 with new title "Support closing issues with dependencies"
+
+→ mt update mt-a8 --depends-on mt-j0
+Updated mt-a8 to depend on mt-j0
+Updated mt-j0 to block mt-a8
+
+→ mt update mt-a8 --blocks mt-8G
+Updated issue mt-a8 to block mt-8G
+Updated issue mt-8G to depend on mt-a8
+
+→ mt show mt-a8
+ID: mt-a8
+Title: Support closing issues
+Status: open
+Depends on:
+  mt-j0
+Blocks:
+  mt-8G
+
+→ mt ready
+Issues with no blockers:
+mt-j0 "Add initial code structure"
+
+→ mt update mt-a8 --comment "The problem is in main.go:123."
+Added a comment to issue mt-a8 with text "The problem is in main.go:123."
+
+→ mt close mt-a8 --reason "Done"
+Closed issue mt-a8 with reason "Done"
+
+→ mt delete mt-a8
+Deleted issue mt-a8
+```
 
 ## Backend
 
