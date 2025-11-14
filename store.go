@@ -1,6 +1,7 @@
 package main
 
 import (
+	"fmt"
 	"os"
 	"path/filepath"
 
@@ -55,6 +56,32 @@ func (s *Store) Save(filePath string) error {
 	}
 
 	return os.WriteFile(filePath, data, 0o644)
+}
+
+// AddIssue creates a new issue with a unique ID and adds it to the store
+func (s *Store) AddIssue(title string) (*Issue, error) {
+	const maxRetries = 10
+
+	var id string
+	for i := 0; i < maxRetries; i++ {
+		id = GenerateID(s.Prefix)
+		if _, exists := s.Issues[id]; !exists {
+			break
+		}
+		// Collision detected, retry
+		if i == maxRetries-1 {
+			return nil, fmt.Errorf("failed to generate unique ID after %d attempts", maxRetries)
+		}
+	}
+
+	issue := &Issue{
+		ID:     id,
+		Title:  title,
+		Status: "open",
+	}
+
+	s.Issues[id] = issue
+	return issue, nil
 }
 
 // GetStoreFilePath returns the path to the mint-issues.yaml file

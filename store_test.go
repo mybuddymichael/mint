@@ -178,3 +178,56 @@ func TestStoreSaveOrderSorted(t *testing.T) {
 		t.Logf("Content:\n%s", contentStr)
 	}
 }
+
+func TestStoreAddIssue(t *testing.T) {
+	store := NewStore()
+
+	issue, err := store.AddIssue("Test issue")
+	if err != nil {
+		t.Fatalf("AddIssue() failed: %v", err)
+	}
+
+	if issue == nil {
+		t.Fatal("AddIssue() returned nil issue")
+		return
+	}
+
+	if issue.Title != "Test issue" {
+		t.Errorf("expected title 'Test issue', got '%s'", issue.Title)
+	}
+
+	if issue.Status != "open" {
+		t.Errorf("expected status 'open', got '%s'", issue.Status)
+	}
+
+	if !strings.HasPrefix(issue.ID, store.Prefix) {
+		t.Errorf("expected ID to have prefix '%s', got '%s'", store.Prefix, issue.ID)
+	}
+
+	// Verify issue was added to store
+	if store.Issues[issue.ID] != issue {
+		t.Error("issue not found in store")
+	}
+}
+
+func TestStoreAddIssueUnique(t *testing.T) {
+	store := NewStore()
+
+	// Add multiple issues and verify IDs are unique
+	ids := make(map[string]bool)
+	for i := 0; i < 100; i++ {
+		issue, err := store.AddIssue("Test issue")
+		if err != nil {
+			t.Fatalf("AddIssue() failed on iteration %d: %v", i, err)
+		}
+
+		if ids[issue.ID] {
+			t.Errorf("duplicate ID generated: %s", issue.ID)
+		}
+		ids[issue.ID] = true
+	}
+
+	if len(store.Issues) != 100 {
+		t.Errorf("expected 100 issues in store, got %d", len(store.Issues))
+	}
+}

@@ -52,19 +52,15 @@ func createAction(ctx context.Context, cmd *cli.Command) error {
 		return err
 	}
 
-	id := GenerateID(store.Prefix)
-	issue := &Issue{
-		ID:     id,
-		Title:  title,
-		Status: "open",
+	issue, err := store.AddIssue(title)
+	if err != nil {
+		return err
 	}
-
-	store.Issues[id] = issue
 
 	if err := store.Save(filePath); err != nil {
 		return err
 	}
 
-	_, err = fmt.Fprintf(cmd.Root().Writer, "Created issue %s\n", id)
+	_, err = fmt.Fprintf(cmd.Root().Writer, "Created issue %s\n", issue.ID)
 	return err
 }
