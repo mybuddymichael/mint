@@ -204,6 +204,11 @@ func TestListCommand(t *testing.T) {
 		t.Fatalf("failed to add issue: %v", err)
 	}
 
+	// Close issue2 to test both open and closed statuses
+	if err := store.CloseIssue(issue2.ID, ""); err != nil {
+		t.Fatalf("failed to close issue: %v", err)
+	}
+
 	if err := store.Save(filePath); err != nil {
 		t.Fatalf("failed to save store: %v", err)
 	}
@@ -223,14 +228,14 @@ func TestListCommand(t *testing.T) {
 		t.Errorf("expected output to contain 'All issues:', got: %s", output)
 	}
 
-	if !strings.Contains(output, issue1.ID+" \"First issue\"") {
-		t.Errorf("expected output to contain issue1, got: %s", output)
+	if !strings.Contains(output, issue1.ID+" open \"First issue\"") {
+		t.Errorf("expected output to contain issue1 with open status, got: %s", output)
 	}
-	if !strings.Contains(output, issue2.ID+" \"Second issue\"") {
-		t.Errorf("expected output to contain issue2, got: %s", output)
+	if !strings.Contains(output, issue2.ID+" closed \"Second issue\"") {
+		t.Errorf("expected output to contain issue2 with closed status, got: %s", output)
 	}
-	if !strings.Contains(output, issue3.ID+" \"Third issue\"") {
-		t.Errorf("expected output to contain issue3, got: %s", output)
+	if !strings.Contains(output, issue3.ID+" open \"Third issue\"") {
+		t.Errorf("expected output to contain issue3 with open status, got: %s", output)
 	}
 
 	// Verify issues are sorted by ID

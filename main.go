@@ -146,7 +146,7 @@ func listAction(ctx context.Context, cmd *cli.Command) error {
 	}
 
 	for _, issue := range issues {
-		if _, err := fmt.Fprintf(w, "%s \"%s\"\n", issue.ID, issue.Title); err != nil {
+		if _, err := fmt.Fprintf(w, "%s %s \"%s\"\n", issue.ID, issue.Status, issue.Title); err != nil {
 			return err
 		}
 	}

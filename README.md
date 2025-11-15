@@ -46,10 +46,10 @@ Blocks:
 
 → mt list
 All issues:
-mt-8G "Write tests for closing issues"
-mt-a8 "Support closing issues"
-mt-j0 "Add initial code structure"
-mt-lw "Update README for closing issues"
+mt-8G open "Write tests for closing issues"
+mt-a8 open "Support closing issues"
+mt-j0 open "Add initial code structure"
+mt-lw open "Update README for closing issues"
 
 → mt ready
 Issues with no blockers:
