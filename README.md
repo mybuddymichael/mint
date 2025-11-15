@@ -61,6 +61,9 @@ Added a comment to issue mt-a8 with text "The problem is in main.go:123."
 → mt close mt-a8 --reason "Done"
 Closed issue mt-a8 with reason "Done"
 
+→ mt open mt-a8
+Re-opened issue mt-a8
+
 → mt delete mt-a8
 Deleted issue mt-a8
 
