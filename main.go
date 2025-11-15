@@ -38,6 +38,30 @@ func newCommand() *cli.Command {
 				ArgsUsage: "<issue-id>",
 				Action:    showAction,
 			},
+			{
+				Name:      "update",
+				Usage:     "Update an issue",
+				ArgsUsage: "<issue-id>",
+				Flags: []cli.Flag{
+					&cli.StringFlag{
+						Name:  "title",
+						Usage: "New title for the issue",
+					},
+					&cli.StringSliceFlag{
+						Name:  "depends-on",
+						Usage: "Add dependency (can be repeated)",
+					},
+					&cli.StringSliceFlag{
+						Name:  "blocks",
+						Usage: "Add blocked issues (can be repeated)",
+					},
+					&cli.StringFlag{
+						Name:  "comment",
+						Usage: "Add a comment",
+					},
+				},
+				Action: updateAction,
+			},
 		},
 	}
 }
@@ -142,5 +166,68 @@ func showAction(ctx context.Context, cmd *cli.Command) error {
 		return err
 	}
 	_, err = fmt.Fprintf(w, "Status:  %s\n", issue.Status)
+	return err
+}
+
+func updateAction(ctx context.Context, cmd *cli.Command) error {
+	if cmd.Args().Len() == 0 {
+		return fmt.Errorf("issue ID is required")
+	}
+
+	id := cmd.Args().First()
+
+	filePath, err := GetStoreFilePath()
+	if err != nil {
+		return err
+	}
+
+	store, err := LoadStore(filePath)
+	if err != nil {
+		return err
+	}
+
+	// Verify issue exists
+	if _, err := store.GetIssue(id); err != nil {
+		return err
+	}
+
+	// Update title
+	if title := cmd.String("title"); title != "" {
+		if err := store.UpdateIssueTitle(id, title); err != nil {
+			return err
+		}
+	}
+
+	// Add dependencies
+	if dependsOn := cmd.StringSlice("depends-on"); len(dependsOn) > 0 {
+		for _, depID := range dependsOn {
+			if err := store.AddDependency(id, depID); err != nil {
+				return err
+			}
+		}
+	}
+
+	// Add blockers
+	if blocks := cmd.StringSlice("blocks"); len(blocks) > 0 {
+		for _, blockID := range blocks {
+			if err := store.AddBlocker(id, blockID); err != nil {
+				return err
+			}
+		}
+	}
+
+	// Add comment
+	if comment := cmd.String("comment"); comment != "" {
+		if err := store.AddComment(id, comment); err != nil {
+			return err
+		}
+	}
+
+	if err := store.Save(filePath); err != nil {
+		return err
+	}
+
+	w := cmd.Root().Writer
+	_, err = fmt.Fprintf(w, "Updated %s\n", id)
 	return err
 }

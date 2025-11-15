@@ -17,9 +17,12 @@ type Store struct {
 
 // Issue represents a single issue
 type Issue struct {
-	ID     string `yaml:"id"`
-	Title  string `yaml:"title"`
-	Status string `yaml:"status"`
+	ID        string   `yaml:"id"`
+	Title     string   `yaml:"title"`
+	Status    string   `yaml:"status"`
+	DependsOn []string `yaml:"depends_on,omitempty"`
+	Blocks    []string `yaml:"blocks,omitempty"`
+	Comments  []string `yaml:"comments,omitempty"`
 }
 
 // NewStore creates a new store with defaults
@@ -104,6 +107,60 @@ func (s *Store) ListIssues() []*Issue {
 		return issues[i].ID < issues[j].ID
 	})
 	return issues
+}
+
+// UpdateIssueTitle updates an issue's title
+func (s *Store) UpdateIssueTitle(id, title string) error {
+	issue, err := s.GetIssue(id)
+	if err != nil {
+		return err
+	}
+	issue.Title = title
+	return nil
+}
+
+// AddDependency adds a dependency relationship (issue depends on dependsOnID)
+func (s *Store) AddDependency(issueID, dependsOnID string) error {
+	issue, err := s.GetIssue(issueID)
+	if err != nil {
+		return err
+	}
+
+	blocker, err := s.GetIssue(dependsOnID)
+	if err != nil {
+		return err
+	}
+
+	issue.DependsOn = append(issue.DependsOn, dependsOnID)
+	blocker.Blocks = append(blocker.Blocks, issueID)
+	return nil
+}
+
+// AddBlocker adds a blocks relationship (issue blocks blockedID)
+func (s *Store) AddBlocker(issueID, blockedID string) error {
+	issue, err := s.GetIssue(issueID)
+	if err != nil {
+		return err
+	}
+
+	blocked, err := s.GetIssue(blockedID)
+	if err != nil {
+		return err
+	}
+
+	issue.Blocks = append(issue.Blocks, blockedID)
+	blocked.DependsOn = append(blocked.DependsOn, issueID)
+	return nil
+}
+
+// AddComment adds a comment to an issue
+func (s *Store) AddComment(id, comment string) error {
+	issue, err := s.GetIssue(id)
+	if err != nil {
+		return err
+	}
+	issue.Comments = append(issue.Comments, comment)
+	return nil
 }
 
 // GetStoreFilePath returns the path to the mint-issues.yaml file

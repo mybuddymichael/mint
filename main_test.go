@@ -305,3 +305,191 @@ func TestListCommandNoFile(t *testing.T) {
 		t.Errorf("expected %q, got: %q", expected, output)
 	}
 }
+
+func TestUpdateCommandTitle(t *testing.T) {
+	tmpDir := t.TempDir()
+	filePath := filepath.Join(tmpDir, "mint-issues.yaml")
+	t.Setenv("MINT_STORE_FILE", filePath)
+
+	store, _ := LoadStore(filePath)
+	issue, _ := store.AddIssue("Original title")
+	_ = store.Save(filePath)
+
+	cmd := newCommand()
+	var buf bytes.Buffer
+	cmd.Writer = &buf
+
+	err := cmd.Run(context.Background(), []string{"mt", "update", issue.ID, "--title", "New title"})
+	if err != nil {
+		t.Fatalf("update command failed: %v", err)
+	}
+
+	store, _ = LoadStore(filePath)
+	updated, _ := store.GetIssue(issue.ID)
+
+	if updated.Title != "New title" {
+		t.Errorf("expected title 'New title', got '%s'", updated.Title)
+	}
+}
+
+func TestUpdateCommandDependsOn(t *testing.T) {
+	tmpDir := t.TempDir()
+	filePath := filepath.Join(tmpDir, "mint-issues.yaml")
+	t.Setenv("MINT_STORE_FILE", filePath)
+
+	store, _ := LoadStore(filePath)
+	issue1, _ := store.AddIssue("Issue 1")
+	issue2, _ := store.AddIssue("Issue 2")
+	_ = store.Save(filePath)
+
+	cmd := newCommand()
+	var buf bytes.Buffer
+	cmd.Writer = &buf
+
+	err := cmd.Run(context.Background(), []string{"mt", "update", issue1.ID, "--depends-on", issue2.ID})
+	if err != nil {
+		t.Fatalf("update command failed: %v", err)
+	}
+
+	store, _ = LoadStore(filePath)
+	updated, _ := store.GetIssue(issue1.ID)
+
+	if len(updated.DependsOn) != 1 || updated.DependsOn[0] != issue2.ID {
+		t.Errorf("expected DependsOn [%s], got %v", issue2.ID, updated.DependsOn)
+	}
+
+	blocker, _ := store.GetIssue(issue2.ID)
+	if len(blocker.Blocks) != 1 || blocker.Blocks[0] != issue1.ID {
+		t.Errorf("expected Blocks [%s], got %v", issue1.ID, blocker.Blocks)
+	}
+}
+
+func TestUpdateCommandBlocks(t *testing.T) {
+	tmpDir := t.TempDir()
+	filePath := filepath.Join(tmpDir, "mint-issues.yaml")
+	t.Setenv("MINT_STORE_FILE", filePath)
+
+	store, _ := LoadStore(filePath)
+	issue1, _ := store.AddIssue("Issue 1")
+	issue2, _ := store.AddIssue("Issue 2")
+	issue3, _ := store.AddIssue("Issue 3")
+	_ = store.Save(filePath)
+
+	cmd := newCommand()
+	var buf bytes.Buffer
+	cmd.Writer = &buf
+
+	err := cmd.Run(context.Background(), []string{"mt", "update", issue1.ID, "--blocks", issue2.ID, "--blocks", issue3.ID})
+	if err != nil {
+		t.Fatalf("update command failed: %v", err)
+	}
+
+	store, _ = LoadStore(filePath)
+	updated, _ := store.GetIssue(issue1.ID)
+
+	if len(updated.Blocks) != 2 {
+		t.Errorf("expected 2 blocks, got %d", len(updated.Blocks))
+	}
+
+	blocked2, _ := store.GetIssue(issue2.ID)
+	if len(blocked2.DependsOn) != 1 || blocked2.DependsOn[0] != issue1.ID {
+		t.Errorf("expected issue2 DependsOn [%s], got %v", issue1.ID, blocked2.DependsOn)
+	}
+
+	blocked3, _ := store.GetIssue(issue3.ID)
+	if len(blocked3.DependsOn) != 1 || blocked3.DependsOn[0] != issue1.ID {
+		t.Errorf("expected issue3 DependsOn [%s], got %v", issue1.ID, blocked3.DependsOn)
+	}
+}
+
+func TestUpdateCommandComment(t *testing.T) {
+	tmpDir := t.TempDir()
+	filePath := filepath.Join(tmpDir, "mint-issues.yaml")
+	t.Setenv("MINT_STORE_FILE", filePath)
+
+	store, _ := LoadStore(filePath)
+	issue, _ := store.AddIssue("Test issue")
+	_ = store.Save(filePath)
+
+	cmd := newCommand()
+	var buf bytes.Buffer
+	cmd.Writer = &buf
+
+	err := cmd.Run(context.Background(), []string{"mt", "update", issue.ID, "--comment", "Test comment"})
+	if err != nil {
+		t.Fatalf("update command failed: %v", err)
+	}
+
+	store, _ = LoadStore(filePath)
+	updated, _ := store.GetIssue(issue.ID)
+
+	if len(updated.Comments) != 1 || updated.Comments[0] != "Test comment" {
+		t.Errorf("expected Comments ['Test comment'], got %v", updated.Comments)
+	}
+}
+
+func TestUpdateCommandMultipleFlags(t *testing.T) {
+	tmpDir := t.TempDir()
+	filePath := filepath.Join(tmpDir, "mint-issues.yaml")
+	t.Setenv("MINT_STORE_FILE", filePath)
+
+	store, _ := LoadStore(filePath)
+	issue1, _ := store.AddIssue("Issue 1")
+	issue2, _ := store.AddIssue("Issue 2")
+	_ = store.Save(filePath)
+
+	cmd := newCommand()
+	var buf bytes.Buffer
+	cmd.Writer = &buf
+
+	err := cmd.Run(context.Background(), []string{"mt", "update", issue1.ID, "--title", "Updated", "--depends-on", issue2.ID, "--comment", "Done"})
+	if err != nil {
+		t.Fatalf("update command failed: %v", err)
+	}
+
+	store, _ = LoadStore(filePath)
+	updated, _ := store.GetIssue(issue1.ID)
+
+	if updated.Title != "Updated" {
+		t.Errorf("expected title 'Updated', got '%s'", updated.Title)
+	}
+	if len(updated.DependsOn) != 1 || updated.DependsOn[0] != issue2.ID {
+		t.Errorf("expected DependsOn [%s], got %v", issue2.ID, updated.DependsOn)
+	}
+	if len(updated.Comments) != 1 || updated.Comments[0] != "Done" {
+		t.Errorf("expected Comments ['Done'], got %v", updated.Comments)
+	}
+}
+
+func TestUpdateCommandNoID(t *testing.T) {
+	tmpDir := t.TempDir()
+	filePath := filepath.Join(tmpDir, "mint-issues.yaml")
+	t.Setenv("MINT_STORE_FILE", filePath)
+
+	cmd := newCommand()
+	var buf bytes.Buffer
+	cmd.Writer = &buf
+
+	err := cmd.Run(context.Background(), []string{"mt", "update", "--title", "New title"})
+	if err == nil {
+		t.Error("expected error when no issue ID provided")
+	}
+}
+
+func TestUpdateCommandInvalidID(t *testing.T) {
+	tmpDir := t.TempDir()
+	filePath := filepath.Join(tmpDir, "mint-issues.yaml")
+	t.Setenv("MINT_STORE_FILE", filePath)
+
+	store := NewStore()
+	_ = store.Save(filePath)
+
+	cmd := newCommand()
+	var buf bytes.Buffer
+	cmd.Writer = &buf
+
+	err := cmd.Run(context.Background(), []string{"mt", "update", "mt-invalid", "--title", "New title"})
+	if err == nil {
+		t.Error("expected error when updating non-existent issue")
+	}
+}
