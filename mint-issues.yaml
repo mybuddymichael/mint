@@ -1,0 +1,48 @@
+prefix: mt-
+issues:
+  mt-0ncc1dk:
+    id: mt-0ncc1dk
+    title: Add a type field to issues
+    status: open
+  mt-5ab8q1f:
+    id: mt-5ab8q1f
+    title: Show comments with the 'show' subcommand
+    status: open
+  mt-7an7no0:
+    id: mt-7an7no0
+    title: Show relationships when running 'show' on an issue
+    status: closed
+  mt-85zdpgt:
+    id: mt-85zdpgt
+    title: Show minimum unique ID when listing issues
+    status: open
+    blocks:
+    - mt-fwjigoz
+    comments:
+    - When listing all issues, we should highlight the part of the issue that is uniquely identifying, i.e. the part of the ID that the user would need to type to uniquely identify the issue. If there are two issues, mt-8a9jfnd and mt-8afj0qn, then mt-8a9 and mt-8af are enough to uniquely identify them. We should figure that out and highlight that part of the issue.
+  mt-cufovp7:
+    id: mt-cufovp7
+    title: Allow 'add' as an alias for the 'create' subcommand
+    status: open
+  mt-fwjigoz:
+    id: mt-fwjigoz
+    title: Allow showing an issue by typing the minimum unique ID
+    status: open
+    depends_on:
+    - mt-85zdpgt
+  mt-k6yx9is:
+    id: mt-k6yx9is
+    title: Add the set-prefix subcommand
+    status: open
+  mt-prn8qjx:
+    id: mt-prn8qjx
+    title: Allow adding a description when creating an issue
+    status: open
+  mt-qmfv0us:
+    id: mt-qmfv0us
+    title: Allow setting relationships when an issue is created
+    status: open
+  mt-wpiyjpq:
+    id: mt-wpiyjpq
+    title: Don't put quotes around the title when listing or showing issues
+    status: open

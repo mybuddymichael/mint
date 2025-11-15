@@ -233,6 +233,70 @@ func TestShowCommandNoComments(t *testing.T) {
 	}
 }
 
+func TestShowCommandWithRelationships(t *testing.T) {
+	tmpDir := t.TempDir()
+	filePath := filepath.Join(tmpDir, "mint-issues.yaml")
+	t.Setenv("MINT_STORE_FILE", filePath)
+
+	store, _ := LoadStore(filePath)
+	issue1, _ := store.AddIssue("Main issue")
+	issue2, _ := store.AddIssue("Dependency issue")
+	issue3, _ := store.AddIssue("Blocked issue")
+	_ = store.AddDependency(issue1.ID, issue2.ID)
+	_ = store.AddBlocker(issue1.ID, issue3.ID)
+	_ = store.Save(filePath)
+
+	cmd := newCommand()
+	var buf bytes.Buffer
+	cmd.Writer = &buf
+
+	err := cmd.Run(context.Background(), []string{"mt", "show", issue1.ID})
+	if err != nil {
+		t.Fatalf("show command failed: %v", err)
+	}
+
+	output := buf.String()
+	if !strings.Contains(output, "Depends on:") {
+		t.Errorf("expected output to contain 'Depends on:', got: %s", output)
+	}
+	if !strings.Contains(output, "  "+issue2.ID+" Dependency issue") {
+		t.Errorf("expected output to contain '  %s Dependency issue', got: %s", issue2.ID, output)
+	}
+	if !strings.Contains(output, "Blocks:") {
+		t.Errorf("expected output to contain 'Blocks:', got: %s", output)
+	}
+	if !strings.Contains(output, "  "+issue3.ID+" Blocked issue") {
+		t.Errorf("expected output to contain '  %s Blocked issue', got: %s", issue3.ID, output)
+	}
+}
+
+func TestShowCommandNoRelationships(t *testing.T) {
+	tmpDir := t.TempDir()
+	filePath := filepath.Join(tmpDir, "mint-issues.yaml")
+	t.Setenv("MINT_STORE_FILE", filePath)
+
+	store, _ := LoadStore(filePath)
+	issue, _ := store.AddIssue("Standalone issue")
+	_ = store.Save(filePath)
+
+	cmd := newCommand()
+	var buf bytes.Buffer
+	cmd.Writer = &buf
+
+	err := cmd.Run(context.Background(), []string{"mt", "show", issue.ID})
+	if err != nil {
+		t.Fatalf("show command failed: %v", err)
+	}
+
+	output := buf.String()
+	if strings.Contains(output, "Depends on:") {
+		t.Errorf("expected output NOT to contain 'Depends on:' when no dependencies, got: %s", output)
+	}
+	if strings.Contains(output, "Blocks:") {
+		t.Errorf("expected output NOT to contain 'Blocks:' when no blocks, got: %s", output)
+	}
+}
+
 func TestListCommand(t *testing.T) {
 	tmpDir := t.TempDir()
 	filePath := filepath.Join(tmpDir, "mint-issues.yaml")

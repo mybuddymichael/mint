@@ -196,6 +196,34 @@ func showAction(ctx context.Context, cmd *cli.Command) error {
 			}
 		}
 	}
+	if len(issue.DependsOn) > 0 {
+		if _, err := fmt.Fprintln(w, "Depends on:"); err != nil {
+			return err
+		}
+		for _, depID := range issue.DependsOn {
+			dep, err := store.GetIssue(depID)
+			if err != nil {
+				return err
+			}
+			if _, err := fmt.Fprintf(w, "  %s %s\n", dep.ID, dep.Title); err != nil {
+				return err
+			}
+		}
+	}
+	if len(issue.Blocks) > 0 {
+		if _, err := fmt.Fprintln(w, "Blocks:"); err != nil {
+			return err
+		}
+		for _, blockID := range issue.Blocks {
+			blocked, err := store.GetIssue(blockID)
+			if err != nil {
+				return err
+			}
+			if _, err := fmt.Fprintf(w, "  %s %s\n", blocked.ID, blocked.Title); err != nil {
+				return err
+			}
+		}
+	}
 	return nil
 }
 
