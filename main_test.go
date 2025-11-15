@@ -177,6 +177,62 @@ func TestShowCommandNonExistent(t *testing.T) {
 	}
 }
 
+func TestShowCommandWithComments(t *testing.T) {
+	tmpDir := t.TempDir()
+	filePath := filepath.Join(tmpDir, "mint-issues.yaml")
+	t.Setenv("MINT_STORE_FILE", filePath)
+
+	store, _ := LoadStore(filePath)
+	issue, _ := store.AddIssue("Test issue with comments")
+	_ = store.AddComment(issue.ID, "First comment")
+	_ = store.AddComment(issue.ID, "Second comment")
+	_ = store.Save(filePath)
+
+	cmd := newCommand()
+	var buf bytes.Buffer
+	cmd.Writer = &buf
+
+	err := cmd.Run(context.Background(), []string{"mt", "show", issue.ID})
+	if err != nil {
+		t.Fatalf("show command failed: %v", err)
+	}
+
+	output := buf.String()
+	if !strings.Contains(output, "Comments:") {
+		t.Errorf("expected output to contain 'Comments:', got: %s", output)
+	}
+	if !strings.Contains(output, "  First comment") {
+		t.Errorf("expected output to contain '  First comment', got: %s", output)
+	}
+	if !strings.Contains(output, "  Second comment") {
+		t.Errorf("expected output to contain '  Second comment', got: %s", output)
+	}
+}
+
+func TestShowCommandNoComments(t *testing.T) {
+	tmpDir := t.TempDir()
+	filePath := filepath.Join(tmpDir, "mint-issues.yaml")
+	t.Setenv("MINT_STORE_FILE", filePath)
+
+	store, _ := LoadStore(filePath)
+	issue, _ := store.AddIssue("Test issue without comments")
+	_ = store.Save(filePath)
+
+	cmd := newCommand()
+	var buf bytes.Buffer
+	cmd.Writer = &buf
+
+	err := cmd.Run(context.Background(), []string{"mt", "show", issue.ID})
+	if err != nil {
+		t.Fatalf("show command failed: %v", err)
+	}
+
+	output := buf.String()
+	if strings.Contains(output, "Comments:") {
+		t.Errorf("expected output NOT to contain 'Comments:' when no comments, got: %s", output)
+	}
+}
+
 func TestListCommand(t *testing.T) {
 	tmpDir := t.TempDir()
 	filePath := filepath.Join(tmpDir, "mint-issues.yaml")

@@ -183,8 +183,20 @@ func showAction(ctx context.Context, cmd *cli.Command) error {
 	if _, err := fmt.Fprintf(w, "Title:   \"%s\"\n", issue.Title); err != nil {
 		return err
 	}
-	_, err = fmt.Fprintf(w, "Status:  %s\n", issue.Status)
-	return err
+	if _, err := fmt.Fprintf(w, "Status:  %s\n", issue.Status); err != nil {
+		return err
+	}
+	if len(issue.Comments) > 0 {
+		if _, err := fmt.Fprintln(w, "Comments:"); err != nil {
+			return err
+		}
+		for _, comment := range issue.Comments {
+			if _, err := fmt.Fprintf(w, "  %s\n", comment); err != nil {
+				return err
+			}
+		}
+	}
+	return nil
 }
 
 func updateAction(ctx context.Context, cmd *cli.Command) error {
