@@ -163,6 +163,29 @@ func (s *Store) AddComment(id, comment string) error {
 	return nil
 }
 
+// CloseIssue closes an issue, optionally with a reason
+func (s *Store) CloseIssue(id, reason string) error {
+	issue, err := s.GetIssue(id)
+	if err != nil {
+		return fmt.Errorf("issue not found: %s", id)
+	}
+	issue.Status = "closed"
+	if reason != "" {
+		issue.Comments = append(issue.Comments, fmt.Sprintf("Closed with reason: %s", reason))
+	}
+	return nil
+}
+
+// ReopenIssue reopens a closed issue
+func (s *Store) ReopenIssue(id string) error {
+	issue, err := s.GetIssue(id)
+	if err != nil {
+		return fmt.Errorf("issue not found: %s", id)
+	}
+	issue.Status = "open"
+	return nil
+}
+
 // GetStoreFilePath returns the path to the mint-issues.yaml file
 // Checks MINT_STORE_FILE env var first (for tests)
 // Then looks for .git walking up from current directory

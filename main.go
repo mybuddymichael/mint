@@ -62,6 +62,24 @@ func newCommand() *cli.Command {
 				},
 				Action: updateAction,
 			},
+			{
+				Name:      "close",
+				Usage:     "Close an issue",
+				ArgsUsage: "<issue-id>",
+				Flags: []cli.Flag{
+					&cli.StringFlag{
+						Name:  "reason",
+						Usage: "Reason for closing",
+					},
+				},
+				Action: closeAction,
+			},
+			{
+				Name:      "open",
+				Usage:     "Re-open a closed issue",
+				ArgsUsage: "<issue-id>",
+				Action:    openAction,
+			},
 		},
 	}
 }
@@ -229,5 +247,66 @@ func updateAction(ctx context.Context, cmd *cli.Command) error {
 
 	w := cmd.Root().Writer
 	_, err = fmt.Fprintf(w, "Updated %s\n", id)
+	return err
+}
+
+func closeAction(ctx context.Context, cmd *cli.Command) error {
+	if cmd.Args().Len() == 0 {
+		return fmt.Errorf("issue ID is required")
+	}
+
+	id := cmd.Args().First()
+
+	filePath, err := GetStoreFilePath()
+	if err != nil {
+		return err
+	}
+
+	store, err := LoadStore(filePath)
+	if err != nil {
+		return err
+	}
+
+	reason := cmd.String("reason")
+	if err := store.CloseIssue(id, reason); err != nil {
+		return err
+	}
+
+	if err := store.Save(filePath); err != nil {
+		return err
+	}
+
+	w := cmd.Root().Writer
+	_, err = fmt.Fprintf(w, "Closed issue %s\n", id)
+	return err
+}
+
+func openAction(ctx context.Context, cmd *cli.Command) error {
+	if cmd.Args().Len() == 0 {
+		return fmt.Errorf("issue ID is required")
+	}
+
+	id := cmd.Args().First()
+
+	filePath, err := GetStoreFilePath()
+	if err != nil {
+		return err
+	}
+
+	store, err := LoadStore(filePath)
+	if err != nil {
+		return err
+	}
+
+	if err := store.ReopenIssue(id); err != nil {
+		return err
+	}
+
+	if err := store.Save(filePath); err != nil {
+		return err
+	}
+
+	w := cmd.Root().Writer
+	_, err = fmt.Fprintf(w, "Re-opened issue %s\n", id)
 	return err
 }

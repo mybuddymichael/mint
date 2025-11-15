@@ -231,3 +231,102 @@ func TestStoreAddIssueUnique(t *testing.T) {
 		t.Errorf("expected 100 issues in store, got %d", len(store.Issues))
 	}
 }
+
+func TestStoreCloseIssue(t *testing.T) {
+	store := NewStore()
+	issue, err := store.AddIssue("Test issue")
+	if err != nil {
+		t.Fatalf("AddIssue() failed: %v", err)
+	}
+
+	err = store.CloseIssue(issue.ID, "")
+	if err != nil {
+		t.Fatalf("CloseIssue() failed: %v", err)
+	}
+
+	if issue.Status != "closed" {
+		t.Errorf("expected status 'closed', got '%s'", issue.Status)
+	}
+
+	if len(issue.Comments) != 0 {
+		t.Errorf("expected no comments when closing without reason, got %d", len(issue.Comments))
+	}
+}
+
+func TestStoreCloseIssue_WithReason(t *testing.T) {
+	store := NewStore()
+	issue, err := store.AddIssue("Test issue")
+	if err != nil {
+		t.Fatalf("AddIssue() failed: %v", err)
+	}
+
+	err = store.CloseIssue(issue.ID, "Done")
+	if err != nil {
+		t.Fatalf("CloseIssue() failed: %v", err)
+	}
+
+	if issue.Status != "closed" {
+		t.Errorf("expected status 'closed', got '%s'", issue.Status)
+	}
+
+	if len(issue.Comments) != 1 {
+		t.Fatalf("expected 1 comment, got %d", len(issue.Comments))
+	}
+
+	expectedComment := "Closed with reason: Done"
+	if issue.Comments[0] != expectedComment {
+		t.Errorf("expected comment '%s', got '%s'", expectedComment, issue.Comments[0])
+	}
+}
+
+func TestStoreCloseIssue_NotFound(t *testing.T) {
+	store := NewStore()
+
+	err := store.CloseIssue("mt-nonexistent", "")
+	if err == nil {
+		t.Fatal("expected error when closing nonexistent issue")
+	}
+
+	expectedErr := "issue not found: mt-nonexistent"
+	if err.Error() != expectedErr {
+		t.Errorf("expected error '%s', got '%s'", expectedErr, err.Error())
+	}
+}
+
+func TestStoreReopenIssue(t *testing.T) {
+	store := NewStore()
+	issue, err := store.AddIssue("Test issue")
+	if err != nil {
+		t.Fatalf("AddIssue() failed: %v", err)
+	}
+
+	// Close it first
+	err = store.CloseIssue(issue.ID, "")
+	if err != nil {
+		t.Fatalf("CloseIssue() failed: %v", err)
+	}
+
+	// Now reopen
+	err = store.ReopenIssue(issue.ID)
+	if err != nil {
+		t.Fatalf("ReopenIssue() failed: %v", err)
+	}
+
+	if issue.Status != "open" {
+		t.Errorf("expected status 'open', got '%s'", issue.Status)
+	}
+}
+
+func TestStoreReopenIssue_NotFound(t *testing.T) {
+	store := NewStore()
+
+	err := store.ReopenIssue("mt-nonexistent")
+	if err == nil {
+		t.Fatal("expected error when reopening nonexistent issue")
+	}
+
+	expectedErr := "issue not found: mt-nonexistent"
+	if err.Error() != expectedErr {
+		t.Errorf("expected error '%s', got '%s'", expectedErr, err.Error())
+	}
+}
