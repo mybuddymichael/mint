@@ -88,13 +88,41 @@ func (s *Store) AddIssue(title string) (*Issue, error) {
 	return issue, nil
 }
 
-// GetIssue retrieves an issue by ID
-func (s *Store) GetIssue(id string) (*Issue, error) {
-	issue, exists := s.Issues[id]
-	if !exists {
-		return nil, fmt.Errorf("issue %s not found", id)
+// ResolveIssueID resolves a partial ID to a full ID
+// Returns error if ambiguous or not found
+func (s *Store) ResolveIssueID(partialID string) (string, error) {
+	// Check exact match first
+	if _, exists := s.Issues[partialID]; exists {
+		return partialID, nil
 	}
-	return issue, nil
+
+	// Check for prefix matches
+	var matches []string
+	for id := range s.Issues {
+		if len(id) >= len(partialID) && id[:len(partialID)] == partialID {
+			matches = append(matches, id)
+		}
+	}
+
+	if len(matches) == 0 {
+		return "", fmt.Errorf("issue %s not found", partialID)
+	}
+
+	if len(matches) > 1 {
+		sort.Strings(matches)
+		return "", fmt.Errorf("ambiguous ID %s matches: %v", partialID, matches)
+	}
+
+	return matches[0], nil
+}
+
+// GetIssue retrieves an issue by ID or partial ID
+func (s *Store) GetIssue(id string) (*Issue, error) {
+	resolvedID, err := s.ResolveIssueID(id)
+	if err != nil {
+		return nil, err
+	}
+	return s.Issues[resolvedID], nil
 }
 
 // ListIssues returns all issues sorted by ID

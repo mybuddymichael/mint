@@ -330,3 +330,87 @@ func TestStoreReopenIssue_NotFound(t *testing.T) {
 		t.Errorf("expected error '%s', got '%s'", expectedErr, err.Error())
 	}
 }
+
+func TestStoreResolveIssueID_ExactMatch(t *testing.T) {
+	store := NewStore()
+	store.Issues = map[string]*Issue{
+		"mt-abc123": {ID: "mt-abc123", Title: "First", Status: "open"},
+		"mt-def456": {ID: "mt-def456", Title: "Second", Status: "open"},
+	}
+
+	id, err := store.ResolveIssueID("mt-abc123")
+	if err != nil {
+		t.Fatalf("ResolveIssueID() failed: %v", err)
+	}
+
+	if id != "mt-abc123" {
+		t.Errorf("expected 'mt-abc123', got '%s'", id)
+	}
+}
+
+func TestStoreResolveIssueID_UniquePrefix(t *testing.T) {
+	store := NewStore()
+	store.Issues = map[string]*Issue{
+		"mt-abc123": {ID: "mt-abc123", Title: "First", Status: "open"},
+		"mt-def456": {ID: "mt-def456", Title: "Second", Status: "open"},
+	}
+
+	id, err := store.ResolveIssueID("mt-a")
+	if err != nil {
+		t.Fatalf("ResolveIssueID() failed: %v", err)
+	}
+
+	if id != "mt-abc123" {
+		t.Errorf("expected 'mt-abc123', got '%s'", id)
+	}
+}
+
+func TestStoreResolveIssueID_AmbiguousPrefix(t *testing.T) {
+	store := NewStore()
+	store.Issues = map[string]*Issue{
+		"mt-abc123": {ID: "mt-abc123", Title: "First", Status: "open"},
+		"mt-abc456": {ID: "mt-abc456", Title: "Second", Status: "open"},
+	}
+
+	_, err := store.ResolveIssueID("mt-abc")
+	if err == nil {
+		t.Fatal("expected error for ambiguous prefix")
+	}
+
+	if !strings.Contains(err.Error(), "ambiguous") {
+		t.Errorf("expected error to mention 'ambiguous', got '%s'", err.Error())
+	}
+}
+
+func TestStoreResolveIssueID_NotFound(t *testing.T) {
+	store := NewStore()
+	store.Issues = map[string]*Issue{
+		"mt-abc123": {ID: "mt-abc123", Title: "First", Status: "open"},
+	}
+
+	_, err := store.ResolveIssueID("mt-xyz")
+	if err == nil {
+		t.Fatal("expected error for not found")
+	}
+
+	if !strings.Contains(err.Error(), "not found") {
+		t.Errorf("expected error to mention 'not found', got '%s'", err.Error())
+	}
+}
+
+func TestStoreGetIssue_WithPrefix(t *testing.T) {
+	store := NewStore()
+	store.Issues = map[string]*Issue{
+		"mt-abc123": {ID: "mt-abc123", Title: "First", Status: "open"},
+		"mt-def456": {ID: "mt-def456", Title: "Second", Status: "open"},
+	}
+
+	issue, err := store.GetIssue("mt-a")
+	if err != nil {
+		t.Fatalf("GetIssue() failed: %v", err)
+	}
+
+	if issue.ID != "mt-abc123" {
+		t.Errorf("expected ID 'mt-abc123', got '%s'", issue.ID)
+	}
+}

@@ -15,7 +15,7 @@ issues:
   mt-85zdpgt:
     id: mt-85zdpgt
     title: Show minimum unique ID when listing issues
-    status: open
+    status: closed
     blocks:
     - mt-fwjigoz
     comments:
@@ -26,8 +26,8 @@ issues:
     status: open
   mt-fwjigoz:
     id: mt-fwjigoz
-    title: Allow showing an issue by typing the minimum unique ID
-    status: open
+    title: Allow selecting issues by typing the minimum unique ID
+    status: closed
     depends_on:
     - mt-85zdpgt
   mt-k6yx9is:

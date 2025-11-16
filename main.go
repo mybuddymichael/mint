@@ -145,8 +145,18 @@ func listAction(ctx context.Context, cmd *cli.Command) error {
 		return err
 	}
 
+	// Compute minimum unique prefix lengths
+	ids := make([]string, len(issues))
+	for i, issue := range issues {
+		ids[i] = issue.ID
+	}
+	uniqueLengths := MinUniquePrefixLengths(ids)
+
 	for _, issue := range issues {
-		if _, err := fmt.Fprintf(w, "%s %s \"%s\"\n", issue.ID, issue.Status, issue.Title); err != nil {
+		minLen := uniqueLengths[issue.ID]
+		// Underline the unique prefix portion
+		underlinedID := fmt.Sprintf("\033[4m%s\033[0m%s", issue.ID[:minLen], issue.ID[minLen:])
+		if _, err := fmt.Fprintf(w, "%s %s \"%s\"\n", underlinedID, issue.Status, issue.Title); err != nil {
 			return err
 		}
 	}

@@ -4,9 +4,16 @@ import (
 	"bytes"
 	"context"
 	"path/filepath"
+	"regexp"
 	"strings"
 	"testing"
 )
+
+// stripANSI removes ANSI escape codes from a string
+func stripANSI(s string) string {
+	re := regexp.MustCompile(`\x1b\[[0-9;]*m`)
+	return re.ReplaceAllString(s, "")
+}
 
 func TestCommandName(t *testing.T) {
 	cmd := newCommand()
@@ -343,7 +350,7 @@ func TestListCommand(t *testing.T) {
 		t.Fatalf("list command failed: %v", err)
 	}
 
-	output := buf.String()
+	output := stripANSI(buf.String())
 	if !strings.Contains(output, "All issues:") {
 		t.Errorf("expected output to contain 'All issues:', got: %s", output)
 	}
