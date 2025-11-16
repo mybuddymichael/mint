@@ -438,6 +438,67 @@ func TestListCommandNoFile(t *testing.T) {
 	}
 }
 
+func TestListCommandWithOpenFlag(t *testing.T) {
+	tmpDir := t.TempDir()
+	filePath := filepath.Join(tmpDir, "mint-issues.yaml")
+	t.Setenv("MINT_STORE_FILE", filePath)
+
+	store, _ := LoadStore(filePath)
+	issue1, _ := store.AddIssue("Open issue 1")
+	issue2, _ := store.AddIssue("Closed issue")
+	issue3, _ := store.AddIssue("Open issue 2")
+	_ = store.CloseIssue(issue2.ID, "")
+	_ = store.Save(filePath)
+
+	cmd := newCommand()
+	var buf bytes.Buffer
+	cmd.Writer = &buf
+
+	err := cmd.Run(context.Background(), []string{"mt", "list", "--open"})
+	if err != nil {
+		t.Fatalf("list --open command failed: %v", err)
+	}
+
+	output := stripANSI(buf.String())
+	if !strings.Contains(output, "Open issues:") {
+		t.Errorf("expected output to contain 'Open issues:', got: %s", output)
+	}
+	if !strings.Contains(output, issue1.ID) {
+		t.Errorf("expected output to contain open issue1 %s, got: %s", issue1.ID, output)
+	}
+	if strings.Contains(output, issue2.ID) {
+		t.Errorf("expected output NOT to contain closed issue2 %s, got: %s", issue2.ID, output)
+	}
+	if !strings.Contains(output, issue3.ID) {
+		t.Errorf("expected output to contain open issue3 %s, got: %s", issue3.ID, output)
+	}
+}
+
+func TestListCommandWithOpenFlagEmpty(t *testing.T) {
+	tmpDir := t.TempDir()
+	filePath := filepath.Join(tmpDir, "mint-issues.yaml")
+	t.Setenv("MINT_STORE_FILE", filePath)
+
+	store, _ := LoadStore(filePath)
+	issue, _ := store.AddIssue("Closed issue")
+	_ = store.CloseIssue(issue.ID, "")
+	_ = store.Save(filePath)
+
+	cmd := newCommand()
+	var buf bytes.Buffer
+	cmd.Writer = &buf
+
+	err := cmd.Run(context.Background(), []string{"mt", "list", "--open"})
+	if err != nil {
+		t.Fatalf("list --open command failed: %v", err)
+	}
+
+	output := buf.String()
+	if !strings.Contains(output, "No open issues found.") {
+		t.Errorf("expected output to contain 'No open issues found.', got: %s", output)
+	}
+}
+
 func TestUpdateCommandTitle(t *testing.T) {
 	tmpDir := t.TempDir()
 	filePath := filepath.Join(tmpDir, "mint-issues.yaml")

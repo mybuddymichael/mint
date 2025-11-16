@@ -28,8 +28,14 @@ func newCommand() *cli.Command {
 				Action:    createAction,
 			},
 			{
-				Name:   "list",
-				Usage:  "List all issues",
+				Name:  "list",
+				Usage: "List all issues",
+				Flags: []cli.Flag{
+					&cli.BoolFlag{
+						Name:  "open",
+						Usage: "Only show open issues",
+					},
+				},
 				Action: listAction,
 			},
 			{
@@ -135,13 +141,33 @@ func listAction(ctx context.Context, cmd *cli.Command) error {
 
 	issues := store.ListIssues()
 
-	// Handle empty store
+	// Filter by status if --open flag is set
+	openOnly := cmd.Bool("open")
+	if openOnly {
+		filtered := make([]*Issue, 0)
+		for _, issue := range issues {
+			if issue.Status == "open" {
+				filtered = append(filtered, issue)
+			}
+		}
+		issues = filtered
+	}
+
+	// Handle empty results
 	if len(issues) == 0 {
+		if openOnly {
+			_, err := fmt.Fprintln(w, "No open issues found.")
+			return err
+		}
 		_, err := fmt.Fprintln(w, "No issues found.")
 		return err
 	}
 
-	if _, err := fmt.Fprintln(w, "All issues:"); err != nil {
+	header := "All issues:"
+	if openOnly {
+		header = "Open issues:"
+	}
+	if _, err := fmt.Fprintln(w, header); err != nil {
 		return err
 	}
 

@@ -4,8 +4,13 @@ go = "1.25.3"
 [tasks.test]
 run = "go test ./..."
 
-[tasks.build]
-run = "go build -o /dev/null ."
+# [tasks.build-check]
+# run = "go build -o /dev/null ."
+
+[tasks.build-dev]
+run = "go build -o mt"
+sources = ["**/*.go"]
+outputs = ["mt"]
 
 [tasks.run]
 run = "go run ."
@@ -17,7 +22,9 @@ run = "gofumpt -l -w ."
 run = "golangci-lint run"
 
 [tasks.check]
-depends = ["format", "lint", "test", "build"]
+alias = "c"
+depends = ["format", "lint", "test"]
+depends_post = ["build-dev"]
 
 [tasks.changelog]
 run = "git-cliff -o CHANGELOG.md"

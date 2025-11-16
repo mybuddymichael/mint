@@ -7,7 +7,7 @@ issues:
   mt-5ab8q1f:
     id: mt-5ab8q1f
     title: Show comments with the 'show' subcommand
-    status: open
+    status: closed
   mt-7an7no0:
     id: mt-7an7no0
     title: Show relationships when running 'show' on an issue
@@ -30,6 +30,10 @@ issues:
     status: closed
     depends_on:
     - mt-85zdpgt
+  mt-k3zpw65:
+    id: mt-k3zpw65
+    title: Add a '--open' flag to 'list' to only show open issues
+    status: open
   mt-k6yx9is:
     id: mt-k6yx9is
     title: Add the set-prefix subcommand
@@ -41,6 +45,10 @@ issues:
   mt-qmfv0us:
     id: mt-qmfv0us
     title: Allow setting relationships when an issue is created
+    status: open
+  mt-qoz4u20:
+    id: mt-qoz4u20
+    title: Add 'ready' subcommand
     status: open
   mt-wpiyjpq:
     id: mt-wpiyjpq
