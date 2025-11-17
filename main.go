@@ -86,6 +86,12 @@ func newCommand() *cli.Command {
 				ArgsUsage: "<issue-id>",
 				Action:    openAction,
 			},
+			{
+				Name:      "set-prefix",
+				Usage:     "Change the issue ID prefix",
+				ArgsUsage: "<new-prefix>",
+				Action:    setPrefixAction,
+			},
 		},
 	}
 }
@@ -384,5 +390,35 @@ func openAction(ctx context.Context, cmd *cli.Command) error {
 
 	w := cmd.Root().Writer
 	_, err = fmt.Fprintf(w, "Re-opened issue %s\n", id)
+	return err
+}
+
+func setPrefixAction(ctx context.Context, cmd *cli.Command) error {
+	if cmd.Args().Len() == 0 {
+		return fmt.Errorf("new prefix is required")
+	}
+
+	newPrefix := cmd.Args().First()
+
+	filePath, err := GetStoreFilePath()
+	if err != nil {
+		return err
+	}
+
+	store, err := LoadStore(filePath)
+	if err != nil {
+		return err
+	}
+
+	if err := store.SetPrefix(newPrefix); err != nil {
+		return err
+	}
+
+	if err := store.Save(filePath); err != nil {
+		return err
+	}
+
+	w := cmd.Root().Writer
+	_, err = fmt.Fprintf(w, "Prefix set to \"%s\" and all issues updated\n", newPrefix)
 	return err
 }

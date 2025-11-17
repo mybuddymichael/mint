@@ -5,6 +5,7 @@ import (
 	"os"
 	"path/filepath"
 	"sort"
+	"strings"
 
 	"github.com/goccy/go-yaml"
 )
@@ -28,7 +29,7 @@ type Issue struct {
 // NewStore creates a new store with defaults
 func NewStore() *Store {
 	return &Store{
-		Prefix: "mint-",
+		Prefix: "mint",
 		Issues: make(map[string]*Issue),
 	}
 }
@@ -211,6 +212,48 @@ func (s *Store) ReopenIssue(id string) error {
 		return fmt.Errorf("issue not found: %s", id)
 	}
 	issue.Status = "open"
+	return nil
+}
+
+// SetPrefix changes the store prefix and updates all issue IDs
+func (s *Store) SetPrefix(newPrefix string) error {
+	oldPrefix := s.Prefix
+	newPrefix = strings.TrimSuffix(newPrefix, "-")
+
+	// Build mapping of old ID to new ID
+	idMap := make(map[string]string)
+	for oldID := range s.Issues {
+		// Skip the hyphen separator after old prefix
+		suffix := oldID[len(oldPrefix)+1:]
+		newID := newPrefix + "-" + suffix
+		idMap[oldID] = newID
+	}
+
+	// Create new issues map with updated IDs
+	newIssues := make(map[string]*Issue)
+	for oldID, issue := range s.Issues {
+		newID := idMap[oldID]
+		issue.ID = newID
+
+		// Update DependsOn references
+		for i, depID := range issue.DependsOn {
+			if newDepID, ok := idMap[depID]; ok {
+				issue.DependsOn[i] = newDepID
+			}
+		}
+
+		// Update Blocks references
+		for i, blockID := range issue.Blocks {
+			if newBlockID, ok := idMap[blockID]; ok {
+				issue.Blocks[i] = newBlockID
+			}
+		}
+
+		newIssues[newID] = issue
+	}
+
+	s.Prefix = newPrefix
+	s.Issues = newIssues
 	return nil
 }
 

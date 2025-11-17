@@ -859,3 +859,18 @@ func TestOpenCommand_InvalidID(t *testing.T) {
 		t.Error("expected error when opening non-existent issue")
 	}
 }
+
+func TestSetPrefixCommand_NoPrefix(t *testing.T) {
+	tmpDir := t.TempDir()
+	filePath := filepath.Join(tmpDir, "mint-issues.yaml")
+	t.Setenv("MINT_STORE_FILE", filePath)
+
+	cmd := newCommand()
+	var buf bytes.Buffer
+	cmd.Writer = &buf
+
+	err := cmd.Run(context.Background(), []string{"mint", "set-prefix"})
+	if err == nil {
+		t.Error("expected error when no prefix provided")
+	}
+}

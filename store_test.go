@@ -11,8 +11,8 @@ import (
 func TestNewStore(t *testing.T) {
 	store := NewStore()
 
-	if store.Prefix != "mint-" {
-		t.Errorf("expected default prefix 'mint-', got '%s'", store.Prefix)
+	if store.Prefix != "mint" {
+		t.Errorf("expected default prefix 'mint', got '%s'", store.Prefix)
 	}
 
 	if store.Issues == nil {
@@ -88,8 +88,8 @@ func TestLoadStoreNonExistent(t *testing.T) {
 	}
 
 	// Should return new store with defaults
-	if store.Prefix != "mint-" {
-		t.Errorf("expected default prefix 'mint-', got '%s'", store.Prefix)
+	if store.Prefix != "mint" {
+		t.Errorf("expected default prefix 'mint', got '%s'", store.Prefix)
 	}
 
 	if len(store.Issues) != 0 {
@@ -412,5 +412,126 @@ func TestStoreGetIssue_WithPrefix(t *testing.T) {
 
 	if issue.ID != "mint-abc123" {
 		t.Errorf("expected ID 'mint-abc123', got '%s'", issue.ID)
+	}
+}
+
+func TestStoreSetPrefix(t *testing.T) {
+	store := NewStore()
+	store.Prefix = "old"
+	store.Issues = map[string]*Issue{
+		"old-abc123": {ID: "old-abc123", Title: "First", Status: "open"},
+		"old-def456": {ID: "old-def456", Title: "Second", Status: "open"},
+	}
+
+	err := store.SetPrefix("new")
+	if err != nil {
+		t.Fatalf("SetPrefix() failed: %v", err)
+	}
+
+	if store.Prefix != "new" {
+		t.Errorf("expected prefix 'new', got '%s'", store.Prefix)
+	}
+
+	// Check all IDs were updated
+	if len(store.Issues) != 2 {
+		t.Errorf("expected 2 issues, got %d", len(store.Issues))
+	}
+
+	if _, exists := store.Issues["new-abc123"]; !exists {
+		t.Error("expected 'new-abc123' to exist")
+	}
+
+	if _, exists := store.Issues["new-def456"]; !exists {
+		t.Error("expected 'new-def456' to exist")
+	}
+
+	// Check issue IDs were updated internally
+	if store.Issues["new-abc123"].ID != "new-abc123" {
+		t.Errorf("expected issue ID 'new-abc123', got '%s'", store.Issues["new-abc123"].ID)
+	}
+}
+
+func TestStoreSetPrefix_UpdatesReferences(t *testing.T) {
+	store := NewStore()
+	store.Prefix = "old"
+	store.Issues = map[string]*Issue{
+		"old-abc123": {
+			ID:        "old-abc123",
+			Title:     "First",
+			Status:    "open",
+			DependsOn: []string{"old-def456"},
+		},
+		"old-def456": {
+			ID:     "old-def456",
+			Title:  "Second",
+			Status: "open",
+			Blocks: []string{"old-abc123"},
+		},
+	}
+
+	err := store.SetPrefix("new")
+	if err != nil {
+		t.Fatalf("SetPrefix() failed: %v", err)
+	}
+
+	// Check DependsOn was updated
+	if len(store.Issues["new-abc123"].DependsOn) != 1 {
+		t.Fatalf("expected 1 dependency, got %d", len(store.Issues["new-abc123"].DependsOn))
+	}
+	if store.Issues["new-abc123"].DependsOn[0] != "new-def456" {
+		t.Errorf("expected dependency 'new-def456', got '%s'", store.Issues["new-abc123"].DependsOn[0])
+	}
+
+	// Check Blocks was updated
+	if len(store.Issues["new-def456"].Blocks) != 1 {
+		t.Fatalf("expected 1 blocker, got %d", len(store.Issues["new-def456"].Blocks))
+	}
+	if store.Issues["new-def456"].Blocks[0] != "new-abc123" {
+		t.Errorf("expected blocker 'new-abc123', got '%s'", store.Issues["new-def456"].Blocks[0])
+	}
+}
+
+func TestStoreSetPrefix_NormalizesHyphen(t *testing.T) {
+	store := NewStore()
+	store.Prefix = "old"
+	store.Issues = map[string]*Issue{
+		"old-abc123": {ID: "old-abc123", Title: "First", Status: "open"},
+	}
+
+	// Prefix without hyphen should be stored without hyphen
+	err := store.SetPrefix("mint")
+	if err != nil {
+		t.Fatalf("SetPrefix() failed: %v", err)
+	}
+
+	if store.Prefix != "mint" {
+		t.Errorf("expected prefix 'mint', got '%s'", store.Prefix)
+	}
+
+	// But IDs should have hyphen separator
+	if _, exists := store.Issues["mint-abc123"]; !exists {
+		t.Error("expected 'mint-abc123' to exist")
+	}
+}
+
+func TestStoreSetPrefix_StripsTrailingHyphen(t *testing.T) {
+	store := NewStore()
+	store.Prefix = "old"
+	store.Issues = map[string]*Issue{
+		"old-abc123": {ID: "old-abc123", Title: "First", Status: "open"},
+	}
+
+	// Prefix with hyphen should have hyphen stripped
+	err := store.SetPrefix("mint-")
+	if err != nil {
+		t.Fatalf("SetPrefix() failed: %v", err)
+	}
+
+	if store.Prefix != "mint" {
+		t.Errorf("expected prefix 'mint', got '%s'", store.Prefix)
+	}
+
+	if _, exists := store.Issues["mint-abc123"]; !exists {
+		t.Error("expected 'mint-abc123' to exist")
 	}
 }

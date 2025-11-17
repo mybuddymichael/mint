@@ -6,26 +6,26 @@ import (
 )
 
 func TestGenerateID(t *testing.T) {
-	prefix := "mint-"
+	prefix := "mint"
 	id := GenerateID(prefix)
 
-	// Check format: prefix + 7 characters
-	if !strings.HasPrefix(id, prefix) {
-		t.Errorf("expected ID to start with '%s', got '%s'", prefix, id)
+	// Check format: prefix + hyphen + 7 characters
+	if !strings.HasPrefix(id, prefix+"-") {
+		t.Errorf("expected ID to start with '%s-', got '%s'", prefix, id)
 	}
 
-	expectedLen := len(prefix) + 7
+	expectedLen := len(prefix) + 1 + 7 // prefix + hyphen + nanoid
 	if len(id) != expectedLen {
 		t.Errorf("expected ID length %d, got %d (ID: %s)", expectedLen, len(id), id)
 	}
 }
 
 func TestGenerateIDCustomAlphabet(t *testing.T) {
-	prefix := "mint-"
+	prefix := "mint"
 	id := GenerateID(prefix)
 
-	// Extract the nano ID part (after prefix)
-	nanoID := strings.TrimPrefix(id, prefix)
+	// Extract the nano ID part (after prefix and hyphen)
+	nanoID := strings.TrimPrefix(id, prefix+"-")
 
 	// Verify only lowercase letters and numbers
 	allowedChars := "abcdefghijklmnopqrstuvwxyz0123456789"
@@ -37,7 +37,7 @@ func TestGenerateIDCustomAlphabet(t *testing.T) {
 }
 
 func TestGenerateIDUniqueness(t *testing.T) {
-	prefix := "mint-"
+	prefix := "mint"
 	seen := make(map[string]bool)
 	iterations := 1000
 
@@ -55,14 +55,14 @@ func TestGenerateIDUniqueness(t *testing.T) {
 }
 
 func TestGenerateIDDifferentPrefix(t *testing.T) {
-	prefix := "test-"
+	prefix := "test"
 	id := GenerateID(prefix)
 
-	if !strings.HasPrefix(id, prefix) {
-		t.Errorf("expected ID to start with '%s', got '%s'", prefix, id)
+	if !strings.HasPrefix(id, prefix+"-") {
+		t.Errorf("expected ID to start with '%s-', got '%s'", prefix, id)
 	}
 
-	expectedLen := len(prefix) + 7
+	expectedLen := len(prefix) + 1 + 7 // prefix + hyphen + nanoid
 	if len(id) != expectedLen {
 		t.Errorf("expected ID length %d, got %d", expectedLen, len(id))
 	}

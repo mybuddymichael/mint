@@ -10,12 +10,12 @@ const (
 )
 
 // GenerateID generates a unique ID with the given prefix
-// Example: GenerateID("mint-") -> "mint-xgmx5l6"
+// Example: GenerateID("mint") -> "mint-xgmx5l6"
 func GenerateID(prefix string) string {
 	id, err := gonanoid.Generate(customAlphabet, idLength)
 	if err != nil {
 		// Fallback to default if generation fails (should be rare)
 		panic(err)
 	}
-	return prefix + id
+	return prefix + "-" + id
 }
