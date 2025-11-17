@@ -1,6 +1,6 @@
 # mint
 
-Mint (`mt`) is a (very) simple command line tool to create and track work on a software project.
+Mint (`mint`) is a (very) simple command line tool to create and track work on a software project.
 
 I made it for myself. Other tools (see below) might be a much better solution for you.
 
@@ -18,56 +18,56 @@ The interface might change as better patterns emerge.
 ## Usage
 
 ```bash
-→ mt create "Support closing issues"
-Created issue mt-a8
+→ mint create "Support closing issues"
+Created issue mint-a8
 
-→ mt update mt-a8 --title "Support closing issues with dependencies"
-Updated mt-a8 with new title "Support closing issues with dependencies"
+→ mint update mint-a8 --title "Support closing issues with dependencies"
+Updated mint-a8 with new title "Support closing issues with dependencies"
 
-→ mt update mt-a8 --depends-on mt-j0
-Updated mt-j0 "Add initial code structure"
+→ mint update mint-a8 --depends-on mint-j0
+Updated mint-j0 "Add initial code structure"
   [blocks]
-    mt-a8 "Support closing issues"
+    mint-a8 "Support closing issues"
 
-→ mt update mt-a8 --blocks mt-8G mt-lw
-Updated mt-a8 "Support closing issues"
+→ mint update mint-a8 --blocks mint-8G mint-lw
+Updated mint-a8 "Support closing issues"
   [blocks]
-    mt-8G "Write tests for closing issues"
-    mt-lw "Update README for closing issues"
+    mint-8G "Write tests for closing issues"
+    mint-lw "Update README for closing issues"
 
-→ mt show mt-a8
-ID: mt-a8
+→ mint show mint-a8
+ID: mint-a8
 Title: Support closing issues
 Status: open
 Depends on:
-  mt-j0 "Add initial code structure"
+  mint-j0 "Add initial code structure"
 Blocks:
-  mt-8G "Write tests for closing issues"
+  mint-8G "Write tests for closing issues"
 
-→ mt list
+→ mint list
 All issues:
-mt-8G open "Write tests for closing issues"
-mt-a8 open "Support closing issues"
-mt-j0 open "Add initial code structure"
-mt-lw open "Update README for closing issues"
+mint-8G open "Write tests for closing issues"
+mint-a8 open "Support closing issues"
+mint-j0 open "Add initial code structure"
+mint-lw open "Update README for closing issues"
 
-→ mt ready
+→ mint ready
 Issues with no blockers:
-mt-j0 "Add initial code structure"
+mint-j0 "Add initial code structure"
 
-→ mt update mt-a8 --comment "The problem is in main.go:123."
-Added a comment to issue mt-a8 with text "The problem is in main.go:123."
+→ mint update mint-a8 --comment "The problem is in main.go:123."
+Added a comment to issue mint-a8 with text "The problem is in main.go:123."
 
-→ mt close mt-a8 --reason "Done"
-Closed issue mt-a8 with reason "Done"
+→ mint close mint-a8 --reason "Done"
+Closed issue mint-a8 with reason "Done"
 
-→ mt open mt-a8
-Re-opened issue mt-a8
+→ mint open mint-a8
+Re-opened issue mint-a8
 
-→ mt delete mt-a8
-Deleted issue mt-a8
+→ mint delete mint-a8
+Deleted issue mint-a8
 
-→ mt set-prefix am
+→ mint set-prefix am
 Prefix set to "am" and all issues updated
 ```
 
@@ -83,7 +83,7 @@ Add something like this to your agent markdown file:
 
 ```markdown
 ## Issue tracking
-This project uses Mint exclusively to track and manage issues. Run `mt help` to see how to use it.
+This project uses Mint exclusively to track and manage issues. Run `mint help` to see how to use it.
 ```
 
 ## Stack

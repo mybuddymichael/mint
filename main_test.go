@@ -17,8 +17,8 @@ func stripANSI(s string) string {
 
 func TestCommandName(t *testing.T) {
 	cmd := newCommand()
-	if cmd.Name != "mt" {
-		t.Errorf("expected command name 'mt', got '%s'", cmd.Name)
+	if cmd.Name != "mint" {
+		t.Errorf("expected command name 'mint', got '%s'", cmd.Name)
 	}
 }
 
@@ -27,7 +27,7 @@ func TestCommandRuns(t *testing.T) {
 	var buf bytes.Buffer
 	cmd.Writer = &buf
 
-	err := cmd.Run(context.Background(), []string{"mt"})
+	err := cmd.Run(context.Background(), []string{"mint"})
 	if err != nil {
 		t.Errorf("cmd.Run() returned error: %v", err)
 	}
@@ -42,7 +42,7 @@ func TestCommandHelp(t *testing.T) {
 	var buf bytes.Buffer
 	cmd.Writer = &buf
 
-	err := cmd.Run(context.Background(), []string{"mt", "--help"})
+	err := cmd.Run(context.Background(), []string{"mint", "--help"})
 	if err != nil {
 		t.Errorf("cmd.Run() with --help returned error: %v", err)
 	}
@@ -64,14 +64,14 @@ func TestCreateCommand(t *testing.T) {
 	// Set the store file path for this test
 	t.Setenv("MINT_STORE_FILE", filePath)
 
-	err := cmd.Run(context.Background(), []string{"mt", "create", "Test issue"})
+	err := cmd.Run(context.Background(), []string{"mint", "create", "Test issue"})
 	if err != nil {
 		t.Fatalf("create command failed: %v", err)
 	}
 
 	output := buf.String()
-	if !strings.Contains(output, "Created issue mt-") {
-		t.Errorf("expected output to contain 'Created issue mt-', got: %s", output)
+	if !strings.Contains(output, "Created issue mint-") {
+		t.Errorf("expected output to contain 'Created issue mint-', got: %s", output)
 	}
 
 	// Verify the issue was saved
@@ -104,8 +104,8 @@ func TestCreateCommand(t *testing.T) {
 		t.Errorf("expected status 'open', got '%s'", issue.Status)
 	}
 
-	if !strings.HasPrefix(issue.ID, "mt-") {
-		t.Errorf("expected ID to start with 'mt-', got '%s'", issue.ID)
+	if !strings.HasPrefix(issue.ID, "mint-") {
+		t.Errorf("expected ID to start with 'mint-', got '%s'", issue.ID)
 	}
 }
 
@@ -119,7 +119,7 @@ func TestCreateCommandNoTitle(t *testing.T) {
 
 	t.Setenv("MINT_STORE_FILE", filePath)
 
-	err := cmd.Run(context.Background(), []string{"mt", "create"})
+	err := cmd.Run(context.Background(), []string{"mint", "create"})
 	if err == nil {
 		t.Error("expected error when no title provided")
 	}
@@ -151,7 +151,7 @@ func TestShowCommand(t *testing.T) {
 	var buf bytes.Buffer
 	cmd.Writer = &buf
 
-	err = cmd.Run(context.Background(), []string{"mt", "show", issue.ID})
+	err = cmd.Run(context.Background(), []string{"mint", "show", issue.ID})
 	if err != nil {
 		t.Fatalf("show command failed: %v", err)
 	}
@@ -178,7 +178,7 @@ func TestShowCommandNonExistent(t *testing.T) {
 
 	t.Setenv("MINT_STORE_FILE", filePath)
 
-	err := cmd.Run(context.Background(), []string{"mt", "show", "mt-nonexistent"})
+	err := cmd.Run(context.Background(), []string{"mint", "show", "mint-nonexistent"})
 	if err == nil {
 		t.Error("expected error when showing non-existent issue")
 	}
@@ -199,7 +199,7 @@ func TestShowCommandWithComments(t *testing.T) {
 	var buf bytes.Buffer
 	cmd.Writer = &buf
 
-	err := cmd.Run(context.Background(), []string{"mt", "show", issue.ID})
+	err := cmd.Run(context.Background(), []string{"mint", "show", issue.ID})
 	if err != nil {
 		t.Fatalf("show command failed: %v", err)
 	}
@@ -229,7 +229,7 @@ func TestShowCommandNoComments(t *testing.T) {
 	var buf bytes.Buffer
 	cmd.Writer = &buf
 
-	err := cmd.Run(context.Background(), []string{"mt", "show", issue.ID})
+	err := cmd.Run(context.Background(), []string{"mint", "show", issue.ID})
 	if err != nil {
 		t.Fatalf("show command failed: %v", err)
 	}
@@ -257,7 +257,7 @@ func TestShowCommandWithRelationships(t *testing.T) {
 	var buf bytes.Buffer
 	cmd.Writer = &buf
 
-	err := cmd.Run(context.Background(), []string{"mt", "show", issue1.ID})
+	err := cmd.Run(context.Background(), []string{"mint", "show", issue1.ID})
 	if err != nil {
 		t.Fatalf("show command failed: %v", err)
 	}
@@ -290,7 +290,7 @@ func TestShowCommandNoRelationships(t *testing.T) {
 	var buf bytes.Buffer
 	cmd.Writer = &buf
 
-	err := cmd.Run(context.Background(), []string{"mt", "show", issue.ID})
+	err := cmd.Run(context.Background(), []string{"mint", "show", issue.ID})
 	if err != nil {
 		t.Fatalf("show command failed: %v", err)
 	}
@@ -345,7 +345,7 @@ func TestListCommand(t *testing.T) {
 	var buf bytes.Buffer
 	cmd.Writer = &buf
 
-	err = cmd.Run(context.Background(), []string{"mt", "list"})
+	err = cmd.Run(context.Background(), []string{"mint", "list"})
 	if err != nil {
 		t.Fatalf("list command failed: %v", err)
 	}
@@ -404,7 +404,7 @@ func TestListCommandEmpty(t *testing.T) {
 	var buf bytes.Buffer
 	cmd.Writer = &buf
 
-	err := cmd.Run(context.Background(), []string{"mt", "list"})
+	err := cmd.Run(context.Background(), []string{"mint", "list"})
 	if err != nil {
 		t.Fatalf("list command failed on empty store: %v", err)
 	}
@@ -426,7 +426,7 @@ func TestListCommandNoFile(t *testing.T) {
 	var buf bytes.Buffer
 	cmd.Writer = &buf
 
-	err := cmd.Run(context.Background(), []string{"mt", "list"})
+	err := cmd.Run(context.Background(), []string{"mint", "list"})
 	if err != nil {
 		t.Fatalf("list command failed when no file exists: %v", err)
 	}
@@ -454,7 +454,7 @@ func TestListCommandWithOpenFlag(t *testing.T) {
 	var buf bytes.Buffer
 	cmd.Writer = &buf
 
-	err := cmd.Run(context.Background(), []string{"mt", "list", "--open"})
+	err := cmd.Run(context.Background(), []string{"mint", "list", "--open"})
 	if err != nil {
 		t.Fatalf("list --open command failed: %v", err)
 	}
@@ -488,7 +488,7 @@ func TestListCommandWithOpenFlagEmpty(t *testing.T) {
 	var buf bytes.Buffer
 	cmd.Writer = &buf
 
-	err := cmd.Run(context.Background(), []string{"mt", "list", "--open"})
+	err := cmd.Run(context.Background(), []string{"mint", "list", "--open"})
 	if err != nil {
 		t.Fatalf("list --open command failed: %v", err)
 	}
@@ -512,7 +512,7 @@ func TestUpdateCommandTitle(t *testing.T) {
 	var buf bytes.Buffer
 	cmd.Writer = &buf
 
-	err := cmd.Run(context.Background(), []string{"mt", "update", issue.ID, "--title", "New title"})
+	err := cmd.Run(context.Background(), []string{"mint", "update", issue.ID, "--title", "New title"})
 	if err != nil {
 		t.Fatalf("update command failed: %v", err)
 	}
@@ -539,7 +539,7 @@ func TestUpdateCommandDependsOn(t *testing.T) {
 	var buf bytes.Buffer
 	cmd.Writer = &buf
 
-	err := cmd.Run(context.Background(), []string{"mt", "update", issue1.ID, "--depends-on", issue2.ID})
+	err := cmd.Run(context.Background(), []string{"mint", "update", issue1.ID, "--depends-on", issue2.ID})
 	if err != nil {
 		t.Fatalf("update command failed: %v", err)
 	}
@@ -572,7 +572,7 @@ func TestUpdateCommandBlocks(t *testing.T) {
 	var buf bytes.Buffer
 	cmd.Writer = &buf
 
-	err := cmd.Run(context.Background(), []string{"mt", "update", issue1.ID, "--blocks", issue2.ID, "--blocks", issue3.ID})
+	err := cmd.Run(context.Background(), []string{"mint", "update", issue1.ID, "--blocks", issue2.ID, "--blocks", issue3.ID})
 	if err != nil {
 		t.Fatalf("update command failed: %v", err)
 	}
@@ -608,7 +608,7 @@ func TestUpdateCommandComment(t *testing.T) {
 	var buf bytes.Buffer
 	cmd.Writer = &buf
 
-	err := cmd.Run(context.Background(), []string{"mt", "update", issue.ID, "--comment", "Test comment"})
+	err := cmd.Run(context.Background(), []string{"mint", "update", issue.ID, "--comment", "Test comment"})
 	if err != nil {
 		t.Fatalf("update command failed: %v", err)
 	}
@@ -635,7 +635,7 @@ func TestUpdateCommandMultipleFlags(t *testing.T) {
 	var buf bytes.Buffer
 	cmd.Writer = &buf
 
-	err := cmd.Run(context.Background(), []string{"mt", "update", issue1.ID, "--title", "Updated", "--depends-on", issue2.ID, "--comment", "Done"})
+	err := cmd.Run(context.Background(), []string{"mint", "update", issue1.ID, "--title", "Updated", "--depends-on", issue2.ID, "--comment", "Done"})
 	if err != nil {
 		t.Fatalf("update command failed: %v", err)
 	}
@@ -663,7 +663,7 @@ func TestUpdateCommandNoID(t *testing.T) {
 	var buf bytes.Buffer
 	cmd.Writer = &buf
 
-	err := cmd.Run(context.Background(), []string{"mt", "update", "--title", "New title"})
+	err := cmd.Run(context.Background(), []string{"mint", "update", "--title", "New title"})
 	if err == nil {
 		t.Error("expected error when no issue ID provided")
 	}
@@ -681,7 +681,7 @@ func TestUpdateCommandInvalidID(t *testing.T) {
 	var buf bytes.Buffer
 	cmd.Writer = &buf
 
-	err := cmd.Run(context.Background(), []string{"mt", "update", "mt-invalid", "--title", "New title"})
+	err := cmd.Run(context.Background(), []string{"mint", "update", "mint-invalid", "--title", "New title"})
 	if err == nil {
 		t.Error("expected error when updating non-existent issue")
 	}
@@ -700,7 +700,7 @@ func TestCloseCommand(t *testing.T) {
 	var buf bytes.Buffer
 	cmd.Writer = &buf
 
-	err := cmd.Run(context.Background(), []string{"mt", "close", issue.ID})
+	err := cmd.Run(context.Background(), []string{"mint", "close", issue.ID})
 	if err != nil {
 		t.Fatalf("close command failed: %v", err)
 	}
@@ -735,7 +735,7 @@ func TestCloseCommand_WithReason(t *testing.T) {
 	var buf bytes.Buffer
 	cmd.Writer = &buf
 
-	err := cmd.Run(context.Background(), []string{"mt", "close", issue.ID, "--reason", "Done"})
+	err := cmd.Run(context.Background(), []string{"mint", "close", issue.ID, "--reason", "Done"})
 	if err != nil {
 		t.Fatalf("close command failed: %v", err)
 	}
@@ -771,7 +771,7 @@ func TestCloseCommand_NoID(t *testing.T) {
 	var buf bytes.Buffer
 	cmd.Writer = &buf
 
-	err := cmd.Run(context.Background(), []string{"mt", "close"})
+	err := cmd.Run(context.Background(), []string{"mint", "close"})
 	if err == nil {
 		t.Error("expected error when no issue ID provided")
 	}
@@ -789,7 +789,7 @@ func TestCloseCommand_InvalidID(t *testing.T) {
 	var buf bytes.Buffer
 	cmd.Writer = &buf
 
-	err := cmd.Run(context.Background(), []string{"mt", "close", "mt-invalid"})
+	err := cmd.Run(context.Background(), []string{"mint", "close", "mint-invalid"})
 	if err == nil {
 		t.Error("expected error when closing non-existent issue")
 	}
@@ -809,7 +809,7 @@ func TestOpenCommand(t *testing.T) {
 	var buf bytes.Buffer
 	cmd.Writer = &buf
 
-	err := cmd.Run(context.Background(), []string{"mt", "open", issue.ID})
+	err := cmd.Run(context.Background(), []string{"mint", "open", issue.ID})
 	if err != nil {
 		t.Fatalf("open command failed: %v", err)
 	}
@@ -836,7 +836,7 @@ func TestOpenCommand_NoID(t *testing.T) {
 	var buf bytes.Buffer
 	cmd.Writer = &buf
 
-	err := cmd.Run(context.Background(), []string{"mt", "open"})
+	err := cmd.Run(context.Background(), []string{"mint", "open"})
 	if err == nil {
 		t.Error("expected error when no issue ID provided")
 	}
@@ -854,7 +854,7 @@ func TestOpenCommand_InvalidID(t *testing.T) {
 	var buf bytes.Buffer
 	cmd.Writer = &buf
 
-	err := cmd.Run(context.Background(), []string{"mt", "open", "mt-invalid"})
+	err := cmd.Run(context.Background(), []string{"mint", "open", "mint-invalid"})
 	if err == nil {
 		t.Error("expected error when opening non-existent issue")
 	}

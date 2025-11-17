@@ -8,9 +8,9 @@ run = "go test ./..."
 # run = "go build -o /dev/null ."
 
 [tasks.build-dev]
-run = "go build -o mt"
+run = "go build -o mint"
 sources = ["**/*.go"]
-outputs = ["mt"]
+outputs = ["mint"]
 
 [tasks.run]
 run = "go run ."

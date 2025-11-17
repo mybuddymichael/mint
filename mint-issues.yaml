@@ -20,6 +20,10 @@ issues:
     - mt-fwjigoz
     comments:
     - When listing all issues, we should highlight the part of the issue that is uniquely identifying, i.e. the part of the ID that the user would need to type to uniquely identify the issue. If there are two issues, mt-8a9jfnd and mt-8afj0qn, then mt-8a9 and mt-8af are enough to uniquely identify them. We should figure that out and highlight that part of the issue.
+  mt-avvjkxz:
+    id: mt-avvjkxz
+    title: Change all references of 'mt' to 'mint'
+    status: open
   mt-cufovp7:
     id: mt-cufovp7
     title: Allow 'add' as an alias for the 'create' subcommand

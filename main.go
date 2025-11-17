@@ -18,7 +18,7 @@ func main() {
 
 func newCommand() *cli.Command {
 	return &cli.Command{
-		Name:  "mt",
+		Name:  "mint",
 		Usage: "A simple command line tool to create and track work.",
 		Commands: []*cli.Command{
 			{

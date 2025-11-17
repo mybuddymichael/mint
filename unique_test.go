@@ -12,23 +12,23 @@ func TestMinUniquePrefixLengths(t *testing.T) {
 	}{
 		{
 			name: "single ID",
-			ids:  []string{"mt-abc123"},
-			want: map[string]int{"mt-abc123": 1},
+			ids:  []string{"mint-abc123"},
+			want: map[string]int{"mint-abc123": 1},
 		},
 		{
 			name: "two IDs different start",
-			ids:  []string{"mt-abc123", "mt-xyz789"},
-			want: map[string]int{"mt-abc123": 4, "mt-xyz789": 4},
+			ids:  []string{"mint-abc123", "mint-xyz789"},
+			want: map[string]int{"mint-abc123": 6, "mint-xyz789": 6},
 		},
 		{
 			name: "two IDs common prefix",
-			ids:  []string{"mt-8a9jfnd", "mt-8afj0qn"},
-			want: map[string]int{"mt-8a9jfnd": 6, "mt-8afj0qn": 6},
+			ids:  []string{"mint-8a9jfnd", "mint-8afj0qn"},
+			want: map[string]int{"mint-8a9jfnd": 8, "mint-8afj0qn": 8},
 		},
 		{
 			name: "three IDs varying prefixes",
-			ids:  []string{"mt-abc", "mt-abd", "mt-xyz"},
-			want: map[string]int{"mt-abc": 6, "mt-abd": 6, "mt-xyz": 4},
+			ids:  []string{"mint-abc", "mint-abd", "mint-xyz"},
+			want: map[string]int{"mint-abc": 8, "mint-abd": 8, "mint-xyz": 6},
 		},
 		{
 			name: "empty list",

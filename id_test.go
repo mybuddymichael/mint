@@ -6,7 +6,7 @@ import (
 )
 
 func TestGenerateID(t *testing.T) {
-	prefix := "mt-"
+	prefix := "mint-"
 	id := GenerateID(prefix)
 
 	// Check format: prefix + 7 characters
@@ -21,7 +21,7 @@ func TestGenerateID(t *testing.T) {
 }
 
 func TestGenerateIDCustomAlphabet(t *testing.T) {
-	prefix := "mt-"
+	prefix := "mint-"
 	id := GenerateID(prefix)
 
 	// Extract the nano ID part (after prefix)
@@ -37,7 +37,7 @@ func TestGenerateIDCustomAlphabet(t *testing.T) {
 }
 
 func TestGenerateIDUniqueness(t *testing.T) {
-	prefix := "mt-"
+	prefix := "mint-"
 	seen := make(map[string]bool)
 	iterations := 1000
 

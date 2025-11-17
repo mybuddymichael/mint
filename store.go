@@ -28,7 +28,7 @@ type Issue struct {
 // NewStore creates a new store with defaults
 func NewStore() *Store {
 	return &Store{
-		Prefix: "mt-",
+		Prefix: "mint-",
 		Issues: make(map[string]*Issue),
 	}
 }
