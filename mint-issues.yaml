@@ -22,6 +22,10 @@ issues:
     id: mint-7d04s1s
     title: Remove timestamps from error messages
     status: open
+  mint-87x5oz8:
+    id: mint-87x5oz8
+    title: Make formatting nicer when listing issues
+    status: open
   mint-ab8q1f:
     id: mint-ab8q1f
     title: Show comments with the 'show' subcommand

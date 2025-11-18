@@ -419,40 +419,15 @@ func TestListCommand(t *testing.T) {
 	}
 
 	output := stripANSI(buf.String())
-	if !strings.Contains(output, "All issues:") {
-		t.Errorf("expected output to contain 'All issues:', got: %s", output)
-	}
 
-	if !strings.Contains(output, issue1.ID+" open First issue") {
-		t.Errorf("expected output to contain issue1 with open status, got: %s", output)
+	if !strings.Contains(output, "   "+issue1.ID+" open First issue") {
+		t.Errorf("expected output to contain issue1 with open status and 3-space indent, got: %s", output)
 	}
-	if !strings.Contains(output, issue2.ID+" closed Second issue") {
-		t.Errorf("expected output to contain issue2 with closed status, got: %s", output)
+	if !strings.Contains(output, "   "+issue2.ID+" closed Second issue") {
+		t.Errorf("expected output to contain issue2 with closed status and 3-space indent, got: %s", output)
 	}
-	if !strings.Contains(output, issue3.ID+" open Third issue") {
-		t.Errorf("expected output to contain issue3 with open status, got: %s", output)
-	}
-
-	// Verify issues are sorted by ID
-	lines := strings.Split(strings.TrimSpace(output), "\n")
-	if len(lines) != 4 {
-		t.Fatalf("expected 4 lines of output, got %d", len(lines))
-	}
-
-	// Extract IDs from output lines (skip "All issues:" header)
-	var outputIDs []string
-	for i := 1; i < len(lines); i++ {
-		parts := strings.SplitN(lines[i], " ", 2)
-		if len(parts) > 0 {
-			outputIDs = append(outputIDs, parts[0])
-		}
-	}
-
-	// Verify sorted
-	for i := 1; i < len(outputIDs); i++ {
-		if outputIDs[i-1] >= outputIDs[i] {
-			t.Errorf("IDs not sorted: %s >= %s", outputIDs[i-1], outputIDs[i])
-		}
+	if !strings.Contains(output, "   "+issue3.ID+" open Third issue") {
+		t.Errorf("expected output to contain issue3 with open status and 3-space indent, got: %s", output)
 	}
 }
 
@@ -527,18 +502,20 @@ func TestListCommandWithOpenFlag(t *testing.T) {
 		t.Fatalf("list --open command failed: %v", err)
 	}
 
-	output := stripANSI(buf.String())
-	if !strings.Contains(output, "Open issues:") {
-		t.Errorf("expected output to contain 'Open issues:', got: %s", output)
+	output := buf.String()
+	strippedOutput := stripANSI(output)
+
+	if !strings.Contains(output, " OPEN ") {
+		t.Errorf("expected output to contain ' OPEN ' header, got: %s", output)
 	}
-	if !strings.Contains(output, issue1.ID) {
-		t.Errorf("expected output to contain open issue1 %s, got: %s", issue1.ID, output)
+	if !strings.Contains(strippedOutput, "   "+issue1.ID) {
+		t.Errorf("expected output to contain open issue1 %s with 3-space indent, got: %s", issue1.ID, strippedOutput)
 	}
-	if strings.Contains(output, issue2.ID) {
-		t.Errorf("expected output NOT to contain closed issue2 %s, got: %s", issue2.ID, output)
+	if strings.Contains(strippedOutput, issue2.ID) {
+		t.Errorf("expected output NOT to contain closed issue2 %s, got: %s", issue2.ID, strippedOutput)
 	}
-	if !strings.Contains(output, issue3.ID) {
-		t.Errorf("expected output to contain open issue3 %s, got: %s", issue3.ID, output)
+	if !strings.Contains(strippedOutput, "   "+issue3.ID) {
+		t.Errorf("expected output to contain open issue3 %s with 3-space indent, got: %s", issue3.ID, strippedOutput)
 	}
 }
 
@@ -562,8 +539,13 @@ func TestListCommandWithOpenFlagEmpty(t *testing.T) {
 	}
 
 	output := buf.String()
-	if !strings.Contains(output, "No open issues found.") {
-		t.Errorf("expected output to contain 'No open issues found.', got: %s", output)
+	strippedOutput := stripANSI(output)
+
+	if !strings.Contains(output, " OPEN ") {
+		t.Errorf("expected output to contain ' OPEN ' header, got: %s", output)
+	}
+	if !strings.Contains(strippedOutput, "   (No open issues.)") {
+		t.Errorf("expected output to contain '   (No open issues.)', got: %s", strippedOutput)
 	}
 }
 
@@ -1019,5 +1001,301 @@ func TestOpenCommand_PartialID(t *testing.T) {
 	output := stripANSI(buf.String())
 	if !strings.Contains(output, "Re-opened issue "+issue.ID) {
 		t.Errorf("expected output to contain 'Re-opened issue %s' (full ID), got: %s", issue.ID, output)
+	}
+}
+
+func TestListCommandGroupedByStatus(t *testing.T) {
+	tmpDir := t.TempDir()
+	filePath := filepath.Join(tmpDir, "mint-issues.yaml")
+	t.Setenv("MINT_STORE_FILE", filePath)
+
+	store, _ := LoadStore(filePath)
+	issue1, _ := store.AddIssue("Open issue 1")
+	issue2, _ := store.AddIssue("Closed issue 1")
+	issue3, _ := store.AddIssue("Open issue 2")
+	issue4, _ := store.AddIssue("Closed issue 2")
+	_ = store.CloseIssue(issue2.ID, "")
+	_ = store.CloseIssue(issue4.ID, "")
+	_ = store.Save(filePath)
+
+	cmd := newCommand()
+	var buf bytes.Buffer
+	cmd.Writer = &buf
+
+	err := cmd.Run(context.Background(), []string{"mint", "list"})
+	if err != nil {
+		t.Fatalf("list command failed: %v", err)
+	}
+
+	output := buf.String()
+	strippedOutput := stripANSI(output)
+
+	// Check for OPEN header
+	if !strings.Contains(output, " OPEN ") {
+		t.Error("expected output to contain ' OPEN ' header")
+	}
+
+	// Check for CLOSED header
+	if !strings.Contains(output, " CLOSED ") {
+		t.Error("expected output to contain ' CLOSED ' header")
+	}
+
+	// Check that open issues are under OPEN section with 3-space indent
+	if !strings.Contains(strippedOutput, "   "+issue1.ID) {
+		t.Errorf("expected open issue1 to be indented with 3 spaces, got: %s", strippedOutput)
+	}
+	if !strings.Contains(strippedOutput, "   "+issue3.ID) {
+		t.Errorf("expected open issue3 to be indented with 3 spaces, got: %s", strippedOutput)
+	}
+
+	// Check that closed issues are under CLOSED section with 3-space indent
+	if !strings.Contains(strippedOutput, "   "+issue2.ID) {
+		t.Errorf("expected closed issue2 to be indented with 3 spaces, got: %s", strippedOutput)
+	}
+	if !strings.Contains(strippedOutput, "   "+issue4.ID) {
+		t.Errorf("expected closed issue4 to be indented with 3 spaces, got: %s", strippedOutput)
+	}
+
+	// Verify order: OPEN section comes before CLOSED section
+	openIdx := strings.Index(strippedOutput, "OPEN")
+	closedIdx := strings.Index(strippedOutput, "CLOSED")
+	if openIdx == -1 || closedIdx == -1 || openIdx >= closedIdx {
+		t.Error("expected OPEN section to appear before CLOSED section")
+	}
+}
+
+func TestListCommandEmptyOpenSection(t *testing.T) {
+	tmpDir := t.TempDir()
+	filePath := filepath.Join(tmpDir, "mint-issues.yaml")
+	t.Setenv("MINT_STORE_FILE", filePath)
+
+	store, _ := LoadStore(filePath)
+	issue, _ := store.AddIssue("Closed issue")
+	_ = store.CloseIssue(issue.ID, "")
+	_ = store.Save(filePath)
+
+	cmd := newCommand()
+	var buf bytes.Buffer
+	cmd.Writer = &buf
+
+	err := cmd.Run(context.Background(), []string{"mint", "list"})
+	if err != nil {
+		t.Fatalf("list command failed: %v", err)
+	}
+
+	output := buf.String()
+	strippedOutput := stripANSI(output)
+
+	// Check for OPEN header
+	if !strings.Contains(output, " OPEN ") {
+		t.Error("expected output to contain ' OPEN ' header even when empty")
+	}
+
+	// Check for "(No open issues.)" message with 3-space indent
+	if !strings.Contains(strippedOutput, "   (No open issues.)") {
+		t.Errorf("expected '   (No open issues.)' when no open issues, got: %s", strippedOutput)
+	}
+
+	// Check that closed issue is shown
+	if !strings.Contains(strippedOutput, "   "+issue.ID) {
+		t.Errorf("expected closed issue to be shown, got: %s", strippedOutput)
+	}
+}
+
+func TestListCommandEmptyClosedSection(t *testing.T) {
+	tmpDir := t.TempDir()
+	filePath := filepath.Join(tmpDir, "mint-issues.yaml")
+	t.Setenv("MINT_STORE_FILE", filePath)
+
+	store, _ := LoadStore(filePath)
+	issue, _ := store.AddIssue("Open issue")
+	_ = store.Save(filePath)
+
+	cmd := newCommand()
+	var buf bytes.Buffer
+	cmd.Writer = &buf
+
+	err := cmd.Run(context.Background(), []string{"mint", "list"})
+	if err != nil {
+		t.Fatalf("list command failed: %v", err)
+	}
+
+	output := buf.String()
+	strippedOutput := stripANSI(output)
+
+	// Check for CLOSED header
+	if !strings.Contains(output, " CLOSED ") {
+		t.Error("expected output to contain ' CLOSED ' header even when empty")
+	}
+
+	// Check for "(No closed issues.)" message with 3-space indent
+	if !strings.Contains(strippedOutput, "   (No closed issues.)") {
+		t.Errorf("expected '   (No closed issues.)' when no closed issues, got: %s", strippedOutput)
+	}
+
+	// Check that open issue is shown
+	if !strings.Contains(strippedOutput, "   "+issue.ID) {
+		t.Errorf("expected open issue to be shown, got: %s", strippedOutput)
+	}
+}
+
+func TestListCommandGroupedWithOpenFlag(t *testing.T) {
+	tmpDir := t.TempDir()
+	filePath := filepath.Join(tmpDir, "mint-issues.yaml")
+	t.Setenv("MINT_STORE_FILE", filePath)
+
+	store, _ := LoadStore(filePath)
+	issue1, _ := store.AddIssue("Open issue")
+	issue2, _ := store.AddIssue("Closed issue")
+	_ = store.CloseIssue(issue2.ID, "")
+	_ = store.Save(filePath)
+
+	cmd := newCommand()
+	var buf bytes.Buffer
+	cmd.Writer = &buf
+
+	err := cmd.Run(context.Background(), []string{"mint", "list", "--open"})
+	if err != nil {
+		t.Fatalf("list --open command failed: %v", err)
+	}
+
+	output := buf.String()
+	strippedOutput := stripANSI(output)
+
+	// Should show OPEN header
+	if !strings.Contains(output, " OPEN ") {
+		t.Error("expected output to contain ' OPEN ' header")
+	}
+
+	// Should NOT show CLOSED header
+	if strings.Contains(output, " CLOSED ") {
+		t.Error("expected output NOT to contain ' CLOSED ' header when using --open flag")
+	}
+
+	// Should show open issue
+	if !strings.Contains(strippedOutput, "   "+issue1.ID) {
+		t.Errorf("expected open issue to be shown with 3-space indent, got: %s", strippedOutput)
+	}
+
+	// Should NOT show closed issue
+	if strings.Contains(strippedOutput, issue2.ID) {
+		t.Errorf("expected closed issue NOT to be shown, got: %s", strippedOutput)
+	}
+}
+
+func TestListCommandGroupedWithOpenFlagEmpty(t *testing.T) {
+	tmpDir := t.TempDir()
+	filePath := filepath.Join(tmpDir, "mint-issues.yaml")
+	t.Setenv("MINT_STORE_FILE", filePath)
+
+	store, _ := LoadStore(filePath)
+	issue, _ := store.AddIssue("Closed issue")
+	_ = store.CloseIssue(issue.ID, "")
+	_ = store.Save(filePath)
+
+	cmd := newCommand()
+	var buf bytes.Buffer
+	cmd.Writer = &buf
+
+	err := cmd.Run(context.Background(), []string{"mint", "list", "--open"})
+	if err != nil {
+		t.Fatalf("list --open command failed: %v", err)
+	}
+
+	output := buf.String()
+	strippedOutput := stripANSI(output)
+
+	// Should show OPEN header
+	if !strings.Contains(output, " OPEN ") {
+		t.Error("expected output to contain ' OPEN ' header")
+	}
+
+	// Should show "(No open issues.)"
+	if !strings.Contains(strippedOutput, "   (No open issues.)") {
+		t.Errorf("expected '   (No open issues.)' when --open flag used with no open issues, got: %s", strippedOutput)
+	}
+}
+
+func TestListCommandGroupedSorting(t *testing.T) {
+	tmpDir := t.TempDir()
+	filePath := filepath.Join(tmpDir, "mint-issues.yaml")
+	t.Setenv("MINT_STORE_FILE", filePath)
+
+	store, _ := LoadStore(filePath)
+	// Create multiple open and closed issues
+	_, _ = store.AddIssue("Open issue 1")
+	issue2, _ := store.AddIssue("Closed issue 1")
+	_, _ = store.AddIssue("Open issue 2")
+	issue4, _ := store.AddIssue("Closed issue 2")
+	_, _ = store.AddIssue("Open issue 3")
+	_ = store.CloseIssue(issue2.ID, "")
+	_ = store.CloseIssue(issue4.ID, "")
+	_ = store.Save(filePath)
+
+	cmd := newCommand()
+	var buf bytes.Buffer
+	cmd.Writer = &buf
+
+	err := cmd.Run(context.Background(), []string{"mint", "list"})
+	if err != nil {
+		t.Fatalf("list command failed: %v", err)
+	}
+
+	output := stripANSI(buf.String())
+	lines := strings.Split(strings.TrimSpace(output), "\n")
+
+	// Find the OPEN and CLOSED section boundaries
+	openIdx := -1
+	closedIdx := -1
+	for i, line := range lines {
+		if strings.Contains(line, "OPEN") {
+			openIdx = i
+		}
+		if strings.Contains(line, "CLOSED") {
+			closedIdx = i
+			break
+		}
+	}
+
+	if openIdx == -1 || closedIdx == -1 {
+		t.Fatalf("could not find OPEN or CLOSED headers in output")
+	}
+
+	// Extract open issue IDs (between OPEN header and CLOSED header)
+	var openIDs []string
+	for i := openIdx + 1; i < closedIdx; i++ {
+		line := strings.TrimSpace(lines[i])
+		if line != "" && !strings.HasPrefix(line, "(") {
+			parts := strings.Fields(line)
+			if len(parts) > 0 {
+				openIDs = append(openIDs, parts[0])
+			}
+		}
+	}
+
+	// Extract closed issue IDs (after CLOSED header)
+	var closedIDs []string
+	for i := closedIdx + 1; i < len(lines); i++ {
+		line := strings.TrimSpace(lines[i])
+		if line != "" && !strings.HasPrefix(line, "(") {
+			parts := strings.Fields(line)
+			if len(parts) > 0 {
+				closedIDs = append(closedIDs, parts[0])
+			}
+		}
+	}
+
+	// Verify open issues are sorted
+	for i := 1; i < len(openIDs); i++ {
+		if openIDs[i-1] >= openIDs[i] {
+			t.Errorf("open issues not sorted: %s >= %s", openIDs[i-1], openIDs[i])
+		}
+	}
+
+	// Verify closed issues are sorted
+	for i := 1; i < len(closedIDs); i++ {
+		if closedIDs[i-1] >= closedIDs[i] {
+			t.Errorf("closed issues not sorted: %s >= %s", closedIDs[i-1], closedIDs[i])
+		}
 	}
 }

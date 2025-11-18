@@ -148,40 +148,72 @@ func listAction(ctx context.Context, cmd *cli.Command) error {
 
 	issues := store.ListIssues()
 
-	// Filter by status if --open flag is set
-	openOnly := cmd.Bool("open")
-	if openOnly {
-		filtered := make([]*Issue, 0)
-		for _, issue := range issues {
-			if issue.Status == "open" {
-				filtered = append(filtered, issue)
-			}
-		}
-		issues = filtered
-	}
-
-	// Handle empty results
+	// Handle completely empty store
 	if len(issues) == 0 {
-		if openOnly {
-			_, err := fmt.Fprintln(w, "No open issues found.")
-			return err
-		}
 		_, err := fmt.Fprintln(w, "No issues found.")
 		return err
 	}
 
-	header := "All issues:"
-	if openOnly {
-		header = "Open issues:"
+	// Separate issues into open and closed
+	openIssues := make([]*Issue, 0)
+	closedIssues := make([]*Issue, 0)
+	for _, issue := range issues {
+		if issue.Status == "open" {
+			openIssues = append(openIssues, issue)
+		} else {
+			closedIssues = append(closedIssues, issue)
+		}
 	}
-	if _, err := fmt.Fprintln(w, header); err != nil {
+
+	openOnly := cmd.Bool("open")
+
+	// Display OPEN section
+	openHeader := "\033[48;5;2m\033[38;5;0m OPEN \033[0m"
+	if _, err := fmt.Fprintln(w, openHeader); err != nil {
+		return err
+	}
+	if _, err := fmt.Fprintln(w); err != nil {
 		return err
 	}
 
-	for _, issue := range issues {
-		formattedID := store.FormatID(issue.ID)
-		if _, err := fmt.Fprintf(w, "%s %s %s\n", formattedID, issue.Status, issue.Title); err != nil {
+	if len(openIssues) == 0 {
+		if _, err := fmt.Fprintln(w, "   (No open issues.)"); err != nil {
 			return err
+		}
+	} else {
+		for _, issue := range openIssues {
+			formattedID := store.FormatID(issue.ID)
+			if _, err := fmt.Fprintf(w, "   %s %s %s\n", formattedID, issue.Status, issue.Title); err != nil {
+				return err
+			}
+		}
+	}
+
+	// Display CLOSED section (skip if --open flag is set)
+	if !openOnly {
+		if _, err := fmt.Fprintln(w); err != nil {
+			return err
+		}
+
+		closedHeader := "\033[48;5;1m\033[38;5;0m CLOSED \033[0m"
+		if _, err := fmt.Fprintln(w, closedHeader); err != nil {
+			return err
+		}
+		if _, err := fmt.Fprintln(w); err != nil {
+			return err
+		}
+
+		if len(closedIssues) == 0 {
+			if _, err := fmt.Fprintln(w, "   (No closed issues.)"); err != nil {
+				return err
+			}
+		} else {
+			for _, issue := range closedIssues {
+				formattedID := store.FormatID(issue.ID)
+				if _, err := fmt.Fprintf(w, "   %s %s %s\n", formattedID, issue.Status, issue.Title); err != nil {
+					return err
+				}
+			}
 		}
 	}
 
