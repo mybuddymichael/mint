@@ -66,7 +66,9 @@ issues:
   mint-oz4u20:
     id: mint-oz4u20
     title: Add 'ready' subcommand
-    status: open
+    status: closed
+    comments:
+    - "Closed with reason: Added"
   mint-piyjpq:
     id: mint-piyjpq
     title: Don't put quotes around the title when listing or showing issues
