@@ -71,7 +71,7 @@ issues:
   mint-ufovp7:
     id: mint-ufovp7
     title: Allow 'add' as an alias for the 'create' subcommand
-    status: open
+    status: closed
   mint-vu2td8t:
     id: mint-vu2td8t
     title: Comments should appear below relationships in the show subcommand

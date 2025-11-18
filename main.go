@@ -23,6 +23,7 @@ func newCommand() *cli.Command {
 		Commands: []*cli.Command{
 			{
 				Name:      "create",
+				Aliases:   []string{"add"},
 				Usage:     "Create a new issue",
 				ArgsUsage: "<title>",
 				Action:    createAction,

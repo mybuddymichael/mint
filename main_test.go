@@ -125,6 +125,27 @@ func TestCreateCommandNoTitle(t *testing.T) {
 	}
 }
 
+func TestAddCommandAlias(t *testing.T) {
+	tmpDir := t.TempDir()
+	filePath := filepath.Join(tmpDir, "mint-issues.yaml")
+
+	cmd := newCommand()
+	var buf bytes.Buffer
+	cmd.Writer = &buf
+
+	t.Setenv("MINT_STORE_FILE", filePath)
+
+	err := cmd.Run(context.Background(), []string{"mint", "add", "Test issue"})
+	if err != nil {
+		t.Fatalf("add alias command failed: %v", err)
+	}
+
+	output := stripANSI(buf.String())
+	if !strings.Contains(output, "Created issue mint-") {
+		t.Errorf("expected output to contain 'Created issue mint-', got: %s", output)
+	}
+}
+
 func TestShowCommand(t *testing.T) {
 	tmpDir := t.TempDir()
 	filePath := filepath.Join(tmpDir, "mint-issues.yaml")
