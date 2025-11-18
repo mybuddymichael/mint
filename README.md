@@ -1,6 +1,6 @@
 # mint
 
-`mint` is a (very) simple command line tool to create and track work on a software project.
+`mint` is a (very) simple command line tool to track work on a software project.
 
 I made it for myself. Other tools (see below) might be a much better solution for you.
 
