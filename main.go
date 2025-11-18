@@ -10,6 +10,8 @@ import (
 	"github.com/urfave/cli/v3"
 )
 
+var version = "dev-?"
+
 func main() {
 	cmd := newCommand()
 	if err := cmd.Run(context.Background(), os.Args); err != nil {
@@ -98,6 +100,14 @@ func newCommand() *cli.Command {
 				Usage:     "Change the issue ID prefix",
 				ArgsUsage: "<new-prefix>",
 				Action:    setPrefixAction,
+			},
+			{
+				Name:  "version",
+				Usage: "Display the version",
+				Action: func(ctx context.Context, cmd *cli.Command) error {
+					fmt.Println(version)
+					return nil
+				},
 			},
 		},
 	}

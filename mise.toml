@@ -8,7 +8,7 @@ run = "go test ./..."
 # run = "go build -o /dev/null ."
 
 [tasks.build-dev]
-run = "go build -o mint"
+run = "go build -o mint -ldflags=\"-X main.version=dev-$(jj log -r @ -T 'change_id' --no-graph | cut -c1-4)\""
 sources = ["**/*.go"]
 outputs = ["mint"]
 
