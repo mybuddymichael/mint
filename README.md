@@ -1,6 +1,6 @@
 # mint
 
-Mint (`mint`) is a (very) simple command line tool to create and track work on a software project.
+`mint` is a (very) simple command line tool to create and track work on a software project.
 
 I made it for myself. Other tools (see below) might be a much better solution for you.
 
@@ -9,7 +9,7 @@ The interface might change as better patterns emerge.
 ## Features
 
 - A simple, intuitive command line interface.
-- Built for agents.
+- Built for agents and humans.
 - Issues are stored as plain text in a single YAML file.
 - Track dependencies between issues (depends on, blocks, etc.).
 - Track status of issues (open, closed, in progress, etc.).
