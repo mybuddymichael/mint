@@ -235,8 +235,8 @@ func (s *Store) SetPrefix(newPrefix string) error {
 	// Build mapping of old ID to new ID
 	idMap := make(map[string]string)
 	for oldID := range s.Issues {
-		// Skip the hyphen separator after old prefix
-		suffix := oldID[len(oldPrefix)+1:]
+		// Extract suffix after old prefix, stripping any leading hyphen
+		suffix := strings.TrimPrefix(oldID[len(oldPrefix):], "-")
 		newID := newPrefix + "-" + suffix
 		idMap[oldID] = newID
 	}

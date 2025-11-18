@@ -535,3 +535,58 @@ func TestStoreSetPrefix_StripsTrailingHyphen(t *testing.T) {
 		t.Error("expected 'mint-abc123' to exist")
 	}
 }
+
+func TestStoreSetPrefix_OldPrefixWithHyphen(t *testing.T) {
+	store := NewStore()
+	// Simulate old state where prefix was stored WITH trailing hyphen
+	store.Prefix = "mt-"
+	store.Issues = map[string]*Issue{
+		"mt-0abc123": {
+			ID:     "mt-0abc123",
+			Title:  "First",
+			Status: "open",
+		},
+		"mt-9def456": {
+			ID:        "mt-9def456",
+			Title:     "Second",
+			Status:    "open",
+			DependsOn: []string{"mt-0abc123"},
+		},
+	}
+
+	err := store.SetPrefix("mint")
+	if err != nil {
+		t.Fatalf("SetPrefix() failed: %v", err)
+	}
+
+	if store.Prefix != "mint" {
+		t.Errorf("expected prefix 'mint', got '%s'", store.Prefix)
+	}
+
+	// Verify nanoid is preserved (7 chars: 0abc123, NOT 6 chars: abc123)
+	if _, exists := store.Issues["mint-0abc123"]; !exists {
+		t.Error("expected 'mint-0abc123' to exist (nanoid should preserve leading '0')")
+	}
+
+	if _, exists := store.Issues["mint-9def456"]; !exists {
+		t.Error("expected 'mint-9def456' to exist (nanoid should preserve leading '9')")
+	}
+
+	// Verify the nanoid length is preserved
+	issue1 := store.Issues["mint-0abc123"]
+	if issue1 != nil {
+		expectedLength := len("mint-0abc123")
+		actualLength := len(issue1.ID)
+		if actualLength != expectedLength {
+			t.Errorf("expected ID length %d, got %d (ID: %s)", expectedLength, actualLength, issue1.ID)
+		}
+	}
+
+	// Verify dependencies were updated correctly
+	issue2 := store.Issues["mint-9def456"]
+	if issue2 != nil && len(issue2.DependsOn) > 0 {
+		if issue2.DependsOn[0] != "mint-0abc123" {
+			t.Errorf("expected dependency 'mint-0abc123', got '%s'", issue2.DependsOn[0])
+		}
+	}
+}
