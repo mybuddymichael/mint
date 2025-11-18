@@ -18,6 +18,10 @@ issues:
     status: closed
     comments:
     - "Closed with reason: Implemented set-prefix subcommand"
+  mint-7d04s1s:
+    id: mint-7d04s1s
+    title: Remove timestamps from error messages
+    status: open
   mint-ab8q1f:
     id: mint-ab8q1f
     title: Show comments with the 'show' subcommand
@@ -60,6 +64,10 @@ issues:
     id: mint-rn8qjx
     title: Allow adding a description when creating an issue
     status: open
+  mint-tsw5qkb:
+    id: mint-tsw5qkb
+    title: When adding a comment, show a clearer success message
+    status: open
   mint-u8jkhre:
     id: mint-u8jkhre
     title: Subcommands don't print the full ID when responding
@@ -82,6 +90,12 @@ issues:
     id: mint-vvjkxz
     title: Change all references of 'mt' to 'mint'
     status: closed
+  mint-vx94mev:
+    id: mint-vx94mev
+    title: Help docs for mint update are confusing
+    status: open
+    comments:
+    - The --depends-on and --blocks flag documentation is confusing in its presentation.
   mint-wjigoz:
     id: mint-wjigoz
     title: Allow selecting issues by typing the minimum unique ID
