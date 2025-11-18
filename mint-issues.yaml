@@ -42,6 +42,8 @@ issues:
     id: mint-mfv0us
     title: Allow setting relationships when an issue is created
     status: open
+    comments:
+    - E.g., `mint create 'fix the bug' --blocks mint-a8`
   mint-ncc1dk:
     id: mint-ncc1dk
     title: Add a type field to issues
