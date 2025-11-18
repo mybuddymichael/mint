@@ -97,3 +97,7 @@ This project uses Mint exclusively to track and manage issues. Run `mint help` t
 - [git-bug](https://github.com/git-bug/git-bug)
 - [Radicle](https://radicle.xyz/)
 - [Beads](https://github.com/steveyegge/beads)
+
+## License
+
+MIT
