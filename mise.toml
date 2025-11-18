@@ -29,6 +29,9 @@ depends_post = ["build-dev"]
 [tasks.changelog]
 run = "git-cliff -o CHANGELOG.md"
 
+[tasks.release]
+run = "./release.sh"
+
 # [tasks.release]
 # description = "Create a new release"
 # file = "scripts/release.sh"
