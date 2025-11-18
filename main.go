@@ -3,6 +3,7 @@ package main
 import (
 	"context"
 	"fmt"
+	"io"
 	"log"
 	"os"
 	"strings"
@@ -36,6 +37,10 @@ func newCommand() *cli.Command {
 					&cli.BoolFlag{
 						Name:  "open",
 						Usage: "Only show open issues",
+					},
+					&cli.BoolFlag{
+						Name:  "ready",
+						Usage: "Only show ready issues",
 					},
 				},
 				Action: listAction,
@@ -128,6 +133,18 @@ func createAction(ctx context.Context, cmd *cli.Command) error {
 	return err
 }
 
+func printIssueList(w io.Writer, issues []*Issue, maxIDLen int, store *Store) error {
+	for _, issue := range issues {
+		formattedID := store.FormatID(issue.ID)
+		// Pad shorter IDs so status words align across all issues
+		padding := strings.Repeat(" ", 1+maxIDLen-len(issue.ID))
+		if _, err := fmt.Fprintf(w, "   %s%s%s %s\n", formattedID, padding, issue.Status, issue.Title); err != nil {
+			return err
+		}
+	}
+	return nil
+}
+
 func listAction(ctx context.Context, cmd *cli.Command) error {
 	filePath, err := GetStoreFilePath()
 	if err != nil {
@@ -163,50 +180,76 @@ func listAction(ctx context.Context, cmd *cli.Command) error {
 		}
 	}
 
-	// Separate issues into open and closed
-	openIssues := make([]*Issue, 0)
+	// Separate issues into ready, blocked, and closed
+	readyIssues := make([]*Issue, 0)
+	blockedIssues := make([]*Issue, 0)
 	closedIssues := make([]*Issue, 0)
 	for _, issue := range issues {
 		if issue.Status == "open" {
-			openIssues = append(openIssues, issue)
+			if len(issue.DependsOn) == 0 {
+				readyIssues = append(readyIssues, issue)
+			} else {
+				blockedIssues = append(blockedIssues, issue)
+			}
 		} else {
 			closedIssues = append(closedIssues, issue)
 		}
 	}
 
 	openOnly := cmd.Bool("open")
+	readyOnly := cmd.Bool("ready")
 
-	// Display OPEN section
-	openHeader := "\033[48;5;2m\033[38;5;0m OPEN \033[0m"
-	if _, err := fmt.Fprintln(w, openHeader); err != nil {
+	// Display READY section
+	readyHeader := "\033[48;5;2m\033[38;5;0m READY \033[0m"
+	if _, err := fmt.Fprintln(w, readyHeader); err != nil {
 		return err
 	}
 	if _, err := fmt.Fprintln(w); err != nil {
 		return err
 	}
 
-	if len(openIssues) == 0 {
-		if _, err := fmt.Fprintln(w, "   (No open issues.)"); err != nil {
+	if len(readyIssues) == 0 {
+		if _, err := fmt.Fprintln(w, "   (No ready issues.)"); err != nil {
 			return err
 		}
 	} else {
-		for _, issue := range openIssues {
-			formattedID := store.FormatID(issue.ID)
-			// Pad shorter IDs so status words align across all issues
-			padding := strings.Repeat(" ", 1+maxIDLen-len(issue.ID))
-			if _, err := fmt.Fprintf(w, "   %s%s%s %s\n", formattedID, padding, issue.Status, issue.Title); err != nil {
+		if err := printIssueList(w, readyIssues, maxIDLen, store); err != nil {
+			return err
+		}
+	}
+
+	// Display BLOCKED section (skip if --ready flag is set)
+	if !readyOnly {
+		if _, err := fmt.Fprintln(w); err != nil {
+			return err
+		}
+
+		blockedHeader := "\033[48;5;1m\033[38;5;0m BLOCKED \033[0m"
+		if _, err := fmt.Fprintln(w, blockedHeader); err != nil {
+			return err
+		}
+		if _, err := fmt.Fprintln(w); err != nil {
+			return err
+		}
+
+		if len(blockedIssues) == 0 {
+			if _, err := fmt.Fprintln(w, "   (No blocked issues.)"); err != nil {
+				return err
+			}
+		} else {
+			if err := printIssueList(w, blockedIssues, maxIDLen, store); err != nil {
 				return err
 			}
 		}
 	}
 
-	// Display CLOSED section (skip if --open flag is set)
-	if !openOnly {
+	// Display CLOSED section (skip if --open or --ready flag is set)
+	if !openOnly && !readyOnly {
 		if _, err := fmt.Fprintln(w); err != nil {
 			return err
 		}
 
-		closedHeader := "\033[48;5;1m\033[38;5;0m CLOSED \033[0m"
+		closedHeader := "\033[48;5;0m\033[38;5;15m CLOSED \033[0m"
 		if _, err := fmt.Fprintln(w, closedHeader); err != nil {
 			return err
 		}
@@ -219,13 +262,8 @@ func listAction(ctx context.Context, cmd *cli.Command) error {
 				return err
 			}
 		} else {
-			for _, issue := range closedIssues {
-				formattedID := store.FormatID(issue.ID)
-				// Pad shorter IDs so status words align across all issues
-				padding := strings.Repeat(" ", 1+maxIDLen-len(issue.ID))
-				if _, err := fmt.Fprintf(w, "   %s%s%s %s\n", formattedID, padding, issue.Status, issue.Title); err != nil {
-					return err
-				}
+			if err := printIssueList(w, closedIssues, maxIDLen, store); err != nil {
+				return err
 			}
 		}
 	}
