@@ -122,7 +122,7 @@ func createAction(ctx context.Context, cmd *cli.Command) error {
 		return err
 	}
 
-	_, err = fmt.Fprintf(cmd.Root().Writer, "Created issue %s\n", issue.ID)
+	_, err = fmt.Fprintf(cmd.Root().Writer, "Created issue %s\n", store.FormatID(issue.ID))
 	return err
 }
 
@@ -177,18 +177,9 @@ func listAction(ctx context.Context, cmd *cli.Command) error {
 		return err
 	}
 
-	// Compute minimum unique prefix lengths
-	ids := make([]string, len(issues))
-	for i, issue := range issues {
-		ids[i] = issue.ID
-	}
-	uniqueLengths := MinUniquePrefixLengths(ids)
-
 	for _, issue := range issues {
-		minLen := uniqueLengths[issue.ID]
-		// Underline the unique prefix portion
-		underlinedID := fmt.Sprintf("\033[4m%s\033[0m%s", issue.ID[:minLen], issue.ID[minLen:])
-		if _, err := fmt.Fprintf(w, "%s %s %s\n", underlinedID, issue.Status, issue.Title); err != nil {
+		formattedID := store.FormatID(issue.ID)
+		if _, err := fmt.Fprintf(w, "%s %s %s\n", formattedID, issue.Status, issue.Title); err != nil {
 			return err
 		}
 	}
@@ -219,7 +210,7 @@ func showAction(ctx context.Context, cmd *cli.Command) error {
 	}
 
 	w := cmd.Root().Writer
-	if _, err := fmt.Fprintf(w, "ID:      %s\n", issue.ID); err != nil {
+	if _, err := fmt.Fprintf(w, "ID:      %s\n", store.FormatID(issue.ID)); err != nil {
 		return err
 	}
 	if _, err := fmt.Fprintf(w, "Title:   %s\n", issue.Title); err != nil {
@@ -247,7 +238,7 @@ func showAction(ctx context.Context, cmd *cli.Command) error {
 			if err != nil {
 				return err
 			}
-			if _, err := fmt.Fprintf(w, "  %s %s\n", dep.ID, dep.Title); err != nil {
+			if _, err := fmt.Fprintf(w, "  %s %s\n", store.FormatID(dep.ID), dep.Title); err != nil {
 				return err
 			}
 		}
@@ -261,7 +252,7 @@ func showAction(ctx context.Context, cmd *cli.Command) error {
 			if err != nil {
 				return err
 			}
-			if _, err := fmt.Fprintf(w, "  %s %s\n", blocked.ID, blocked.Title); err != nil {
+			if _, err := fmt.Fprintf(w, "  %s %s\n", store.FormatID(blocked.ID), blocked.Title); err != nil {
 				return err
 			}
 		}
@@ -286,14 +277,15 @@ func updateAction(ctx context.Context, cmd *cli.Command) error {
 		return err
 	}
 
-	// Verify issue exists
-	if _, err := store.GetIssue(id); err != nil {
+	// Resolve partial ID to full ID
+	fullID, err := store.ResolveIssueID(id)
+	if err != nil {
 		return err
 	}
 
 	// Update title
 	if title := cmd.String("title"); title != "" {
-		if err := store.UpdateIssueTitle(id, title); err != nil {
+		if err := store.UpdateIssueTitle(fullID, title); err != nil {
 			return err
 		}
 	}
@@ -301,7 +293,7 @@ func updateAction(ctx context.Context, cmd *cli.Command) error {
 	// Add dependencies
 	if dependsOn := cmd.StringSlice("depends-on"); len(dependsOn) > 0 {
 		for _, depID := range dependsOn {
-			if err := store.AddDependency(id, depID); err != nil {
+			if err := store.AddDependency(fullID, depID); err != nil {
 				return err
 			}
 		}
@@ -310,7 +302,7 @@ func updateAction(ctx context.Context, cmd *cli.Command) error {
 	// Add blockers
 	if blocks := cmd.StringSlice("blocks"); len(blocks) > 0 {
 		for _, blockID := range blocks {
-			if err := store.AddBlocker(id, blockID); err != nil {
+			if err := store.AddBlocker(fullID, blockID); err != nil {
 				return err
 			}
 		}
@@ -318,7 +310,7 @@ func updateAction(ctx context.Context, cmd *cli.Command) error {
 
 	// Add comment
 	if comment := cmd.String("comment"); comment != "" {
-		if err := store.AddComment(id, comment); err != nil {
+		if err := store.AddComment(fullID, comment); err != nil {
 			return err
 		}
 	}
@@ -328,7 +320,7 @@ func updateAction(ctx context.Context, cmd *cli.Command) error {
 	}
 
 	w := cmd.Root().Writer
-	_, err = fmt.Fprintf(w, "Updated %s\n", id)
+	_, err = fmt.Fprintf(w, "Updated %s\n", store.FormatID(fullID))
 	return err
 }
 
@@ -349,8 +341,14 @@ func closeAction(ctx context.Context, cmd *cli.Command) error {
 		return err
 	}
 
+	// Resolve partial ID to full ID
+	fullID, err := store.ResolveIssueID(id)
+	if err != nil {
+		return err
+	}
+
 	reason := cmd.String("reason")
-	if err := store.CloseIssue(id, reason); err != nil {
+	if err := store.CloseIssue(fullID, reason); err != nil {
 		return err
 	}
 
@@ -359,7 +357,7 @@ func closeAction(ctx context.Context, cmd *cli.Command) error {
 	}
 
 	w := cmd.Root().Writer
-	_, err = fmt.Fprintf(w, "Closed issue %s\n", id)
+	_, err = fmt.Fprintf(w, "Closed issue %s\n", store.FormatID(fullID))
 	return err
 }
 
@@ -380,7 +378,13 @@ func openAction(ctx context.Context, cmd *cli.Command) error {
 		return err
 	}
 
-	if err := store.ReopenIssue(id); err != nil {
+	// Resolve partial ID to full ID
+	fullID, err := store.ResolveIssueID(id)
+	if err != nil {
+		return err
+	}
+
+	if err := store.ReopenIssue(fullID); err != nil {
 		return err
 	}
 
@@ -389,7 +393,7 @@ func openAction(ctx context.Context, cmd *cli.Command) error {
 	}
 
 	w := cmd.Root().Writer
-	_, err = fmt.Fprintf(w, "Re-opened issue %s\n", id)
+	_, err = fmt.Fprintf(w, "Re-opened issue %s\n", store.FormatID(fullID))
 	return err
 }
 

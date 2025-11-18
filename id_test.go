@@ -67,3 +67,52 @@ func TestGenerateIDDifferentPrefix(t *testing.T) {
 		t.Errorf("expected ID length %d, got %d", expectedLen, len(id))
 	}
 }
+
+func TestFormatID(t *testing.T) {
+	tests := []struct {
+		name            string
+		id              string
+		uniquePrefixLen int
+		expected        string
+	}{
+		{
+			name:            "normal case with extraneous chars",
+			id:              "mint-abc1234",
+			uniquePrefixLen: 6,
+			expected:        "\033[4mmint-a\033[24m\033[38;5;8mbc1234\033[0m",
+		},
+		{
+			name:            "unique prefix is full length",
+			id:              "mint-xyz",
+			uniquePrefixLen: 8,
+			expected:        "\033[4mmint-xyz\033[0m",
+		},
+		{
+			name:            "unique prefix exceeds length",
+			id:              "mint-x",
+			uniquePrefixLen: 10,
+			expected:        "\033[4mmint-x\033[0m",
+		},
+		{
+			name:            "unique prefix is 1",
+			id:              "mint-abc",
+			uniquePrefixLen: 1,
+			expected:        "\033[4mm\033[24m\033[38;5;8mint-abc\033[0m",
+		},
+		{
+			name:            "empty string",
+			id:              "",
+			uniquePrefixLen: 0,
+			expected:        "",
+		},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			result := FormatID(tt.id, tt.uniquePrefixLen)
+			if result != tt.expected {
+				t.Errorf("FormatID(%q, %d) = %q, want %q", tt.id, tt.uniquePrefixLen, result, tt.expected)
+			}
+		})
+	}
+}

@@ -69,7 +69,7 @@ func TestCreateCommand(t *testing.T) {
 		t.Fatalf("create command failed: %v", err)
 	}
 
-	output := buf.String()
+	output := stripANSI(buf.String())
 	if !strings.Contains(output, "Created issue mint-") {
 		t.Errorf("expected output to contain 'Created issue mint-', got: %s", output)
 	}
@@ -156,7 +156,7 @@ func TestShowCommand(t *testing.T) {
 		t.Fatalf("show command failed: %v", err)
 	}
 
-	output := buf.String()
+	output := stripANSI(buf.String())
 	if !strings.Contains(output, "ID:      "+issue.ID) {
 		t.Errorf("expected output to contain 'ID:      %s', got: %s", issue.ID, output)
 	}
@@ -262,7 +262,7 @@ func TestShowCommandWithRelationships(t *testing.T) {
 		t.Fatalf("show command failed: %v", err)
 	}
 
-	output := buf.String()
+	output := stripANSI(buf.String())
 	if !strings.Contains(output, "Depends on:") {
 		t.Errorf("expected output to contain 'Depends on:', got: %s", output)
 	}
@@ -716,7 +716,7 @@ func TestCloseCommand(t *testing.T) {
 		t.Errorf("expected no comments when closing without reason, got %d", len(closed.Comments))
 	}
 
-	output := buf.String()
+	output := stripANSI(buf.String())
 	if !strings.Contains(output, "Closed issue "+issue.ID) {
 		t.Errorf("expected output to contain 'Closed issue %s', got: %s", issue.ID, output)
 	}
@@ -756,7 +756,7 @@ func TestCloseCommand_WithReason(t *testing.T) {
 		t.Errorf("expected comment '%s', got '%s'", expectedComment, closed.Comments[0])
 	}
 
-	output := buf.String()
+	output := stripANSI(buf.String())
 	if !strings.Contains(output, "Closed issue "+issue.ID) {
 		t.Errorf("expected output to contain 'Closed issue %s', got: %s", issue.ID, output)
 	}
@@ -821,7 +821,7 @@ func TestOpenCommand(t *testing.T) {
 		t.Errorf("expected status 'open', got '%s'", reopened.Status)
 	}
 
-	output := buf.String()
+	output := stripANSI(buf.String())
 	if !strings.Contains(output, "Re-opened issue "+issue.ID) {
 		t.Errorf("expected output to contain 'Re-opened issue %s', got: %s", issue.ID, output)
 	}
@@ -872,5 +872,84 @@ func TestSetPrefixCommand_NoPrefix(t *testing.T) {
 	err := cmd.Run(context.Background(), []string{"mint", "set-prefix"})
 	if err == nil {
 		t.Error("expected error when no prefix provided")
+	}
+}
+
+func TestUpdateCommand_PartialID(t *testing.T) {
+	tmpDir := t.TempDir()
+	filePath := filepath.Join(tmpDir, "mint-issues.yaml")
+	t.Setenv("MINT_STORE_FILE", filePath)
+
+	store, _ := LoadStore(filePath)
+	issue, _ := store.AddIssue("Test issue")
+	_ = store.Save(filePath)
+
+	cmd := newCommand()
+	var buf bytes.Buffer
+	cmd.Writer = &buf
+
+	// Use partial ID (first 8 chars)
+	partialID := issue.ID[:8]
+	err := cmd.Run(context.Background(), []string{"mint", "update", partialID, "--title", "Updated"})
+	if err != nil {
+		t.Fatalf("update command failed: %v", err)
+	}
+
+	output := stripANSI(buf.String())
+	if !strings.Contains(output, "Updated "+issue.ID) {
+		t.Errorf("expected output to contain 'Updated %s' (full ID), got: %s", issue.ID, output)
+	}
+}
+
+func TestCloseCommand_PartialID(t *testing.T) {
+	tmpDir := t.TempDir()
+	filePath := filepath.Join(tmpDir, "mint-issues.yaml")
+	t.Setenv("MINT_STORE_FILE", filePath)
+
+	store, _ := LoadStore(filePath)
+	issue, _ := store.AddIssue("Test issue")
+	_ = store.Save(filePath)
+
+	cmd := newCommand()
+	var buf bytes.Buffer
+	cmd.Writer = &buf
+
+	// Use partial ID (first 8 chars)
+	partialID := issue.ID[:8]
+	err := cmd.Run(context.Background(), []string{"mint", "close", partialID})
+	if err != nil {
+		t.Fatalf("close command failed: %v", err)
+	}
+
+	output := stripANSI(buf.String())
+	if !strings.Contains(output, "Closed issue "+issue.ID) {
+		t.Errorf("expected output to contain 'Closed issue %s' (full ID), got: %s", issue.ID, output)
+	}
+}
+
+func TestOpenCommand_PartialID(t *testing.T) {
+	tmpDir := t.TempDir()
+	filePath := filepath.Join(tmpDir, "mint-issues.yaml")
+	t.Setenv("MINT_STORE_FILE", filePath)
+
+	store, _ := LoadStore(filePath)
+	issue, _ := store.AddIssue("Test issue")
+	_ = store.CloseIssue(issue.ID, "")
+	_ = store.Save(filePath)
+
+	cmd := newCommand()
+	var buf bytes.Buffer
+	cmd.Writer = &buf
+
+	// Use partial ID (first 8 chars)
+	partialID := issue.ID[:8]
+	err := cmd.Run(context.Background(), []string{"mint", "open", partialID})
+	if err != nil {
+		t.Fatalf("open command failed: %v", err)
+	}
+
+	output := stripANSI(buf.String())
+	if !strings.Contains(output, "Re-opened issue "+issue.ID) {
+		t.Errorf("expected output to contain 'Re-opened issue %s' (full ID), got: %s", issue.ID, output)
 	}
 }

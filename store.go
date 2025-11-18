@@ -138,6 +138,18 @@ func (s *Store) ListIssues() []*Issue {
 	return issues
 }
 
+// FormatID computes minimum unique prefix length across all store issues,
+// then calls id.FormatID to apply ANSI formatting (underline + gray suffix)
+func (s *Store) FormatID(id string) string {
+	issues := s.ListIssues()
+	ids := make([]string, len(issues))
+	for i, issue := range issues {
+		ids[i] = issue.ID
+	}
+	uniqueLengths := MinUniquePrefixLengths(ids)
+	return FormatID(id, uniqueLengths[id])
+}
+
 // UpdateIssueTitle updates an issue's title
 func (s *Store) UpdateIssueTitle(id, title string) error {
 	issue, err := s.GetIssue(id)

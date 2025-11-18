@@ -33,7 +33,9 @@ issues:
   mint-l38ut0u:
     id: mint-l38ut0u
     title: Highlight the unique part of an ID when printing it
-    status: open
+    status: closed
+    blocks:
+    - mint-u8jkhre
     comments:
     - We highlight the unique part of an ID when listing the IDs, but when we print an ID (such as when it's created), we should also highlight the unique part of the ID.
   mint-mfv0us:
@@ -56,6 +58,14 @@ issues:
     id: mint-rn8qjx
     title: Allow adding a description when creating an issue
     status: open
+  mint-u8jkhre:
+    id: mint-u8jkhre
+    title: Subcommands don't print the full ID when responding
+    status: closed
+    depends_on:
+    - mint-l
+    comments:
+    - "Closed with reason: fixed"
   mint-ufovp7:
     id: mint-ufovp7
     title: Allow 'add' as an alias for the 'create' subcommand
