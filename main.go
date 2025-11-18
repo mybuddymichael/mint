@@ -219,16 +219,6 @@ func showAction(ctx context.Context, cmd *cli.Command) error {
 	if _, err := fmt.Fprintf(w, "Status:  %s\n", issue.Status); err != nil {
 		return err
 	}
-	if len(issue.Comments) > 0 {
-		if _, err := fmt.Fprintln(w, "Comments:"); err != nil {
-			return err
-		}
-		for _, comment := range issue.Comments {
-			if _, err := fmt.Fprintf(w, "  %s\n", comment); err != nil {
-				return err
-			}
-		}
-	}
 	if len(issue.DependsOn) > 0 {
 		if _, err := fmt.Fprintln(w, "Depends on:"); err != nil {
 			return err
@@ -253,6 +243,16 @@ func showAction(ctx context.Context, cmd *cli.Command) error {
 				return err
 			}
 			if _, err := fmt.Fprintf(w, "  %s %s\n", store.FormatID(blocked.ID), blocked.Title); err != nil {
+				return err
+			}
+		}
+	}
+	if len(issue.Comments) > 0 {
+		if _, err := fmt.Fprintln(w, "Comments:"); err != nil {
+			return err
+		}
+		for _, comment := range issue.Comments {
+			if _, err := fmt.Fprintf(w, "  %s\n", comment); err != nil {
 				return err
 			}
 		}

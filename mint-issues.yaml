@@ -29,7 +29,7 @@ issues:
   mint-jlv9eob:
     id: mint-jlv9eob
     title: Make the color of the extraneous id characters color 8
-    status: open
+    status: closed
   mint-l38ut0u:
     id: mint-l38ut0u
     title: Highlight the unique part of an ID when printing it
@@ -73,11 +73,13 @@ issues:
   mint-vu2td8t:
     id: mint-vu2td8t
     title: Comments should appear below relationships in the show subcommand
-    status: open
+    status: closed
+    comments:
+    - "Closed with reason: fixed"
   mint-vvjkxz:
     id: mint-vvjkxz
     title: Change all references of 'mt' to 'mint'
-    status: open
+    status: closed
   mint-wjigoz:
     id: mint-wjigoz
     title: Allow selecting issues by typing the minimum unique ID

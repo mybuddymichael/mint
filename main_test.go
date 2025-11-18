@@ -304,6 +304,53 @@ func TestShowCommandNoRelationships(t *testing.T) {
 	}
 }
 
+func TestShowCommandWithRelationshipsAndComments(t *testing.T) {
+	tmpDir := t.TempDir()
+	filePath := filepath.Join(tmpDir, "mint-issues.yaml")
+	t.Setenv("MINT_STORE_FILE", filePath)
+
+	store, _ := LoadStore(filePath)
+	issue1, _ := store.AddIssue("Main issue")
+	issue2, _ := store.AddIssue("Dependency")
+	issue3, _ := store.AddIssue("Blocked")
+	_ = store.AddDependency(issue1.ID, issue2.ID)
+	_ = store.AddBlocker(issue1.ID, issue3.ID)
+	_ = store.AddComment(issue1.ID, "Test comment")
+	_ = store.Save(filePath)
+
+	cmd := newCommand()
+	var buf bytes.Buffer
+	cmd.Writer = &buf
+
+	err := cmd.Run(context.Background(), []string{"mint", "show", issue1.ID})
+	if err != nil {
+		t.Fatalf("show command failed: %v", err)
+	}
+
+	output := buf.String()
+
+	dependsIdx := strings.Index(output, "Depends on:")
+	blocksIdx := strings.Index(output, "Blocks:")
+	commentsIdx := strings.Index(output, "Comments:")
+
+	if dependsIdx == -1 {
+		t.Error("expected output to contain 'Depends on:'")
+	}
+	if blocksIdx == -1 {
+		t.Error("expected output to contain 'Blocks:'")
+	}
+	if commentsIdx == -1 {
+		t.Error("expected output to contain 'Comments:'")
+	}
+
+	if commentsIdx != -1 && dependsIdx != -1 && commentsIdx < dependsIdx {
+		t.Errorf("Comments section should appear after Depends on section")
+	}
+	if commentsIdx != -1 && blocksIdx != -1 && commentsIdx < blocksIdx {
+		t.Errorf("Comments section should appear after Blocks section")
+	}
+}
+
 func TestListCommand(t *testing.T) {
 	tmpDir := t.TempDir()
 	filePath := filepath.Join(tmpDir, "mint-issues.yaml")
