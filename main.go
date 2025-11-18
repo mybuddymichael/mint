@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"log"
 	"os"
+	"strings"
 
 	"github.com/urfave/cli/v3"
 )
@@ -154,6 +155,14 @@ func listAction(ctx context.Context, cmd *cli.Command) error {
 		return err
 	}
 
+	// Calculate max ID length for alignment
+	maxIDLen := 0
+	for _, issue := range issues {
+		if len(issue.ID) > maxIDLen {
+			maxIDLen = len(issue.ID)
+		}
+	}
+
 	// Separate issues into open and closed
 	openIssues := make([]*Issue, 0)
 	closedIssues := make([]*Issue, 0)
@@ -183,7 +192,9 @@ func listAction(ctx context.Context, cmd *cli.Command) error {
 	} else {
 		for _, issue := range openIssues {
 			formattedID := store.FormatID(issue.ID)
-			if _, err := fmt.Fprintf(w, "   %s %s %s\n", formattedID, issue.Status, issue.Title); err != nil {
+			// Pad shorter IDs so status words align across all issues
+			padding := strings.Repeat(" ", 1+maxIDLen-len(issue.ID))
+			if _, err := fmt.Fprintf(w, "   %s%s%s %s\n", formattedID, padding, issue.Status, issue.Title); err != nil {
 				return err
 			}
 		}
@@ -210,7 +221,9 @@ func listAction(ctx context.Context, cmd *cli.Command) error {
 		} else {
 			for _, issue := range closedIssues {
 				formattedID := store.FormatID(issue.ID)
-				if _, err := fmt.Fprintf(w, "   %s %s %s\n", formattedID, issue.Status, issue.Title); err != nil {
+				// Pad shorter IDs so status words align across all issues
+				padding := strings.Repeat(" ", 1+maxIDLen-len(issue.ID))
+				if _, err := fmt.Fprintf(w, "   %s%s%s %s\n", formattedID, padding, issue.Status, issue.Title); err != nil {
 					return err
 				}
 			}

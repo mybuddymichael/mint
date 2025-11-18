@@ -1299,3 +1299,55 @@ func TestListCommandGroupedSorting(t *testing.T) {
 		}
 	}
 }
+
+func TestListCommandAlignment(t *testing.T) {
+	tmpDir := t.TempDir()
+	filePath := filepath.Join(tmpDir, "mint-issues.yaml")
+	t.Setenv("MINT_STORE_FILE", filePath)
+
+	store := NewStore()
+	// Manually create issues with different ID lengths to test alignment
+	store.Issues["mint-a"] = &Issue{ID: "mint-a", Title: "Short ID", Status: "open"}
+	store.Issues["mint-abc123"] = &Issue{ID: "mint-abc123", Title: "Medium ID", Status: "open"}
+	store.Issues["mint-xyz"] = &Issue{ID: "mint-xyz", Title: "Another short", Status: "closed"}
+	store.Issues["mint-longer123"] = &Issue{ID: "mint-longer123", Title: "Long ID", Status: "closed"}
+	_ = store.Save(filePath)
+
+	cmd := newCommand()
+	var buf bytes.Buffer
+	cmd.Writer = &buf
+
+	err := cmd.Run(context.Background(), []string{"mint", "list"})
+	if err != nil {
+		t.Fatalf("list command failed: %v", err)
+	}
+
+	output := stripANSI(buf.String())
+	lines := strings.Split(output, "\n")
+
+	// Find all issue lines and track where status words appear
+	var statusColumns []int
+	for _, line := range lines {
+		if strings.HasPrefix(line, "   mint-") {
+			openIdx := strings.Index(line, "open ")
+			closedIdx := strings.Index(line, "closed ")
+			if openIdx != -1 {
+				statusColumns = append(statusColumns, openIdx)
+			} else if closedIdx != -1 {
+				statusColumns = append(statusColumns, closedIdx)
+			}
+		}
+	}
+
+	if len(statusColumns) == 0 {
+		t.Fatal("no status columns found in output")
+	}
+
+	// Verify all status words start at the same column
+	firstCol := statusColumns[0]
+	for i, col := range statusColumns {
+		if col != firstCol {
+			t.Errorf("status word at index %d starts at column %d, expected %d\nOutput:\n%s", i, col, firstCol, output)
+		}
+	}
+}
