@@ -25,7 +25,7 @@ issues:
   mint-87x5oz8:
     id: mint-87x5oz8
     title: Make formatting nicer when listing issues
-    status: open
+    status: closed
   mint-ab8q1f:
     id: mint-ab8q1f
     title: Show comments with the 'show' subcommand
