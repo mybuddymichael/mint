@@ -34,6 +34,13 @@ issues:
     id: mint-an7no0
     title: Show relationships when running 'show' on an issue
     status: closed
+  mint-j8k2:
+    id: mint-j8k2
+    title: Calculate ID length dynamically based on issue count
+    status: closed
+    comments:
+    - "Implemented dynamic ID length calculation using birthday paradox formula. IDs now start at 3 chars minimum and grow based on issue count (0.1% collision probability): 0-9 issues=3 chars, 10-49=4 chars, 50-99=5 chars, etc. Changes: Added CalculateIDLength() in id.go, updated GenerateID() signature, modified store.go AddIssue(), added comprehensive tests."
+    - "Closed with reason: Implementation complete and all tests passing"
   mint-jlv9eob:
     id: mint-jlv9eob
     title: Make the color of the extraneous id characters color 8

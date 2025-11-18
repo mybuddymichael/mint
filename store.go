@@ -67,9 +67,11 @@ func (s *Store) Save(filePath string) error {
 func (s *Store) AddIssue(title string) (*Issue, error) {
 	const maxRetries = 10
 
+	length := CalculateIDLength(len(s.Issues))
+
 	var id string
 	for i := 0; i < maxRetries; i++ {
-		id = GenerateID(s.Prefix)
+		id = GenerateID(s.Prefix, length)
 		if _, exists := s.Issues[id]; !exists {
 			break
 		}

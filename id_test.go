@@ -7,14 +7,15 @@ import (
 
 func TestGenerateID(t *testing.T) {
 	prefix := "mint"
-	id := GenerateID(prefix)
+	length := 7
+	id := GenerateID(prefix, length)
 
-	// Check format: prefix + hyphen + 7 characters
+	// Check format: prefix + hyphen + specified length
 	if !strings.HasPrefix(id, prefix+"-") {
 		t.Errorf("expected ID to start with '%s-', got '%s'", prefix, id)
 	}
 
-	expectedLen := len(prefix) + 1 + 7 // prefix + hyphen + nanoid
+	expectedLen := len(prefix) + 1 + length // prefix + hyphen + nanoid
 	if len(id) != expectedLen {
 		t.Errorf("expected ID length %d, got %d (ID: %s)", expectedLen, len(id), id)
 	}
@@ -22,7 +23,8 @@ func TestGenerateID(t *testing.T) {
 
 func TestGenerateIDCustomAlphabet(t *testing.T) {
 	prefix := "mint"
-	id := GenerateID(prefix)
+	length := 7
+	id := GenerateID(prefix, length)
 
 	// Extract the nano ID part (after prefix and hyphen)
 	nanoID := strings.TrimPrefix(id, prefix+"-")
@@ -38,11 +40,12 @@ func TestGenerateIDCustomAlphabet(t *testing.T) {
 
 func TestGenerateIDUniqueness(t *testing.T) {
 	prefix := "mint"
+	length := 7
 	seen := make(map[string]bool)
 	iterations := 1000
 
 	for i := 0; i < iterations; i++ {
-		id := GenerateID(prefix)
+		id := GenerateID(prefix, length)
 		if seen[id] {
 			t.Errorf("generated duplicate ID: %s", id)
 		}
@@ -56,15 +59,84 @@ func TestGenerateIDUniqueness(t *testing.T) {
 
 func TestGenerateIDDifferentPrefix(t *testing.T) {
 	prefix := "test"
-	id := GenerateID(prefix)
+	length := 7
+	id := GenerateID(prefix, length)
 
 	if !strings.HasPrefix(id, prefix+"-") {
 		t.Errorf("expected ID to start with '%s-', got '%s'", prefix, id)
 	}
 
-	expectedLen := len(prefix) + 1 + 7 // prefix + hyphen + nanoid
+	expectedLen := len(prefix) + 1 + length // prefix + hyphen + nanoid
 	if len(id) != expectedLen {
 		t.Errorf("expected ID length %d, got %d", expectedLen, len(id))
+	}
+}
+
+func TestCalculateIDLength(t *testing.T) {
+	tests := []struct {
+		name        string
+		issueCount  int
+		expected    int
+		description string
+	}{
+		{
+			name:        "zero issues",
+			issueCount:  0,
+			expected:    3,
+			description: "minimum length for empty project",
+		},
+		{
+			name:        "single issue",
+			issueCount:  1,
+			expected:    3,
+			description: "minimum length",
+		},
+		{
+			name:        "9 issues",
+			issueCount:  9,
+			expected:    3,
+			description: "still at minimum length",
+		},
+		{
+			name:        "10 issues",
+			issueCount:  10,
+			expected:    4,
+			description: "crosses threshold to 4 chars",
+		},
+		{
+			name:        "50 issues",
+			issueCount:  50,
+			expected:    4,
+			description: "stays at 4 chars",
+		},
+		{
+			name:        "100 issues",
+			issueCount:  100,
+			expected:    5,
+			description: "medium project needs 5 chars",
+		},
+		{
+			name:        "1000 issues",
+			issueCount:  1000,
+			expected:    6,
+			description: "large project needs 6 chars",
+		},
+		{
+			name:        "10000 issues",
+			issueCount:  10000,
+			expected:    7,
+			description: "very large project needs 7 chars",
+		},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			result := CalculateIDLength(tt.issueCount)
+			if result != tt.expected {
+				t.Errorf("CalculateIDLength(%d) = %d, want %d (%s)",
+					tt.issueCount, result, tt.expected, tt.description)
+			}
+		})
 	}
 }
 
