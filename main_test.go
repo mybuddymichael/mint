@@ -160,8 +160,8 @@ func TestShowCommand(t *testing.T) {
 	if !strings.Contains(output, "ID:      "+issue.ID) {
 		t.Errorf("expected output to contain 'ID:      %s', got: %s", issue.ID, output)
 	}
-	if !strings.Contains(output, "Title:   \"Test show issue\"") {
-		t.Errorf("expected output to contain 'Title:   \"Test show issue\"', got: %s", output)
+	if !strings.Contains(output, "Title:   Test show issue") {
+		t.Errorf("expected output to contain 'Title:   Test show issue', got: %s", output)
 	}
 	if !strings.Contains(output, "Status:  open") {
 		t.Errorf("expected output to contain 'Status:  open', got: %s", output)
@@ -355,13 +355,13 @@ func TestListCommand(t *testing.T) {
 		t.Errorf("expected output to contain 'All issues:', got: %s", output)
 	}
 
-	if !strings.Contains(output, issue1.ID+" open \"First issue\"") {
+	if !strings.Contains(output, issue1.ID+" open First issue") {
 		t.Errorf("expected output to contain issue1 with open status, got: %s", output)
 	}
-	if !strings.Contains(output, issue2.ID+" closed \"Second issue\"") {
+	if !strings.Contains(output, issue2.ID+" closed Second issue") {
 		t.Errorf("expected output to contain issue2 with closed status, got: %s", output)
 	}
-	if !strings.Contains(output, issue3.ID+" open \"Third issue\"") {
+	if !strings.Contains(output, issue3.ID+" open Third issue") {
 		t.Errorf("expected output to contain issue3 with open status, got: %s", output)
 	}
 

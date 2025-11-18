@@ -3,7 +3,7 @@ issues:
   mint-3zpw65:
     id: mint-3zpw65
     title: Add a '--open' flag to 'list' to only show open issues
-    status: open
+    status: closed
   mint-5zdpgt:
     id: mint-5zdpgt
     title: Show minimum unique ID when listing issues
@@ -26,6 +26,16 @@ issues:
     id: mint-an7no0
     title: Show relationships when running 'show' on an issue
     status: closed
+  mint-jlv9eob:
+    id: mint-jlv9eob
+    title: Make the color of the extraneous id characters color 8
+    status: open
+  mint-l38ut0u:
+    id: mint-l38ut0u
+    title: Highlight the unique part of an ID when printing it
+    status: open
+    comments:
+    - We highlight the unique part of an ID when listing the IDs, but when we print an ID (such as when it's created), we should also highlight the unique part of the ID.
   mint-mfv0us:
     id: mint-mfv0us
     title: Allow setting relationships when an issue is created
@@ -41,7 +51,7 @@ issues:
   mint-piyjpq:
     id: mint-piyjpq
     title: Don't put quotes around the title when listing or showing issues
-    status: open
+    status: closed
   mint-rn8qjx:
     id: mint-rn8qjx
     title: Allow adding a description when creating an issue
