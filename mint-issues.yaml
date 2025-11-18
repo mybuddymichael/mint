@@ -70,6 +70,10 @@ issues:
     id: mint-ufovp7
     title: Allow 'add' as an alias for the 'create' subcommand
     status: open
+  mint-vu2td8t:
+    id: mint-vu2td8t
+    title: Comments should appear below relationships in the show subcommand
+    status: open
   mint-vvjkxz:
     id: mint-vvjkxz
     title: Change all references of 'mt' to 'mint'
@@ -80,3 +84,9 @@ issues:
     status: closed
     depends_on:
     - mint-5zdpgt
+  mint-zn27bxh:
+    id: mint-zn27bxh
+    title: "SetPrefix bug: drops first nanoid character when old prefix includes hyphen"
+    status: open
+    comments:
+    - "Bug in store.go:238 - SetPrefix function has 'suffix := oldID[len(oldPrefix)+1:]' which adds +1 to skip the hyphen separator. When old prefix was 'mt-' (included hyphen), this skipped 4 chars instead of 3, dropping first nanoid char. Example: 'mt-0ncc1dk' became 'mint-ncc1dk' (lost '0'). Affected issues: mint-3zpw65, mint-5zdpgt, mint-6yx9is, mint-ab8q1f, mint-an7no0, mint-mfv0us, mint-ncc1dk, mint-oz4u20, mint-piyjpq, mint-rn8qjx, mint-ufovp7, mint-vvjkxz. All have 6-char nanoids instead of 7. Newer issues (jlv9eob, l38ut0u, etc.) created after commit 6de96ff are correct with 7 chars."
