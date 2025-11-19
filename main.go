@@ -161,7 +161,7 @@ func createAction(ctx context.Context, cmd *cli.Command) error {
 		return err
 	}
 
-	_, err = fmt.Fprintf(cmd.Root().Writer, "Created issue %s\n", store.FormatID(issue.ID))
+	_, err = fmt.Fprintf(cmd.Root().Writer, "Created issue %s \"%s\"\n", store.FormatID(issue.ID), issue.Title)
 	return err
 }
 

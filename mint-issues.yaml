@@ -8,6 +8,10 @@ issues:
     id: mint-3zpw65
     title: Add a '--open' flag to 'list' to only show open issues
     status: closed
+  mint-535v:
+    id: mint-535v
+    title: Add delete subcommand
+    status: open
   mint-5zdpgt:
     id: mint-5zdpgt
     title: Show minimum unique ID when listing issues
@@ -43,7 +47,9 @@ issues:
   mint-chay:
     id: mint-chay
     title: Show the title in the confirmation message when adding an issue
-    status: open
+    status: closed
+    comments:
+    - "Closed with reason: Implemented"
   mint-g4uq:
     id: mint-g4uq
     title: Add single-letter aliases for update's flags

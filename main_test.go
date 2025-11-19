@@ -73,6 +73,9 @@ func TestCreateCommand(t *testing.T) {
 	if !strings.Contains(output, "Created issue mint-") {
 		t.Errorf("expected output to contain 'Created issue mint-', got: %s", output)
 	}
+	if !strings.Contains(output, `"Test issue"`) {
+		t.Errorf("expected output to contain issue title in quotes, got: %s", output)
+	}
 
 	// Verify the issue was saved
 	store, err := LoadStore(filePath)
@@ -143,6 +146,9 @@ func TestAddCommandAlias(t *testing.T) {
 	output := stripANSI(buf.String())
 	if !strings.Contains(output, "Created issue mint-") {
 		t.Errorf("expected output to contain 'Created issue mint-', got: %s", output)
+	}
+	if !strings.Contains(output, `"Test issue"`) {
+		t.Errorf("expected output to contain issue title in quotes, got: %s", output)
 	}
 }
 
