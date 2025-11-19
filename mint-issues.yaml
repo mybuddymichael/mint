@@ -83,6 +83,13 @@ issues:
     id: mint-piyjpq
     title: Don't put quotes around the title when listing or showing issues
     status: closed
+  mint-pwyu:
+    id: mint-pwyu
+    title: Use the proper method for storing the version
+    status: closed
+    comments:
+    - "https://cli.urfave.org/v3/examples/flags/basics/#version-flags"
+    - "Closed with reason: Implemented proper version handling using cli.Command.Version field"
   mint-rn8qjx:
     id: mint-rn8qjx
     title: Allow adding a description when creating an issue

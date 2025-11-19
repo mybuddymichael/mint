@@ -1512,3 +1512,35 @@ func TestCreateCommandWithEmptyComment(t *testing.T) {
 		t.Errorf("expected 0 comments for empty comment, got %d", len(issue.Comments))
 	}
 }
+
+func TestVersionFlag(t *testing.T) {
+	cmd := newCommand()
+	var buf bytes.Buffer
+	cmd.Writer = &buf
+
+	err := cmd.Run(context.Background(), []string{"mint", "--version"})
+	if err != nil {
+		t.Fatalf("--version flag failed: %v", err)
+	}
+
+	output := buf.String()
+	if !strings.Contains(output, version) {
+		t.Errorf("expected output to contain version '%s', got: %s", version, output)
+	}
+}
+
+func TestVersionFlagShort(t *testing.T) {
+	cmd := newCommand()
+	var buf bytes.Buffer
+	cmd.Writer = &buf
+
+	err := cmd.Run(context.Background(), []string{"mint", "-v"})
+	if err != nil {
+		t.Fatalf("-v flag failed: %v", err)
+	}
+
+	output := buf.String()
+	if !strings.Contains(output, version) {
+		t.Errorf("expected output to contain version '%s', got: %s", version, output)
+	}
+}

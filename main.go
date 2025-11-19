@@ -22,8 +22,9 @@ func main() {
 
 func newCommand() *cli.Command {
 	return &cli.Command{
-		Name:  "mint",
-		Usage: "A simple command line tool to create and track work.",
+		Name:    "mint",
+		Usage:   "A simple command line tool to create and track work.",
+		Version: version,
 		Commands: []*cli.Command{
 			{
 				Name:      "create",
@@ -110,14 +111,6 @@ func newCommand() *cli.Command {
 				Usage:     "Change the issue ID prefix",
 				ArgsUsage: "<new-prefix>",
 				Action:    setPrefixAction,
-			},
-			{
-				Name:  "version",
-				Usage: "Display the version",
-				Action: func(ctx context.Context, cmd *cli.Command) error {
-					fmt.Println(version)
-					return nil
-				},
 			},
 		},
 	}
