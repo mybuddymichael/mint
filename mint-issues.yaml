@@ -141,9 +141,10 @@ issues:
   mint-vx94mev:
     id: mint-vx94mev
     title: Help docs for mint update are confusing
-    status: open
+    status: closed
     comments:
     - The --depends-on and --blocks flag documentation is confusing in its presentation.
+    - "Closed with reason: Won't fix"
   mint-wjigoz:
     id: mint-wjigoz
     title: Allow selecting issues by typing the minimum unique ID
