@@ -590,3 +590,66 @@ func TestStoreSetPrefix_OldPrefixWithHyphen(t *testing.T) {
 		}
 	}
 }
+
+func TestStoreDeleteIssue(t *testing.T) {
+	store := NewStore()
+	issue, err := store.AddIssue("Test issue")
+	if err != nil {
+		t.Fatalf("AddIssue() failed: %v", err)
+	}
+
+	err = store.DeleteIssue(issue.ID)
+	if err != nil {
+		t.Fatalf("DeleteIssue() failed: %v", err)
+	}
+
+	if _, exists := store.Issues[issue.ID]; exists {
+		t.Error("issue should be deleted from store")
+	}
+}
+
+func TestStoreDeleteIssue_CleansReferences(t *testing.T) {
+	store := NewStore()
+	issue1, _ := store.AddIssue("Issue 1")
+	issue2, _ := store.AddIssue("Issue 2")
+	issue3, _ := store.AddIssue("Issue 3")
+
+	// Set up dependencies: issue2 depends on issue1, issue1 blocks issue3
+	_ = store.AddDependency(issue2.ID, issue1.ID)
+	_ = store.AddBlocker(issue1.ID, issue3.ID)
+
+	// Delete issue1
+	err := store.DeleteIssue(issue1.ID)
+	if err != nil {
+		t.Fatalf("DeleteIssue() failed: %v", err)
+	}
+
+	// issue1 should be gone
+	if _, exists := store.Issues[issue1.ID]; exists {
+		t.Error("issue1 should be deleted from store")
+	}
+
+	// issue2's DependsOn should be cleaned
+	if len(issue2.DependsOn) != 0 {
+		t.Errorf("issue2 should have no dependencies, got %d", len(issue2.DependsOn))
+	}
+
+	// issue3's Blocks should be cleaned
+	if len(issue3.Blocks) != 0 {
+		t.Errorf("issue3 should have no blockers, got %d", len(issue3.Blocks))
+	}
+}
+
+func TestStoreDeleteIssue_NotFound(t *testing.T) {
+	store := NewStore()
+
+	err := store.DeleteIssue("mint-nonexistent")
+	if err == nil {
+		t.Fatal("expected error when deleting nonexistent issue")
+	}
+
+	expectedErr := "issue not found: mint-nonexistent"
+	if err.Error() != expectedErr {
+		t.Errorf("expected error '%s', got '%s'", expectedErr, err.Error())
+	}
+}

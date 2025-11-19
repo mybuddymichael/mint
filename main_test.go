@@ -1634,6 +1634,69 @@ func TestCreateCommandWithEmptyComment(t *testing.T) {
 	}
 }
 
+func TestDeleteCommand(t *testing.T) {
+	tmpDir := t.TempDir()
+	filePath := filepath.Join(tmpDir, "mint-issues.yaml")
+	t.Setenv("MINT_STORE_FILE", filePath)
+
+	store, _ := LoadStore(filePath)
+	issue, _ := store.AddIssue("Test issue")
+	_ = store.Save(filePath)
+
+	cmd := newCommand()
+	var buf bytes.Buffer
+	cmd.Writer = &buf
+
+	err := cmd.Run(context.Background(), []string{"mint", "delete", issue.ID})
+	if err != nil {
+		t.Fatalf("delete command failed: %v", err)
+	}
+
+	store, _ = LoadStore(filePath)
+	_, err = store.GetIssue(issue.ID)
+	if err == nil {
+		t.Error("expected issue to be deleted")
+	}
+
+	output := stripANSI(buf.String())
+	if !strings.Contains(output, "Deleted issue "+issue.ID) {
+		t.Errorf("expected output to contain 'Deleted issue %s', got: %s", issue.ID, output)
+	}
+}
+
+func TestDeleteCommand_NoID(t *testing.T) {
+	tmpDir := t.TempDir()
+	filePath := filepath.Join(tmpDir, "mint-issues.yaml")
+	t.Setenv("MINT_STORE_FILE", filePath)
+
+	cmd := newCommand()
+	var buf bytes.Buffer
+	cmd.Writer = &buf
+
+	err := cmd.Run(context.Background(), []string{"mint", "delete"})
+	if err == nil {
+		t.Error("expected error when no issue ID provided")
+	}
+}
+
+func TestDeleteCommand_InvalidID(t *testing.T) {
+	tmpDir := t.TempDir()
+	filePath := filepath.Join(tmpDir, "mint-issues.yaml")
+	t.Setenv("MINT_STORE_FILE", filePath)
+
+	store := NewStore()
+	_ = store.Save(filePath)
+
+	cmd := newCommand()
+	var buf bytes.Buffer
+	cmd.Writer = &buf
+
+	err := cmd.Run(context.Background(), []string{"mint", "delete", "mint-nonexistent"})
+	if err == nil {
+		t.Error("expected error when deleting non-existent issue")
+	}
+}
+
 func TestVersionFlag(t *testing.T) {
 	cmd := newCommand()
 	var buf bytes.Buffer

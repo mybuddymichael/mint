@@ -229,6 +229,45 @@ func (s *Store) ReopenIssue(id string) error {
 	return nil
 }
 
+// DeleteIssue deletes an issue and cleans up all references to it
+func (s *Store) DeleteIssue(id string) error {
+	fullID, err := s.ResolveIssueID(id)
+	if err != nil {
+		return fmt.Errorf("issue not found: %s", id)
+	}
+
+	issueToDelete := s.Issues[fullID]
+
+	// Remove from issues that depend on this one
+	for _, blockedID := range issueToDelete.Blocks {
+		if blocked := s.Issues[blockedID]; blocked != nil {
+			newDeps := make([]string, 0, len(blocked.DependsOn)-1)
+			for _, depID := range blocked.DependsOn {
+				if depID != fullID {
+					newDeps = append(newDeps, depID)
+				}
+			}
+			blocked.DependsOn = newDeps
+		}
+	}
+
+	// Remove from issues this one depends on
+	for _, depID := range issueToDelete.DependsOn {
+		if dep := s.Issues[depID]; dep != nil {
+			newBlocks := make([]string, 0, len(dep.Blocks)-1)
+			for _, blockID := range dep.Blocks {
+				if blockID != fullID {
+					newBlocks = append(newBlocks, blockID)
+				}
+			}
+			dep.Blocks = newBlocks
+		}
+	}
+
+	delete(s.Issues, fullID)
+	return nil
+}
+
 // SetPrefix changes the store prefix and updates all issue IDs
 func (s *Store) SetPrefix(newPrefix string) error {
 	oldPrefix := s.Prefix
