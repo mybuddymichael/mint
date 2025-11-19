@@ -11,8 +11,8 @@ The interface might change as better patterns emerge.
 - A simple, intuitive command line interface.
 - Built for agents and humans.
 - Issues are stored as plain text in a single YAML file.
-- Track dependencies between issues (depends on, blocks, etc.).
-- Track status of issues (open, closed, in progress, etc.).
+- Track dependencies between issues (depends on, blocks).
+- Track status of issues (open, ready, closed).
 - See issues that are ready for work (issues with no dependencies and no blockers).
 
 ## Installation
