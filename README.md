@@ -2,6 +2,9 @@
 
 `mint` is a (very) simple command line tool to track work on a software project.
 
+![Screenshot of the program in use, in light mode, showing several issues.](https://r1vysk5peykhs5gu.public.blob.vercel-storage.com/mint-light-F2652rXYUItzrjt638pKO.png)
+![Screenshot of the program in use, in dark mode, showing several issues.](https://r1vysk5peykhs5gu.public.blob.vercel-storage.com/mint-dark-02f4fTQzr0EZRoZASYaOX.png)
+
 ## Features
 
 - A simple, intuitive command line interface.
