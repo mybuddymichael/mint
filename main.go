@@ -22,9 +22,10 @@ func main() {
 
 func newCommand() *cli.Command {
 	return &cli.Command{
-		Name:    "mint",
-		Usage:   "A simple command line tool to create and track work.",
-		Version: version,
+		Name:                  "mint",
+		Usage:                 "A simple command line tool to create and track work.",
+		Version:               version,
+		EnableShellCompletion: true,
 		Commands: []*cli.Command{
 			{
 				Name:      "create",

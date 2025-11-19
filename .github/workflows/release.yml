@@ -93,6 +93,7 @@ jobs:
 
             def install
               system "go", "build", "-trimpath", *std_go_args(output: bin/"mint", ldflags: "-s -w -X main.version=${{ github.ref_name }}"), "."
+              generate_completions_from_executable(bin/"mint", "completion")
             end
 
             test do

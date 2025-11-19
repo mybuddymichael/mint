@@ -1659,3 +1659,10 @@ func TestVersionFlagShort(t *testing.T) {
 		t.Errorf("expected output to contain version '%s', got: %s", version, output)
 	}
 }
+
+func TestShellCompletionEnabled(t *testing.T) {
+	cmd := newCommand()
+	if !cmd.EnableShellCompletion {
+		t.Error("expected EnableShellCompletion to be true")
+	}
+}
