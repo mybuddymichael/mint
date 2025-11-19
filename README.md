@@ -115,9 +115,9 @@ Prefix set to "am" and all issues updated
 
 ## Backend
 
-Issues are stored as plain text in a single YAML file. If a file is not found, it's created when the first issue is added.
+Issues are stored as plain text in a single YAML file (`mint-issues.yaml`), and I recommend tracking it in version control. If an issue storage file isn't found, it's created when the first issue is added.
 
-The file (`mint-issues.yaml`) is created at the top level of the project (based on the nearest located at mint-issues.yaml and should be tracked in version control. If a .git directory can't be found, the file will be created in the current directory when the command is run.
+The issue storage file is created at the top level of the project, based on the nearest .git folder. If a .git directory can't be found, the file will be created in the current directory when the command is run.
 
 ## Use with agents
 
