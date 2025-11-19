@@ -113,11 +113,11 @@ Deleted issue mint-a8
 Prefix set to "am" and all issues updated
 ```
 
-## Backend
+## Issue storage
 
-Issues are stored as plain text in a single YAML file (`mint-issues.yaml`), and I recommend tracking it in version control. If an issue storage file isn't found, it's created when the first issue is added.
+Issues are stored as plain text in a single YAML file (`mint-issues.yaml`), and I recommend tracking it in version control. If an issue file isn't found, it's created when the first issue is added.
 
-The issue storage file is created at the top level of the project, based on the nearest .git folder. If a .git directory can't be found, the file will be created in the current directory when the command is run.
+The issue file is created at the top level of the project, based on the nearest .git folder. If a .git directory can't be found, the file will be created in the current directory when the command is run.
 
 ## Use with agents
 
