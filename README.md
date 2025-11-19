@@ -45,15 +45,23 @@ Blocks:
   mint-8G "Write tests for closing issues"
 
 → mint list
-All issues:
-mint-8G open "Write tests for closing issues"
-mint-a8 open "Support closing issues"
-mint-j0 open "Add initial code structure"
-mint-lw open "Update README for closing issues"
+READY
 
-→ mint ready
-Issues with no blockers:
-mint-j0 "Add initial code structure"
+   mint-j0 open Add initial code structure
+
+BLOCKED
+
+   mint-a8 open Support closing issues
+
+CLOSED
+
+   mint-8G closed Write tests for closing issues
+   mint-lw closed Update README for closing issues
+
+→ mint list --ready
+READY
+
+   mint-j0 open Add initial code structure
 
 → mint update mint-a8 --comment "The problem is in main.go:123."
 Added a comment to issue mint-a8 with text "The problem is in main.go:123."
