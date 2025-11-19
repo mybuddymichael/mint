@@ -1,6 +1,6 @@
 - Always read README.md before starting a task.
 - Always include tests for new code.
-- Write tests first. Confirm they fail. Write the code to make them pass. Confirm they pass.
-- Use mise for all build, test, etc. commands.
+- Use RGR. Write tests first. Confirm they fail. Write the code to make them pass. Confirm they pass.
+- Use `mise` for all build, test, etc. commands.
 - Always run `mise run check` when you're done.
-- This project uses `mint` for all task tracking. Run `mint -h` to see all available commands.
+- Use `mint` for all task tracking and issue management. Run `mint -h` to see all available commands.
