@@ -2,10 +2,6 @@
 
 `mint` is a (very) simple command line tool to track work on a software project.
 
-I made it for myself. Other tools (see below) might be a much better solution for you.
-
-The interface might change as better patterns emerge.
-
 ## Features
 
 - A simple, intuitive command line interface.
@@ -112,6 +108,12 @@ This project uses Mint exclusively to track and manage issues. Run `mint help` t
 - Go
 - urfave/cli/v3
 - goccy/go-yaml
+
+## Disclaimer
+
+I made it for myself. Other tools (see below) might be a better solution for you.
+
+The interface might change as better patterns emerge.
 
 ## Prior art
 
