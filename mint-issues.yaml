@@ -11,7 +11,9 @@ issues:
   mint-535v:
     id: mint-535v
     title: Add delete subcommand
-    status: open
+    status: closed
+    comments:
+    - "Closed with reason: Implemented"
   mint-5zdpgt:
     id: mint-5zdpgt
     title: Show minimum unique ID when listing issues
