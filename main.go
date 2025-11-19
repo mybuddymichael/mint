@@ -70,20 +70,24 @@ func newCommand() *cli.Command {
 				ArgsUsage: "<issue-id>",
 				Flags: []cli.Flag{
 					&cli.StringFlag{
-						Name:  "title",
-						Usage: "New title for the issue",
+						Name:    "title",
+						Aliases: []string{"t"},
+						Usage:   "New title for the issue",
 					},
 					&cli.StringSliceFlag{
-						Name:  "depends-on",
-						Usage: "Add dependency (can be repeated)",
+						Name:    "depends-on",
+						Aliases: []string{"d"},
+						Usage:   "Add dependency (can be repeated)",
 					},
 					&cli.StringSliceFlag{
-						Name:  "blocks",
-						Usage: "Add blocked issues (can be repeated)",
+						Name:    "blocks",
+						Aliases: []string{"b"},
+						Usage:   "Add blocked issues (can be repeated)",
 					},
 					&cli.StringFlag{
-						Name:  "comment",
-						Usage: "Add a comment",
+						Name:    "comment",
+						Aliases: []string{"c"},
+						Usage:   "Add a comment",
 					},
 				},
 				Action: updateAction,

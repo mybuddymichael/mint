@@ -44,6 +44,14 @@ issues:
     id: mint-chay
     title: Show the title in the confirmation message when adding an issue
     status: open
+  mint-g4uq:
+    id: mint-g4uq
+    title: Add single-letter aliases for update's flags
+    status: closed
+    comments:
+    - We should add single-letter versions of the various flags to the update command to make it a little bit easier to type out by hand.
+    - "https://cli.urfave.org/v3/examples/flags/basics/#version-flags"
+    - "Closed with reason: Added"
   mint-j8k2:
     id: mint-j8k2
     title: Calculate ID length dynamically based on issue count

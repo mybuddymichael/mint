@@ -593,13 +593,14 @@ func TestUpdateCommandTitle(t *testing.T) {
 	issue, _ := store.AddIssue("Original title")
 	_ = store.Save(filePath)
 
+	// Test long flag
 	cmd := newCommand()
 	var buf bytes.Buffer
 	cmd.Writer = &buf
 
 	err := cmd.Run(context.Background(), []string{"mint", "update", issue.ID, "--title", "New title"})
 	if err != nil {
-		t.Fatalf("update command failed: %v", err)
+		t.Fatalf("update command with --title failed: %v", err)
 	}
 
 	store, _ = LoadStore(filePath)
@@ -607,6 +608,23 @@ func TestUpdateCommandTitle(t *testing.T) {
 
 	if updated.Title != "New title" {
 		t.Errorf("expected title 'New title', got '%s'", updated.Title)
+	}
+
+	// Test short flag
+	cmd2 := newCommand()
+	var buf2 bytes.Buffer
+	cmd2.Writer = &buf2
+
+	err = cmd2.Run(context.Background(), []string{"mint", "update", issue.ID, "-t", "Newer title"})
+	if err != nil {
+		t.Fatalf("update command with -t failed: %v", err)
+	}
+
+	store, _ = LoadStore(filePath)
+	updated, _ = store.GetIssue(issue.ID)
+
+	if updated.Title != "Newer title" {
+		t.Errorf("expected title 'Newer title', got '%s'", updated.Title)
 	}
 }
 
@@ -618,15 +636,17 @@ func TestUpdateCommandDependsOn(t *testing.T) {
 	store, _ := LoadStore(filePath)
 	issue1, _ := store.AddIssue("Issue 1")
 	issue2, _ := store.AddIssue("Issue 2")
+	issue3, _ := store.AddIssue("Issue 3")
 	_ = store.Save(filePath)
 
+	// Test long flag
 	cmd := newCommand()
 	var buf bytes.Buffer
 	cmd.Writer = &buf
 
 	err := cmd.Run(context.Background(), []string{"mint", "update", issue1.ID, "--depends-on", issue2.ID})
 	if err != nil {
-		t.Fatalf("update command failed: %v", err)
+		t.Fatalf("update command with --depends-on failed: %v", err)
 	}
 
 	store, _ = LoadStore(filePath)
@@ -640,6 +660,28 @@ func TestUpdateCommandDependsOn(t *testing.T) {
 	if len(blocker.Blocks) != 1 || blocker.Blocks[0] != issue1.ID {
 		t.Errorf("expected Blocks [%s], got %v", issue1.ID, blocker.Blocks)
 	}
+
+	// Test short flag
+	cmd2 := newCommand()
+	var buf2 bytes.Buffer
+	cmd2.Writer = &buf2
+
+	err = cmd2.Run(context.Background(), []string{"mint", "update", issue1.ID, "-d", issue3.ID})
+	if err != nil {
+		t.Fatalf("update command with -d failed: %v", err)
+	}
+
+	store, _ = LoadStore(filePath)
+	updated, _ = store.GetIssue(issue1.ID)
+
+	if len(updated.DependsOn) != 2 {
+		t.Errorf("expected 2 dependencies, got %d", len(updated.DependsOn))
+	}
+
+	blocker3, _ := store.GetIssue(issue3.ID)
+	if len(blocker3.Blocks) != 1 || blocker3.Blocks[0] != issue1.ID {
+		t.Errorf("expected issue3 Blocks [%s], got %v", issue1.ID, blocker3.Blocks)
+	}
 }
 
 func TestUpdateCommandBlocks(t *testing.T) {
@@ -651,15 +693,18 @@ func TestUpdateCommandBlocks(t *testing.T) {
 	issue1, _ := store.AddIssue("Issue 1")
 	issue2, _ := store.AddIssue("Issue 2")
 	issue3, _ := store.AddIssue("Issue 3")
+	issue4, _ := store.AddIssue("Issue 4")
+	issue5, _ := store.AddIssue("Issue 5")
 	_ = store.Save(filePath)
 
+	// Test long flag
 	cmd := newCommand()
 	var buf bytes.Buffer
 	cmd.Writer = &buf
 
 	err := cmd.Run(context.Background(), []string{"mint", "update", issue1.ID, "--blocks", issue2.ID, "--blocks", issue3.ID})
 	if err != nil {
-		t.Fatalf("update command failed: %v", err)
+		t.Fatalf("update command with --blocks failed: %v", err)
 	}
 
 	store, _ = LoadStore(filePath)
@@ -678,6 +723,33 @@ func TestUpdateCommandBlocks(t *testing.T) {
 	if len(blocked3.DependsOn) != 1 || blocked3.DependsOn[0] != issue1.ID {
 		t.Errorf("expected issue3 DependsOn [%s], got %v", issue1.ID, blocked3.DependsOn)
 	}
+
+	// Test short flag
+	cmd2 := newCommand()
+	var buf2 bytes.Buffer
+	cmd2.Writer = &buf2
+
+	err = cmd2.Run(context.Background(), []string{"mint", "update", issue1.ID, "-b", issue4.ID, "-b", issue5.ID})
+	if err != nil {
+		t.Fatalf("update command with -b failed: %v", err)
+	}
+
+	store, _ = LoadStore(filePath)
+	updated, _ = store.GetIssue(issue1.ID)
+
+	if len(updated.Blocks) != 4 {
+		t.Errorf("expected 4 blocks total, got %d", len(updated.Blocks))
+	}
+
+	blocked4, _ := store.GetIssue(issue4.ID)
+	if len(blocked4.DependsOn) != 1 || blocked4.DependsOn[0] != issue1.ID {
+		t.Errorf("expected issue4 DependsOn [%s], got %v", issue1.ID, blocked4.DependsOn)
+	}
+
+	blocked5, _ := store.GetIssue(issue5.ID)
+	if len(blocked5.DependsOn) != 1 || blocked5.DependsOn[0] != issue1.ID {
+		t.Errorf("expected issue5 DependsOn [%s], got %v", issue1.ID, blocked5.DependsOn)
+	}
 }
 
 func TestUpdateCommandComment(t *testing.T) {
@@ -689,13 +761,14 @@ func TestUpdateCommandComment(t *testing.T) {
 	issue, _ := store.AddIssue("Test issue")
 	_ = store.Save(filePath)
 
+	// Test long flag
 	cmd := newCommand()
 	var buf bytes.Buffer
 	cmd.Writer = &buf
 
 	err := cmd.Run(context.Background(), []string{"mint", "update", issue.ID, "--comment", "Test comment"})
 	if err != nil {
-		t.Fatalf("update command failed: %v", err)
+		t.Fatalf("update command with --comment failed: %v", err)
 	}
 
 	store, _ = LoadStore(filePath)
@@ -703,6 +776,23 @@ func TestUpdateCommandComment(t *testing.T) {
 
 	if len(updated.Comments) != 1 || updated.Comments[0] != "Test comment" {
 		t.Errorf("expected Comments ['Test comment'], got %v", updated.Comments)
+	}
+
+	// Test short flag
+	cmd2 := newCommand()
+	var buf2 bytes.Buffer
+	cmd2.Writer = &buf2
+
+	err = cmd2.Run(context.Background(), []string{"mint", "update", issue.ID, "-c", "Another comment"})
+	if err != nil {
+		t.Fatalf("update command with -c failed: %v", err)
+	}
+
+	store, _ = LoadStore(filePath)
+	updated, _ = store.GetIssue(issue.ID)
+
+	if len(updated.Comments) != 2 || updated.Comments[1] != "Another comment" {
+		t.Errorf("expected 2 comments with second being 'Another comment', got %v", updated.Comments)
 	}
 }
 
@@ -714,15 +804,17 @@ func TestUpdateCommandMultipleFlags(t *testing.T) {
 	store, _ := LoadStore(filePath)
 	issue1, _ := store.AddIssue("Issue 1")
 	issue2, _ := store.AddIssue("Issue 2")
+	issue3, _ := store.AddIssue("Issue 3")
 	_ = store.Save(filePath)
 
+	// Test long flags
 	cmd := newCommand()
 	var buf bytes.Buffer
 	cmd.Writer = &buf
 
 	err := cmd.Run(context.Background(), []string{"mint", "update", issue1.ID, "--title", "Updated", "--depends-on", issue2.ID, "--comment", "Done"})
 	if err != nil {
-		t.Fatalf("update command failed: %v", err)
+		t.Fatalf("update command with long flags failed: %v", err)
 	}
 
 	store, _ = LoadStore(filePath)
@@ -736,6 +828,29 @@ func TestUpdateCommandMultipleFlags(t *testing.T) {
 	}
 	if len(updated.Comments) != 1 || updated.Comments[0] != "Done" {
 		t.Errorf("expected Comments ['Done'], got %v", updated.Comments)
+	}
+
+	// Test short flags
+	cmd2 := newCommand()
+	var buf2 bytes.Buffer
+	cmd2.Writer = &buf2
+
+	err = cmd2.Run(context.Background(), []string{"mint", "update", issue1.ID, "-t", "Revised", "-b", issue3.ID, "-c", "Also done"})
+	if err != nil {
+		t.Fatalf("update command with short flags failed: %v", err)
+	}
+
+	store, _ = LoadStore(filePath)
+	updated, _ = store.GetIssue(issue1.ID)
+
+	if updated.Title != "Revised" {
+		t.Errorf("expected title 'Revised', got '%s'", updated.Title)
+	}
+	if len(updated.Blocks) != 1 || updated.Blocks[0] != issue3.ID {
+		t.Errorf("expected Blocks [%s], got %v", issue3.ID, updated.Blocks)
+	}
+	if len(updated.Comments) != 2 || updated.Comments[1] != "Also done" {
+		t.Errorf("expected 2 comments with second being 'Also done', got %v", updated.Comments)
 	}
 }
 
