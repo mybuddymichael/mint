@@ -30,7 +30,17 @@ func newCommand() *cli.Command {
 				Aliases:   []string{"add"},
 				Usage:     "Create a new issue",
 				ArgsUsage: "<title>",
-				Action:    createAction,
+				Flags: []cli.Flag{
+					&cli.StringFlag{
+						Name:  "description",
+						Usage: "Description for the issue (added as first comment)",
+					},
+					&cli.StringFlag{
+						Name:  "comment",
+						Usage: "Add a comment to the issue",
+					},
+				},
+				Action: createAction,
 			},
 			{
 				Name:  "list",
@@ -133,6 +143,20 @@ func createAction(ctx context.Context, cmd *cli.Command) error {
 	issue, err := store.AddIssue(title)
 	if err != nil {
 		return err
+	}
+
+	// Add description as first comment if provided
+	if description := cmd.String("description"); description != "" {
+		if err := store.AddComment(issue.ID, description); err != nil {
+			return err
+		}
+	}
+
+	// Add comment if provided
+	if comment := cmd.String("comment"); comment != "" {
+		if err := store.AddComment(issue.ID, comment); err != nil {
+			return err
+		}
 	}
 
 	if err := store.Save(filePath); err != nil {

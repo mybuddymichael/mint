@@ -86,7 +86,9 @@ issues:
   mint-rn8qjx:
     id: mint-rn8qjx
     title: Allow adding a description when creating an issue
-    status: open
+    status: closed
+    comments:
+    - "Closed with reason: Added"
   mint-tsw5qkb:
     id: mint-tsw5qkb
     title: When adding a comment, show a clearer success message
