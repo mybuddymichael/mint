@@ -15,6 +15,19 @@ The interface might change as better patterns emerge.
 - Track status of issues (open, closed, in progress, etc.).
 - See issues that are ready for work (issues with no dependencies and no blockers).
 
+## Installation
+
+Via [Homebrew](https://brew.sh/):
+```bash
+brew tap mybuddymichael/tap
+brew install mybuddymichael/tap/mint
+```
+
+Manually with Go:
+```
+go install github.com/mybuddymichael/mint@latest
+```
+
 ## Usage
 
 ```bash
