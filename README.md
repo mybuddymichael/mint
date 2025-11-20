@@ -121,7 +121,7 @@ Use `mint list --ready` to see issues that are ready for work. These are issues 
 
 ### Select issues quickly 
 
-When issues are printed, the minimal unique part is highlighted. So a full issue ID might be `mint-ELtA`, but the current minimum unique part (what distinguishes it from every other issue) is `<ul>mint-E</ul>`. So you can just type `mint-E` to select the issue.
+When issues are printed, the minimal unique part is highlighted. So a full issue ID might be `mint-ELtA`, but the current minimum unique part (what distinguishes it from every other issue) is `mint-E`. So you can just type `mint-E` to select the issue.
 
 The current unique part of an ID is always underlined for easy spotting.
 
