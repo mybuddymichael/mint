@@ -106,6 +106,10 @@ issues:
     comments:
     - "https://cli.urfave.org/v3/examples/flags/basics/#version-flags"
     - "Closed with reason: Implemented proper version handling using cli.Command.Version field"
+  mint-rmxy:
+    id: mint-rmxy
+    title: Add a migration system to handle issue schema migration
+    status: open
   mint-rn8qjx:
     id: mint-rn8qjx
     title: Allow adding a description when creating an issue

@@ -113,7 +113,17 @@ Deleted issue mint-a8
 Prefix set to "am" and all issues updated
 ```
 
-## Use with agents
+## Tips and tricks
+
+### Find issues that are ready for work
+
+Use `mint list --ready` to see issues that are ready for work. These are issues that are open and aren't blocked by anything else.
+
+### Select issues quickly 
+
+When issues are printed, the minimal unique part is highlighted. So a full issue ID might be `<ul>mint-E</ul>LtA`, but the current minimum unique part is `<ul>mint-E</ul>`. So you can just type `mint-E` to select the issue.
+
+### Use with agents
 
 Add something like this to your agent markdown file:
 
@@ -137,7 +147,7 @@ The issue file is created at the top level of the project, based on the nearest 
 
 ## Disclaimer
 
-I made it for myself. Other tools (see below) might be a better solution for you.
+I made this for myself. Other tools (see below) might be a better solution for you.
 
 The interface might change as better patterns emerge.
 
