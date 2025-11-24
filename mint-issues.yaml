@@ -174,4 +174,4 @@ issues:
   mint-zsbb:
     id: mint-zsbb
     title: Make a way to remove dependencies from an issue
-    status: open
+    status: closed

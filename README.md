@@ -55,14 +55,18 @@ Updated mint-a8 "Support closing issues"
 ```
 
 ```bash
+→ mint update mint-a8 --remove-depends-on mint-j0
+Updated mint-a8
+```
+
+```bash
 → mint show mint-a8
 ID: mint-a8
 Title: Support closing issues
 Status: open
-Depends on:
-  mint-j0 "Add initial code structure"
 Blocks:
   mint-8G "Write tests for closing issues"
+  mint-lw "Update README for closing issues"
 ```
 
 ```bash

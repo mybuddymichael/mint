@@ -88,6 +88,16 @@ func newCommand() *cli.Command {
 						Aliases: []string{"b"},
 						Usage:   "Add blocked issues (can be repeated)",
 					},
+					&cli.StringSliceFlag{
+						Name:    "remove-depends-on",
+						Aliases: []string{"rd"},
+						Usage:   "Remove dependency (can be repeated)",
+					},
+					&cli.StringSliceFlag{
+						Name:    "remove-blocks",
+						Aliases: []string{"rb"},
+						Usage:   "Remove blocked issues (can be repeated)",
+					},
 					&cli.StringFlag{
 						Name:    "comment",
 						Aliases: []string{"c"},
@@ -431,6 +441,24 @@ func updateAction(ctx context.Context, cmd *cli.Command) error {
 	if blocks := cmd.StringSlice("blocks"); len(blocks) > 0 {
 		for _, blockID := range blocks {
 			if err := store.AddBlocker(fullID, blockID); err != nil {
+				return err
+			}
+		}
+	}
+
+	// Remove dependencies
+	if removeDeps := cmd.StringSlice("remove-depends-on"); len(removeDeps) > 0 {
+		for _, depID := range removeDeps {
+			if err := store.RemoveDependency(fullID, depID); err != nil {
+				return err
+			}
+		}
+	}
+
+	// Remove blockers
+	if removeBlocks := cmd.StringSlice("remove-blocks"); len(removeBlocks) > 0 {
+		for _, blockID := range removeBlocks {
+			if err := store.RemoveBlocker(fullID, blockID); err != nil {
 				return err
 			}
 		}

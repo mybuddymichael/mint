@@ -1975,3 +1975,129 @@ func TestShellCompletionEnabled(t *testing.T) {
 		t.Error("expected EnableShellCompletion to be true")
 	}
 }
+
+func TestUpdateCommandRemoveDependsOn(t *testing.T) {
+	tmpDir := t.TempDir()
+	filePath := filepath.Join(tmpDir, "mint-issues.yaml")
+	t.Setenv("MINT_STORE_FILE", filePath)
+
+	store, _ := LoadStore(filePath)
+	issue1, _ := store.AddIssue("Issue 1")
+	issue2, _ := store.AddIssue("Issue 2")
+	issue3, _ := store.AddIssue("Issue 3")
+
+	// Add dependencies
+	_ = store.AddDependency(issue1.ID, issue2.ID)
+	_ = store.AddDependency(issue1.ID, issue3.ID)
+	_ = store.Save(filePath)
+
+	// Test long flag
+	cmd := newCommand()
+	var buf bytes.Buffer
+	cmd.Writer = &buf
+
+	err := cmd.Run(context.Background(), []string{"mint", "update", issue1.ID, "--remove-depends-on", issue2.ID})
+	if err != nil {
+		t.Fatalf("update command with --remove-depends-on failed: %v", err)
+	}
+
+	store, _ = LoadStore(filePath)
+	updated, _ := store.GetIssue(issue1.ID)
+
+	// Should have one dependency left (issue3)
+	if len(updated.DependsOn) != 1 || updated.DependsOn[0] != issue3.ID {
+		t.Errorf("expected DependsOn [%s], got %v", issue3.ID, updated.DependsOn)
+	}
+
+	// issue2 should no longer block issue1
+	blocker, _ := store.GetIssue(issue2.ID)
+	if len(blocker.Blocks) != 0 {
+		t.Errorf("expected issue2 to have no blocks, got %v", blocker.Blocks)
+	}
+
+	// Test short flag
+	cmd2 := newCommand()
+	var buf2 bytes.Buffer
+	cmd2.Writer = &buf2
+
+	err = cmd2.Run(context.Background(), []string{"mint", "update", issue1.ID, "-rd", issue3.ID})
+	if err != nil {
+		t.Fatalf("update command with -rd failed: %v", err)
+	}
+
+	store, _ = LoadStore(filePath)
+	updated, _ = store.GetIssue(issue1.ID)
+
+	// Should have no dependencies left
+	if len(updated.DependsOn) != 0 {
+		t.Errorf("expected no dependencies, got %v", updated.DependsOn)
+	}
+
+	blocker3, _ := store.GetIssue(issue3.ID)
+	if len(blocker3.Blocks) != 0 {
+		t.Errorf("expected issue3 to have no blocks, got %v", blocker3.Blocks)
+	}
+}
+
+func TestUpdateCommandRemoveBlocks(t *testing.T) {
+	tmpDir := t.TempDir()
+	filePath := filepath.Join(tmpDir, "mint-issues.yaml")
+	t.Setenv("MINT_STORE_FILE", filePath)
+
+	store, _ := LoadStore(filePath)
+	issue1, _ := store.AddIssue("Issue 1")
+	issue2, _ := store.AddIssue("Issue 2")
+	issue3, _ := store.AddIssue("Issue 3")
+
+	// Add blockers
+	_ = store.AddBlocker(issue1.ID, issue2.ID)
+	_ = store.AddBlocker(issue1.ID, issue3.ID)
+	_ = store.Save(filePath)
+
+	// Test long flag
+	cmd := newCommand()
+	var buf bytes.Buffer
+	cmd.Writer = &buf
+
+	err := cmd.Run(context.Background(), []string{"mint", "update", issue1.ID, "--remove-blocks", issue2.ID})
+	if err != nil {
+		t.Fatalf("update command with --remove-blocks failed: %v", err)
+	}
+
+	store, _ = LoadStore(filePath)
+	updated, _ := store.GetIssue(issue1.ID)
+
+	// Should have one block left (issue3)
+	if len(updated.Blocks) != 1 || updated.Blocks[0] != issue3.ID {
+		t.Errorf("expected Blocks [%s], got %v", issue3.ID, updated.Blocks)
+	}
+
+	// issue2 should no longer depend on issue1
+	blocked, _ := store.GetIssue(issue2.ID)
+	if len(blocked.DependsOn) != 0 {
+		t.Errorf("expected issue2 to have no dependencies, got %v", blocked.DependsOn)
+	}
+
+	// Test short flag
+	cmd2 := newCommand()
+	var buf2 bytes.Buffer
+	cmd2.Writer = &buf2
+
+	err = cmd2.Run(context.Background(), []string{"mint", "update", issue1.ID, "-rb", issue3.ID})
+	if err != nil {
+		t.Fatalf("update command with -rb failed: %v", err)
+	}
+
+	store, _ = LoadStore(filePath)
+	updated, _ = store.GetIssue(issue1.ID)
+
+	// Should have no blocks left
+	if len(updated.Blocks) != 0 {
+		t.Errorf("expected no blocks, got %v", updated.Blocks)
+	}
+
+	blocked3, _ := store.GetIssue(issue3.ID)
+	if len(blocked3.DependsOn) != 0 {
+		t.Errorf("expected issue3 to have no dependencies, got %v", blocked3.DependsOn)
+	}
+}
