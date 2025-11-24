@@ -88,7 +88,9 @@ issues:
   mint-ncc1dk:
     id: mint-ncc1dk
     title: Add a type field to issues
-    status: open
+    status: closed
+    comments:
+    - "Closed with reason: Not right now?"
   mint-oz4u20:
     id: mint-oz4u20
     title: Add 'ready' subcommand
