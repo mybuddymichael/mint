@@ -615,6 +615,6 @@ func setPrefixAction(ctx context.Context, cmd *cli.Command) error {
 	}
 
 	w := cmd.Root().Writer
-	_, err = fmt.Fprintf(w, "Prefix set to \"%s\" and all issues updated\n", newPrefix)
+	_, err = fmt.Fprintf(w, "Prefix set to \"%s\" and all issues updated\n", store.Prefix)
 	return err
 }
