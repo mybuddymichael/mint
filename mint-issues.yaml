@@ -3,7 +3,9 @@ issues:
   mint-03kn:
     id: mint-03kn
     title: Add single-letter aliases for common subcommands
-    status: open
+    status: closed
+    comments:
+    - "Closed with reason: Added"
   mint-3zpw65:
     id: mint-3zpw65
     title: Add a '--open' flag to 'list' to only show open issues
