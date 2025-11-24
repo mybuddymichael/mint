@@ -152,6 +152,54 @@ func TestAddCommandAlias(t *testing.T) {
 	}
 }
 
+func TestCreateCommandAliasC(t *testing.T) {
+	tmpDir := t.TempDir()
+	filePath := filepath.Join(tmpDir, "mint-issues.yaml")
+
+	cmd := newCommand()
+	var buf bytes.Buffer
+	cmd.Writer = &buf
+
+	t.Setenv("MINT_STORE_FILE", filePath)
+
+	err := cmd.Run(context.Background(), []string{"mint", "c", "Test issue"})
+	if err != nil {
+		t.Fatalf("c alias command failed: %v", err)
+	}
+
+	output := stripANSI(buf.String())
+	if !strings.Contains(output, "Created issue mint-") {
+		t.Errorf("expected output to contain 'Created issue mint-', got: %s", output)
+	}
+	if !strings.Contains(output, `"Test issue"`) {
+		t.Errorf("expected output to contain issue title in quotes, got: %s", output)
+	}
+}
+
+func TestCreateCommandAliasA(t *testing.T) {
+	tmpDir := t.TempDir()
+	filePath := filepath.Join(tmpDir, "mint-issues.yaml")
+
+	cmd := newCommand()
+	var buf bytes.Buffer
+	cmd.Writer = &buf
+
+	t.Setenv("MINT_STORE_FILE", filePath)
+
+	err := cmd.Run(context.Background(), []string{"mint", "a", "Test issue"})
+	if err != nil {
+		t.Fatalf("a alias command failed: %v", err)
+	}
+
+	output := stripANSI(buf.String())
+	if !strings.Contains(output, "Created issue mint-") {
+		t.Errorf("expected output to contain 'Created issue mint-', got: %s", output)
+	}
+	if !strings.Contains(output, `"Test issue"`) {
+		t.Errorf("expected output to contain issue title in quotes, got: %s", output)
+	}
+}
+
 func TestShowCommand(t *testing.T) {
 	tmpDir := t.TempDir()
 	filePath := filepath.Join(tmpDir, "mint-issues.yaml")
@@ -375,6 +423,44 @@ func TestShowCommandWithRelationshipsAndComments(t *testing.T) {
 	}
 	if commentsIdx != -1 && blocksIdx != -1 && commentsIdx < blocksIdx {
 		t.Errorf("Comments section should appear after Blocks section")
+	}
+}
+
+func TestShowCommandAlias(t *testing.T) {
+	tmpDir := t.TempDir()
+	filePath := filepath.Join(tmpDir, "mint-issues.yaml")
+
+	t.Setenv("MINT_STORE_FILE", filePath)
+
+	store, err := LoadStore(filePath)
+	if err != nil {
+		t.Fatalf("failed to load store: %v", err)
+	}
+
+	issue, err := store.AddIssue("Test show issue")
+	if err != nil {
+		t.Fatalf("failed to add issue: %v", err)
+	}
+
+	if err := store.Save(filePath); err != nil {
+		t.Fatalf("failed to save store: %v", err)
+	}
+
+	cmd := newCommand()
+	var buf bytes.Buffer
+	cmd.Writer = &buf
+
+	err = cmd.Run(context.Background(), []string{"mint", "s", issue.ID})
+	if err != nil {
+		t.Fatalf("s alias command failed: %v", err)
+	}
+
+	output := stripANSI(buf.String())
+	if !strings.Contains(output, "ID:      "+issue.ID) {
+		t.Errorf("expected output to contain 'ID:      %s', got: %s", issue.ID, output)
+	}
+	if !strings.Contains(output, "Title:   Test show issue") {
+		t.Errorf("expected output to contain 'Title:   Test show issue', got: %s", output)
 	}
 }
 
@@ -1001,6 +1087,37 @@ func TestCloseCommand_InvalidID(t *testing.T) {
 	}
 }
 
+func TestCloseCommandAlias(t *testing.T) {
+	tmpDir := t.TempDir()
+	filePath := filepath.Join(tmpDir, "mint-issues.yaml")
+	t.Setenv("MINT_STORE_FILE", filePath)
+
+	store, _ := LoadStore(filePath)
+	issue, _ := store.AddIssue("Test issue")
+	_ = store.Save(filePath)
+
+	cmd := newCommand()
+	var buf bytes.Buffer
+	cmd.Writer = &buf
+
+	err := cmd.Run(context.Background(), []string{"mint", "cl", issue.ID})
+	if err != nil {
+		t.Fatalf("cl alias command failed: %v", err)
+	}
+
+	store, _ = LoadStore(filePath)
+	closed, _ := store.GetIssue(issue.ID)
+
+	if closed.Status != "closed" {
+		t.Errorf("expected status 'closed', got '%s'", closed.Status)
+	}
+
+	output := stripANSI(buf.String())
+	if !strings.Contains(output, "Closed issue "+issue.ID) {
+		t.Errorf("expected output to contain 'Closed issue %s', got: %s", issue.ID, output)
+	}
+}
+
 func TestOpenCommand(t *testing.T) {
 	tmpDir := t.TempDir()
 	filePath := filepath.Join(tmpDir, "mint-issues.yaml")
@@ -1066,6 +1183,38 @@ func TestOpenCommand_InvalidID(t *testing.T) {
 	}
 }
 
+func TestOpenCommandAlias(t *testing.T) {
+	tmpDir := t.TempDir()
+	filePath := filepath.Join(tmpDir, "mint-issues.yaml")
+	t.Setenv("MINT_STORE_FILE", filePath)
+
+	store, _ := LoadStore(filePath)
+	issue, _ := store.AddIssue("Test issue")
+	_ = store.CloseIssue(issue.ID, "")
+	_ = store.Save(filePath)
+
+	cmd := newCommand()
+	var buf bytes.Buffer
+	cmd.Writer = &buf
+
+	err := cmd.Run(context.Background(), []string{"mint", "o", issue.ID})
+	if err != nil {
+		t.Fatalf("o alias command failed: %v", err)
+	}
+
+	store, _ = LoadStore(filePath)
+	reopened, _ := store.GetIssue(issue.ID)
+
+	if reopened.Status != "open" {
+		t.Errorf("expected status 'open', got '%s'", reopened.Status)
+	}
+
+	output := stripANSI(buf.String())
+	if !strings.Contains(output, "Re-opened issue "+issue.ID) {
+		t.Errorf("expected output to contain 'Re-opened issue %s', got: %s", issue.ID, output)
+	}
+}
+
 func TestSetPrefixCommand_NoPrefix(t *testing.T) {
 	tmpDir := t.TempDir()
 	filePath := filepath.Join(tmpDir, "mint-issues.yaml")
@@ -1104,6 +1253,32 @@ func TestUpdateCommand_PartialID(t *testing.T) {
 	output := stripANSI(buf.String())
 	if !strings.Contains(output, "Updated "+issue.ID) {
 		t.Errorf("expected output to contain 'Updated %s' (full ID), got: %s", issue.ID, output)
+	}
+}
+
+func TestUpdateCommandAlias(t *testing.T) {
+	tmpDir := t.TempDir()
+	filePath := filepath.Join(tmpDir, "mint-issues.yaml")
+	t.Setenv("MINT_STORE_FILE", filePath)
+
+	store, _ := LoadStore(filePath)
+	issue, _ := store.AddIssue("Original title")
+	_ = store.Save(filePath)
+
+	cmd := newCommand()
+	var buf bytes.Buffer
+	cmd.Writer = &buf
+
+	err := cmd.Run(context.Background(), []string{"mint", "u", issue.ID, "--title", "New title"})
+	if err != nil {
+		t.Fatalf("u alias command failed: %v", err)
+	}
+
+	store, _ = LoadStore(filePath)
+	updated, _ := store.GetIssue(issue.ID)
+
+	if updated.Title != "New title" {
+		t.Errorf("expected title 'New title', got '%s'", updated.Title)
 	}
 }
 
@@ -1439,6 +1614,41 @@ func TestListCommandAlignment(t *testing.T) {
 	}
 }
 
+func TestListCommandAlias(t *testing.T) {
+	tmpDir := t.TempDir()
+	filePath := filepath.Join(tmpDir, "mint-issues.yaml")
+
+	t.Setenv("MINT_STORE_FILE", filePath)
+
+	store, err := LoadStore(filePath)
+	if err != nil {
+		t.Fatalf("failed to load store: %v", err)
+	}
+
+	issue, err := store.AddIssue("Test issue")
+	if err != nil {
+		t.Fatalf("failed to add issue: %v", err)
+	}
+
+	if err := store.Save(filePath); err != nil {
+		t.Fatalf("failed to save store: %v", err)
+	}
+
+	cmd := newCommand()
+	var buf bytes.Buffer
+	cmd.Writer = &buf
+
+	err = cmd.Run(context.Background(), []string{"mint", "l"})
+	if err != nil {
+		t.Fatalf("l alias command failed: %v", err)
+	}
+
+	output := stripANSI(buf.String())
+	if !strings.Contains(output, issue.ID) {
+		t.Errorf("expected output to contain issue ID '%s', got: %s", issue.ID, output)
+	}
+}
+
 func TestCreateCommandWithDescription(t *testing.T) {
 	tmpDir := t.TempDir()
 	filePath := filepath.Join(tmpDir, "mint-issues.yaml")
@@ -1694,6 +1904,36 @@ func TestDeleteCommand_InvalidID(t *testing.T) {
 	err := cmd.Run(context.Background(), []string{"mint", "delete", "mint-nonexistent"})
 	if err == nil {
 		t.Error("expected error when deleting non-existent issue")
+	}
+}
+
+func TestDeleteCommandAlias(t *testing.T) {
+	tmpDir := t.TempDir()
+	filePath := filepath.Join(tmpDir, "mint-issues.yaml")
+	t.Setenv("MINT_STORE_FILE", filePath)
+
+	store, _ := LoadStore(filePath)
+	issue, _ := store.AddIssue("Test issue")
+	_ = store.Save(filePath)
+
+	cmd := newCommand()
+	var buf bytes.Buffer
+	cmd.Writer = &buf
+
+	err := cmd.Run(context.Background(), []string{"mint", "d", issue.ID})
+	if err != nil {
+		t.Fatalf("d alias command failed: %v", err)
+	}
+
+	store, _ = LoadStore(filePath)
+	_, err = store.GetIssue(issue.ID)
+	if err == nil {
+		t.Error("expected issue to be deleted")
+	}
+
+	output := stripANSI(buf.String())
+	if !strings.Contains(output, "Deleted issue "+issue.ID) {
+		t.Errorf("expected output to contain 'Deleted issue %s', got: %s", issue.ID, output)
 	}
 }
 

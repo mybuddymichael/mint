@@ -29,7 +29,7 @@ func newCommand() *cli.Command {
 		Commands: []*cli.Command{
 			{
 				Name:      "create",
-				Aliases:   []string{"add"},
+				Aliases:   []string{"add", "c", "a"},
 				Usage:     "Create a new issue",
 				ArgsUsage: "<title>",
 				Flags: []cli.Flag{
@@ -45,8 +45,9 @@ func newCommand() *cli.Command {
 				Action: createAction,
 			},
 			{
-				Name:  "list",
-				Usage: "List all issues",
+				Name:    "list",
+				Aliases: []string{"l"},
+				Usage:   "List all issues",
 				Flags: []cli.Flag{
 					&cli.BoolFlag{
 						Name:  "open",
@@ -61,12 +62,14 @@ func newCommand() *cli.Command {
 			},
 			{
 				Name:      "show",
+				Aliases:   []string{"s"},
 				Usage:     "Show an issue and its details",
 				ArgsUsage: "<issue-id>",
 				Action:    showAction,
 			},
 			{
 				Name:      "update",
+				Aliases:   []string{"u"},
 				Usage:     "Update an issue",
 				ArgsUsage: "<issue-id>",
 				Flags: []cli.Flag{
@@ -95,6 +98,7 @@ func newCommand() *cli.Command {
 			},
 			{
 				Name:      "close",
+				Aliases:   []string{"cl"},
 				Usage:     "Close an issue",
 				ArgsUsage: "<issue-id>",
 				Flags: []cli.Flag{
@@ -107,12 +111,14 @@ func newCommand() *cli.Command {
 			},
 			{
 				Name:      "open",
+				Aliases:   []string{"o"},
 				Usage:     "Re-open a closed issue",
 				ArgsUsage: "<issue-id>",
 				Action:    openAction,
 			},
 			{
 				Name:      "delete",
+				Aliases:   []string{"d"},
 				Usage:     "Delete an issue",
 				ArgsUsage: "<issue-id>",
 				Action:    deleteAction,

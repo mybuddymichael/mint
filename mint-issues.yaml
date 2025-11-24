@@ -118,6 +118,10 @@ issues:
     status: closed
     comments:
     - "Closed with reason: Added"
+  mint-rp6w:
+    id: mint-rp6w
+    title: Unblock an issue when all blocking issues are closed
+    status: open
   mint-tsw5qkb:
     id: mint-tsw5qkb
     title: When adding a comment, show a clearer success message
@@ -165,3 +169,7 @@ issues:
     - "Bug in store.go:238 - SetPrefix function has 'suffix := oldID[len(oldPrefix)+1:]' which adds +1 to skip the hyphen separator. When old prefix was 'mt-' (included hyphen), this skipped 4 chars instead of 3, dropping first nanoid char. Example: 'mt-0ncc1dk' became 'mint-ncc1dk' (lost '0'). Affected issues: mint-3zpw65, mint-5zdpgt, mint-6yx9is, mint-ab8q1f, mint-an7no0, mint-mfv0us, mint-ncc1dk, mint-oz4u20, mint-piyjpq, mint-rn8qjx, mint-ufovp7, mint-vvjkxz. All have 6-char nanoids instead of 7. Newer issues (jlv9eob, l38ut0u, etc.) created after commit 6de96ff are correct with 7 chars."
     - Fixed in store.go:239 by changing 'suffix := oldID[len(oldPrefix)+1:]' to 'suffix := strings.TrimPrefix(oldID[len(oldPrefix):], "-")'. This handles both prefixes with and without trailing hyphens. Added regression test TestStoreSetPrefix_OldPrefixWithHyphen to prevent future occurrences.
     - "Closed with reason: Fixed and tested"
+  mint-zsbb:
+    id: mint-zsbb
+    title: Make a way to remove dependencies from an issue
+    status: open
