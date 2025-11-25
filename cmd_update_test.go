@@ -195,6 +195,23 @@ func TestUpdateCommandComment(t *testing.T) {
 		t.Fatalf("update command with --comment failed: %v", err)
 	}
 
+	output := stripANSI(buf.String())
+	if !strings.Contains(output, "✔︎ Issue updated") {
+		t.Errorf("expected output to contain '✔︎ Issue updated', got: %s", output)
+	}
+	if !strings.Contains(output, "ID      "+issue.ID) {
+		t.Errorf("expected output to contain 'ID      %s', got: %s", issue.ID, output)
+	}
+	if !strings.Contains(output, "Title   Test issue") {
+		t.Errorf("expected output to contain 'Title   Test issue', got: %s", output)
+	}
+	if !strings.Contains(output, "Comments") {
+		t.Errorf("expected output to contain 'Comments', got: %s", output)
+	}
+	if !strings.Contains(output, "Test comment") {
+		t.Errorf("expected output to contain 'Test comment', got: %s", output)
+	}
+
 	store, _ = LoadStore(filePath)
 	updated, _ := store.GetIssue(issue.ID)
 
@@ -239,6 +256,23 @@ func TestUpdateCommandMultipleFlags(t *testing.T) {
 	err := cmd.Run(context.Background(), []string{"mint", "update", issue1.ID, "--title", "Updated", "--depends-on", issue2.ID, "--comment", "Done"})
 	if err != nil {
 		t.Fatalf("update command with long flags failed: %v", err)
+	}
+
+	output := stripANSI(buf.String())
+	if !strings.Contains(output, "✔︎ Issue updated") {
+		t.Errorf("expected output to contain '✔︎ Issue updated', got: %s", output)
+	}
+	if !strings.Contains(output, "ID      "+issue1.ID) {
+		t.Errorf("expected output to contain 'ID      %s', got: %s", issue1.ID, output)
+	}
+	if !strings.Contains(output, "Title   Updated") {
+		t.Errorf("expected output to contain 'Title   Updated', got: %s", output)
+	}
+	if !strings.Contains(output, "Comments") {
+		t.Errorf("expected output to contain 'Comments', got: %s", output)
+	}
+	if !strings.Contains(output, "Done") {
+		t.Errorf("expected output to contain comment 'Done', got: %s", output)
 	}
 
 	store, _ = LoadStore(filePath)
@@ -299,8 +333,11 @@ func TestUpdateCommand_PartialID(t *testing.T) {
 	}
 
 	output := stripANSI(buf.String())
-	if !strings.Contains(output, "Updated "+issue.ID) {
-		t.Errorf("expected output to contain 'Updated %s' (full ID), got: %s", issue.ID, output)
+	if !strings.Contains(output, "✔︎ Issue updated") {
+		t.Errorf("expected output to contain '✔︎ Issue updated', got: %s", output)
+	}
+	if !strings.Contains(output, "ID      "+issue.ID) {
+		t.Errorf("expected output to contain 'ID      %s' (full ID), got: %s", issue.ID, output)
 	}
 }
 
