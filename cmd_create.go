@@ -47,6 +47,9 @@ func createAction(ctx context.Context, cmd *cli.Command) error {
 		return err
 	}
 
-	_, err = fmt.Fprintf(cmd.Root().Writer, "Created issue %s \"%s\"\n", store.FormatID(issue.ID), issue.Title)
-	return err
+	w := cmd.Root().Writer
+	if _, err := fmt.Fprintf(w, "\x1b[1;32m✔︎ Created issue\x1b[0m\n\n"); err != nil {
+		return err
+	}
+	return PrintIssueDetails(w, issue, store)
 }

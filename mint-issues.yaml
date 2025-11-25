@@ -73,6 +73,10 @@ issues:
     id: mint-jlv9eob
     title: Make the color of the extraneous id characters color 8
     status: closed
+  mint-k51i:
+    id: mint-k51i
+    title: When adding a ticket, show the same message as we do with
+    status: open
   mint-l38ut0u:
     id: mint-l38ut0u
     title: Highlight the unique part of an ID when printing it

@@ -3,9 +3,7 @@ package main
 import (
 	"context"
 	"fmt"
-	"io"
 	"os"
-	"strings"
 
 	"github.com/urfave/cli/v3"
 )
@@ -141,16 +139,4 @@ func newCommand() *cli.Command {
 			},
 		},
 	}
-}
-
-func printIssueList(w io.Writer, issues []*Issue, maxIDLen int, store *Store) error {
-	for _, issue := range issues {
-		formattedID := store.FormatID(issue.ID)
-		// Pad shorter IDs so status words align across all issues
-		padding := strings.Repeat(" ", 1+maxIDLen-len(issue.ID))
-		if _, err := fmt.Fprintf(w, "   %s%s%s %s\n", formattedID, padding, issue.Status, issue.Title); err != nil {
-			return err
-		}
-	}
-	return nil
 }
