@@ -39,6 +39,16 @@ func newCommand() *cli.Command {
 						Name:  "comment",
 						Usage: "Add a comment to the issue",
 					},
+					&cli.StringSliceFlag{
+						Name:    "depends-on",
+						Aliases: []string{"d"},
+						Usage:   "Add dependency (can be repeated)",
+					},
+					&cli.StringSliceFlag{
+						Name:    "blocks",
+						Aliases: []string{"b"},
+						Usage:   "Add blocked issues (can be repeated)",
+					},
 				},
 				Action: createAction,
 			},

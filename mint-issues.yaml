@@ -84,9 +84,10 @@ issues:
   mint-mfv0us:
     id: mint-mfv0us
     title: Allow setting relationships when an issue is created
-    status: open
+    status: closed
     comments:
     - E.g., `mint create 'fix the bug' --blocks mint-a8`
+    - "Closed with reason: Implemented --depends-on/-d and --blocks/-b flags for create command with full test coverage"
   mint-ncc1dk:
     id: mint-ncc1dk
     title: Add a type field to issues

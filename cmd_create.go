@@ -24,9 +24,38 @@ func createAction(ctx context.Context, cmd *cli.Command) error {
 		return err
 	}
 
+	// Pre-validate relationship IDs exist
+	dependsOnIDs := cmd.StringSlice("depends-on")
+	for _, depID := range dependsOnIDs {
+		if _, err := store.ResolveIssueID(depID); err != nil {
+			return fmt.Errorf("dependency issue not found: %w", err)
+		}
+	}
+
+	blocksIDs := cmd.StringSlice("blocks")
+	for _, blockID := range blocksIDs {
+		if _, err := store.ResolveIssueID(blockID); err != nil {
+			return fmt.Errorf("blocked issue not found: %w", err)
+		}
+	}
+
 	issue, err := store.AddIssue(title)
 	if err != nil {
 		return err
+	}
+
+	// Add dependencies
+	for _, depID := range dependsOnIDs {
+		if err := store.AddDependency(issue.ID, depID); err != nil {
+			return err
+		}
+	}
+
+	// Add blockers
+	for _, blockID := range blocksIDs {
+		if err := store.AddBlocker(issue.ID, blockID); err != nil {
+			return err
+		}
 	}
 
 	// Add description as first comment if provided
