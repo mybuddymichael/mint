@@ -35,19 +35,15 @@ func listAction(ctx context.Context, cmd *cli.Command) error {
 		return err
 	}
 
-	// Calculate max ID length for alignment
+	// Calculate max ID length and separate issues into ready, blocked, and closed
 	maxIDLen := 0
-	for _, issue := range issues {
-		if len(issue.ID) > maxIDLen {
-			maxIDLen = len(issue.ID)
-		}
-	}
-
-	// Separate issues into ready, blocked, and closed
 	readyIssues := make([]*Issue, 0)
 	blockedIssues := make([]*Issue, 0)
 	closedIssues := make([]*Issue, 0)
 	for _, issue := range issues {
+		if len(issue.ID) > maxIDLen {
+			maxIDLen = len(issue.ID)
+		}
 		if issue.Status == "open" {
 			if store.IsReady(issue) {
 				readyIssues = append(readyIssues, issue)
