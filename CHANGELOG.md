@@ -1,5 +1,21 @@
 # Changelog
 
+## [0.4.0] - 2025-11-25
+
+### Features
+- Update 'update' subcommand for removing relationships
+- Add single-letter aliases for subcommands
+
+### Documentation
+- Fix more formatting
+- Fix formatting
+- Add some tips and tricks
+
+### Testing
+- Add more tests for GetStoreFilePath
+- Add coverage mise task
+- Add more tests for set-prefix
+
 ## [0.3.0] - 2025-11-19
 
 ### Features
@@ -86,6 +102,7 @@
 - Add a basic program that will run
 - Add mise.toml
 
+[0.4.0]: https://github.com/mybuddymichael/mint/compare/v0.3.0..v0.4.0
 [0.3.0]: https://github.com/mybuddymichael/mint/compare/v0.2.0..v0.3.0
 [0.2.0]: https://github.com/mybuddymichael/mint/compare/v0.1.0..v0.2.0
 
