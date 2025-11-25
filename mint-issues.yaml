@@ -134,6 +134,8 @@ issues:
     id: mint-tsw5qkb
     title: When adding a comment, show a clearer success message
     status: open
+    comments:
+    - We should show the text of the comment in the success message, similar to how we show the title when adding a new issue.
   mint-u8jkhre:
     id: mint-u8jkhre
     title: Subcommands don't print the full ID when responding
