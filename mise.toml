@@ -4,6 +4,9 @@ go = "1.25.3"
 [tasks.test]
 run = "go test ./..."
 
+[tasks.coverage]
+run = "go test -coverprofile=/tmp/coverage.out ./... && go tool cover -func=/tmp/coverage.out"
+
 # [tasks.build-check]
 # run = "go build -o /dev/null ."
 
