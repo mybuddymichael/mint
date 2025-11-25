@@ -35,13 +35,20 @@ func closeAction(ctx context.Context, cmd *cli.Command) error {
 		return err
 	}
 
+	issue, err := store.GetIssue(fullID)
+	if err != nil {
+		return err
+	}
+
 	if err := store.Save(filePath); err != nil {
 		return err
 	}
 
 	w := cmd.Root().Writer
-	_, err = fmt.Fprintf(w, "Closed issue %s\n", store.FormatID(fullID))
-	return err
+	if _, err := fmt.Fprintf(w, "\x1b[1;32m✔︎ Issue closed\x1b[0m\n\n"); err != nil {
+		return err
+	}
+	return PrintIssueDetails(w, issue, store)
 }
 
 func openAction(ctx context.Context, cmd *cli.Command) error {

@@ -54,6 +54,12 @@ issues:
     status: closed
     comments:
     - "Closed with reason: Implemented"
+  mint-d69q:
+    id: mint-d69q
+    title: Show full issue details when closing an issue
+    status: closed
+    comments:
+    - "Closed with reason: Done"
   mint-g4uq:
     id: mint-g4uq
     title: Add single-letter aliases for update's flags

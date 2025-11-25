@@ -38,8 +38,17 @@ func TestCloseCommand(t *testing.T) {
 	}
 
 	output := stripANSI(buf.String())
-	if !strings.Contains(output, "Closed issue "+issue.ID) {
-		t.Errorf("expected output to contain 'Closed issue %s', got: %s", issue.ID, output)
+	if !strings.Contains(output, "✔︎ Issue closed") {
+		t.Errorf("expected output to contain '✔︎ Issue closed', got: %s", output)
+	}
+	if !strings.Contains(output, "ID      "+issue.ID) {
+		t.Errorf("expected output to contain 'ID      %s', got: %s", issue.ID, output)
+	}
+	if !strings.Contains(output, "Title   Test issue") {
+		t.Errorf("expected output to contain 'Title   Test issue', got: %s", output)
+	}
+	if !strings.Contains(output, "Status  closed") {
+		t.Errorf("expected output to contain 'Status  closed', got: %s", output)
 	}
 }
 
@@ -78,8 +87,23 @@ func TestCloseCommand_WithReason(t *testing.T) {
 	}
 
 	output := stripANSI(buf.String())
-	if !strings.Contains(output, "Closed issue "+issue.ID) {
-		t.Errorf("expected output to contain 'Closed issue %s', got: %s", issue.ID, output)
+	if !strings.Contains(output, "✔︎ Issue closed") {
+		t.Errorf("expected output to contain '✔︎ Issue closed', got: %s", output)
+	}
+	if !strings.Contains(output, "ID      "+issue.ID) {
+		t.Errorf("expected output to contain 'ID      %s', got: %s", issue.ID, output)
+	}
+	if !strings.Contains(output, "Title   Test issue") {
+		t.Errorf("expected output to contain 'Title   Test issue', got: %s", output)
+	}
+	if !strings.Contains(output, "Status  closed") {
+		t.Errorf("expected output to contain 'Status  closed', got: %s", output)
+	}
+	if !strings.Contains(output, "Comments") {
+		t.Errorf("expected output to contain 'Comments', got: %s", output)
+	}
+	if !strings.Contains(output, "Closed with reason: Done") {
+		t.Errorf("expected output to contain 'Closed with reason: Done', got: %s", output)
 	}
 }
 
@@ -142,8 +166,17 @@ func TestCloseCommandAlias(t *testing.T) {
 	}
 
 	output := stripANSI(buf.String())
-	if !strings.Contains(output, "Closed issue "+issue.ID) {
-		t.Errorf("expected output to contain 'Closed issue %s', got: %s", issue.ID, output)
+	if !strings.Contains(output, "✔︎ Issue closed") {
+		t.Errorf("expected output to contain '✔︎ Issue closed', got: %s", output)
+	}
+	if !strings.Contains(output, "ID      "+issue.ID) {
+		t.Errorf("expected output to contain 'ID      %s', got: %s", issue.ID, output)
+	}
+	if !strings.Contains(output, "Title   Test issue") {
+		t.Errorf("expected output to contain 'Title   Test issue', got: %s", output)
+	}
+	if !strings.Contains(output, "Status  closed") {
+		t.Errorf("expected output to contain 'Status  closed', got: %s", output)
 	}
 }
 
@@ -265,8 +298,17 @@ func TestCloseCommand_PartialID(t *testing.T) {
 	}
 
 	output := stripANSI(buf.String())
-	if !strings.Contains(output, "Closed issue "+issue.ID) {
-		t.Errorf("expected output to contain 'Closed issue %s' (full ID), got: %s", issue.ID, output)
+	if !strings.Contains(output, "✔︎ Issue closed") {
+		t.Errorf("expected output to contain '✔︎ Issue closed', got: %s", output)
+	}
+	if !strings.Contains(output, "ID      "+issue.ID) {
+		t.Errorf("expected output to contain 'ID      %s' (full ID), got: %s", issue.ID, output)
+	}
+	if !strings.Contains(output, "Title   Test issue") {
+		t.Errorf("expected output to contain 'Title   Test issue', got: %s", output)
+	}
+	if !strings.Contains(output, "Status  closed") {
+		t.Errorf("expected output to contain 'Status  closed', got: %s", output)
 	}
 }
 
