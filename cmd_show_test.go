@@ -40,14 +40,14 @@ func TestShowCommand(t *testing.T) {
 	}
 
 	output := stripANSI(buf.String())
-	if !strings.Contains(output, "ID:      "+issue.ID) {
-		t.Errorf("expected output to contain 'ID:      %s', got: %s", issue.ID, output)
+	if !strings.Contains(output, "ID      "+issue.ID) {
+		t.Errorf("expected output to contain 'ID      %s', got: %s", issue.ID, output)
 	}
-	if !strings.Contains(output, "Title:   Test show issue") {
-		t.Errorf("expected output to contain 'Title:   Test show issue', got: %s", output)
+	if !strings.Contains(output, "Title   Test show issue") {
+		t.Errorf("expected output to contain 'Title   Test show issue', got: %s", output)
 	}
-	if !strings.Contains(output, "Status:  open") {
-		t.Errorf("expected output to contain 'Status:  open', got: %s", output)
+	if !strings.Contains(output, "Status  open") {
+		t.Errorf("expected output to contain 'Status  open', got: %s", output)
 	}
 }
 
@@ -87,9 +87,9 @@ func TestShowCommandWithComments(t *testing.T) {
 		t.Fatalf("show command failed: %v", err)
 	}
 
-	output := buf.String()
-	if !strings.Contains(output, "Comments:") {
-		t.Errorf("expected output to contain 'Comments:', got: %s", output)
+	output := stripANSI(buf.String())
+	if !strings.Contains(output, "Comments") {
+		t.Errorf("expected output to contain 'Comments', got: %s", output)
 	}
 	if !strings.Contains(output, "  First comment") {
 		t.Errorf("expected output to contain '  First comment', got: %s", output)
@@ -117,9 +117,9 @@ func TestShowCommandNoComments(t *testing.T) {
 		t.Fatalf("show command failed: %v", err)
 	}
 
-	output := buf.String()
-	if strings.Contains(output, "Comments:") {
-		t.Errorf("expected output NOT to contain 'Comments:' when no comments, got: %s", output)
+	output := stripANSI(buf.String())
+	if strings.Contains(output, "Comments") {
+		t.Errorf("expected output NOT to contain 'Comments' when no comments, got: %s", output)
 	}
 }
 
@@ -146,14 +146,14 @@ func TestShowCommandWithRelationships(t *testing.T) {
 	}
 
 	output := stripANSI(buf.String())
-	if !strings.Contains(output, "Depends on:") {
-		t.Errorf("expected output to contain 'Depends on:', got: %s", output)
+	if !strings.Contains(output, "Depends on") {
+		t.Errorf("expected output to contain 'Depends on', got: %s", output)
 	}
 	if !strings.Contains(output, "  "+issue2.ID+" Dependency issue") {
 		t.Errorf("expected output to contain '  %s Dependency issue', got: %s", issue2.ID, output)
 	}
-	if !strings.Contains(output, "Blocks:") {
-		t.Errorf("expected output to contain 'Blocks:', got: %s", output)
+	if !strings.Contains(output, "Blocks") {
+		t.Errorf("expected output to contain 'Blocks', got: %s", output)
 	}
 	if !strings.Contains(output, "  "+issue3.ID+" Blocked issue") {
 		t.Errorf("expected output to contain '  %s Blocked issue', got: %s", issue3.ID, output)
@@ -178,12 +178,12 @@ func TestShowCommandNoRelationships(t *testing.T) {
 		t.Fatalf("show command failed: %v", err)
 	}
 
-	output := buf.String()
-	if strings.Contains(output, "Depends on:") {
-		t.Errorf("expected output NOT to contain 'Depends on:' when no dependencies, got: %s", output)
+	output := stripANSI(buf.String())
+	if strings.Contains(output, "Depends on") {
+		t.Errorf("expected output NOT to contain 'Depends on' when no dependencies, got: %s", output)
 	}
-	if strings.Contains(output, "Blocks:") {
-		t.Errorf("expected output NOT to contain 'Blocks:' when no blocks, got: %s", output)
+	if strings.Contains(output, "Blocks") {
+		t.Errorf("expected output NOT to contain 'Blocks' when no blocks, got: %s", output)
 	}
 }
 
@@ -210,20 +210,20 @@ func TestShowCommandWithRelationshipsAndComments(t *testing.T) {
 		t.Fatalf("show command failed: %v", err)
 	}
 
-	output := buf.String()
+	output := stripANSI(buf.String())
 
-	dependsIdx := strings.Index(output, "Depends on:")
-	blocksIdx := strings.Index(output, "Blocks:")
-	commentsIdx := strings.Index(output, "Comments:")
+	dependsIdx := strings.Index(output, "Depends on")
+	blocksIdx := strings.Index(output, "Blocks")
+	commentsIdx := strings.Index(output, "Comments")
 
 	if dependsIdx == -1 {
-		t.Error("expected output to contain 'Depends on:'")
+		t.Error("expected output to contain 'Depends on'")
 	}
 	if blocksIdx == -1 {
-		t.Error("expected output to contain 'Blocks:'")
+		t.Error("expected output to contain 'Blocks'")
 	}
 	if commentsIdx == -1 {
-		t.Error("expected output to contain 'Comments:'")
+		t.Error("expected output to contain 'Comments'")
 	}
 
 	if commentsIdx != -1 && dependsIdx != -1 && commentsIdx < dependsIdx {
@@ -264,10 +264,10 @@ func TestShowCommandAlias(t *testing.T) {
 	}
 
 	output := stripANSI(buf.String())
-	if !strings.Contains(output, "ID:      "+issue.ID) {
-		t.Errorf("expected output to contain 'ID:      %s', got: %s", issue.ID, output)
+	if !strings.Contains(output, "ID      "+issue.ID) {
+		t.Errorf("expected output to contain 'ID      %s', got: %s", issue.ID, output)
 	}
-	if !strings.Contains(output, "Title:   Test show issue") {
-		t.Errorf("expected output to contain 'Title:   Test show issue', got: %s", output)
+	if !strings.Contains(output, "Title   Test show issue") {
+		t.Errorf("expected output to contain 'Title   Test show issue', got: %s", output)
 	}
 }

@@ -9,17 +9,17 @@ import (
 // PrintIssueDetails prints full issue details including ID, Title, Status,
 // Dependencies, Blocks, and Comments
 func PrintIssueDetails(w io.Writer, issue *Issue, store *Store) error {
-	if _, err := fmt.Fprintf(w, "ID:      %s\n", store.FormatID(issue.ID)); err != nil {
+	if _, err := fmt.Fprintf(w, "\033[1m\033[38;5;5mID\033[0m      %s\n", store.FormatID(issue.ID)); err != nil {
 		return err
 	}
-	if _, err := fmt.Fprintf(w, "Title:   %s\n", issue.Title); err != nil {
+	if _, err := fmt.Fprintf(w, "\033[1m\033[38;5;5mTitle\033[0m   %s\n", issue.Title); err != nil {
 		return err
 	}
-	if _, err := fmt.Fprintf(w, "Status:  %s\n", issue.Status); err != nil {
+	if _, err := fmt.Fprintf(w, "\033[1m\033[38;5;5mStatus\033[0m  %s\n", issue.Status); err != nil {
 		return err
 	}
 	if len(issue.DependsOn) > 0 {
-		if _, err := fmt.Fprintln(w, "Depends on:"); err != nil {
+		if _, err := fmt.Fprintln(w, "\033[1m\033[38;5;5mDepends on\033[0m"); err != nil {
 			return err
 		}
 		for _, depID := range issue.DependsOn {
@@ -33,7 +33,7 @@ func PrintIssueDetails(w io.Writer, issue *Issue, store *Store) error {
 		}
 	}
 	if len(issue.Blocks) > 0 {
-		if _, err := fmt.Fprintln(w, "Blocks:"); err != nil {
+		if _, err := fmt.Fprintln(w, "\033[1m\033[38;5;5mBlocks\033[0m"); err != nil {
 			return err
 		}
 		for _, blockID := range issue.Blocks {
@@ -47,7 +47,7 @@ func PrintIssueDetails(w io.Writer, issue *Issue, store *Store) error {
 		}
 	}
 	if len(issue.Comments) > 0 {
-		if _, err := fmt.Fprintln(w, "Comments:"); err != nil {
+		if _, err := fmt.Fprintln(w, "\033[1m\033[38;5;5mComments\033[0m"); err != nil {
 			return err
 		}
 		for _, comment := range issue.Comments {

@@ -73,10 +73,6 @@ issues:
     id: mint-jlv9eob
     title: Make the color of the extraneous id characters color 8
     status: closed
-  mint-k51i:
-    id: mint-k51i
-    title: When adding a ticket, show the same message as we do with
-    status: open
   mint-l38ut0u:
     id: mint-l38ut0u
     title: Highlight the unique part of an ID when printing it
@@ -97,6 +93,13 @@ issues:
     status: closed
     comments:
     - "Closed with reason: Not right now?"
+  mint-njhr:
+    id: mint-njhr
+    title: When printing issue details, make the keys for each detail bold and ANSI color 5
+    status: closed
+    comments:
+    - And we shouldn't have a colon after each of the keys.
+    - "Closed with reason: completed"
   mint-oz4u20:
     id: mint-oz4u20
     title: Add 'ready' subcommand

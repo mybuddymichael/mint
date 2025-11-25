@@ -28,14 +28,14 @@ func TestCreateCommand(t *testing.T) {
 	if !strings.Contains(output, "✔︎ Created issue") {
 		t.Errorf("expected output to contain '✔︎ Created issue', got: %s", output)
 	}
-	if !strings.Contains(output, "ID:      mint-") {
-		t.Errorf("expected output to contain 'ID:      mint-', got: %s", output)
+	if !strings.Contains(output, "ID      mint-") {
+		t.Errorf("expected output to contain 'ID      mint-', got: %s", output)
 	}
-	if !strings.Contains(output, "Title:   Test issue") {
-		t.Errorf("expected output to contain 'Title:   Test issue', got: %s", output)
+	if !strings.Contains(output, "Title   Test issue") {
+		t.Errorf("expected output to contain 'Title   Test issue', got: %s", output)
 	}
-	if !strings.Contains(output, "Status:  open") {
-		t.Errorf("expected output to contain 'Status:  open', got: %s", output)
+	if !strings.Contains(output, "Status  open") {
+		t.Errorf("expected output to contain 'Status  open', got: %s", output)
 	}
 
 	// Verify the issue was saved
@@ -108,8 +108,8 @@ func TestAddCommandAlias(t *testing.T) {
 	if !strings.Contains(output, "✔︎ Created issue") {
 		t.Errorf("expected output to contain '✔︎ Created issue', got: %s", output)
 	}
-	if !strings.Contains(output, "Title:   Test issue") {
-		t.Errorf("expected output to contain 'Title:   Test issue', got: %s", output)
+	if !strings.Contains(output, "Title   Test issue") {
+		t.Errorf("expected output to contain 'Title   Test issue', got: %s", output)
 	}
 }
 
@@ -132,8 +132,8 @@ func TestCreateCommandAliasC(t *testing.T) {
 	if !strings.Contains(output, "✔︎ Created issue") {
 		t.Errorf("expected output to contain '✔︎ Created issue', got: %s", output)
 	}
-	if !strings.Contains(output, "Title:   Test issue") {
-		t.Errorf("expected output to contain 'Title:   Test issue', got: %s", output)
+	if !strings.Contains(output, "Title   Test issue") {
+		t.Errorf("expected output to contain 'Title   Test issue', got: %s", output)
 	}
 }
 
@@ -156,8 +156,8 @@ func TestCreateCommandAliasA(t *testing.T) {
 	if !strings.Contains(output, "✔︎ Created issue") {
 		t.Errorf("expected output to contain '✔︎ Created issue', got: %s", output)
 	}
-	if !strings.Contains(output, "Title:   Test issue") {
-		t.Errorf("expected output to contain 'Title:   Test issue', got: %s", output)
+	if !strings.Contains(output, "Title   Test issue") {
+		t.Errorf("expected output to contain 'Title   Test issue', got: %s", output)
 	}
 }
 
