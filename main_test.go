@@ -1989,6 +1989,87 @@ func TestListCommandWithReadyFlag(t *testing.T) {
 	}
 }
 
+func TestListCommandReadyWithClosedDependencies(t *testing.T) {
+	tmpDir := t.TempDir()
+	filePath := filepath.Join(tmpDir, "mint-issues.yaml")
+	t.Setenv("MINT_STORE_FILE", filePath)
+
+	store, _ := LoadStore(filePath)
+
+	// Create blockers
+	closedBlocker1, _ := store.AddIssue("Closed blocker 1")
+	closedBlocker2, _ := store.AddIssue("Closed blocker 2")
+	openBlocker, _ := store.AddIssue("Open blocker")
+
+	// Create blocked issues
+	issueWithAllClosedDeps, _ := store.AddIssue("Issue with all closed deps")
+	issueWithMixedDeps, _ := store.AddIssue("Issue with mixed deps")
+	issueWithAllOpenDeps, _ := store.AddIssue("Issue with all open deps")
+
+	// Set up dependencies
+	_ = store.AddDependency(issueWithAllClosedDeps.ID, closedBlocker1.ID)
+	_ = store.AddDependency(issueWithAllClosedDeps.ID, closedBlocker2.ID)
+
+	_ = store.AddDependency(issueWithMixedDeps.ID, closedBlocker1.ID)
+	_ = store.AddDependency(issueWithMixedDeps.ID, openBlocker.ID)
+
+	_ = store.AddDependency(issueWithAllOpenDeps.ID, openBlocker.ID)
+
+	// Close some blockers
+	_ = store.CloseIssue(closedBlocker1.ID, "")
+	_ = store.CloseIssue(closedBlocker2.ID, "")
+
+	_ = store.Save(filePath)
+
+	cmd := newCommand()
+	var buf bytes.Buffer
+	cmd.Writer = &buf
+
+	err := cmd.Run(context.Background(), []string{"mint", "list"})
+	if err != nil {
+		t.Fatalf("list command failed: %v", err)
+	}
+
+	output := buf.String()
+	strippedOutput := stripANSI(output)
+
+	// Issue with all closed dependencies should show as READY
+	if !strings.Contains(output, " READY ") {
+		t.Error("expected output to contain ' READY ' header")
+	}
+
+	// Split output into sections to check where each issue appears
+	readyIdx := strings.Index(strippedOutput, " READY ")
+	blockedIdx := strings.Index(strippedOutput, " BLOCKED ")
+
+	issueIdx := strings.Index(strippedOutput, issueWithAllClosedDeps.ID)
+	if issueIdx == -1 {
+		t.Fatalf("issue %s not found in output", issueWithAllClosedDeps.ID)
+	}
+
+	// Check that issue appears after READY but before BLOCKED
+	if issueIdx < readyIdx || issueIdx > blockedIdx {
+		t.Errorf("expected issue %s with all closed deps to show in READY section (between %d and %d), but found at %d",
+			issueWithAllClosedDeps.ID, readyIdx, blockedIdx, issueIdx)
+	}
+
+	// Issues with any open dependencies should show as BLOCKED
+	if !strings.Contains(output, " BLOCKED ") {
+		t.Error("expected output to contain ' BLOCKED ' header")
+	}
+	if !strings.Contains(strippedOutput, "   "+issueWithMixedDeps.ID) {
+		t.Errorf("expected issue %s with mixed deps to show in BLOCKED section, got: %s", issueWithMixedDeps.ID, strippedOutput)
+	}
+	if !strings.Contains(strippedOutput, "   "+issueWithAllOpenDeps.ID) {
+		t.Errorf("expected issue %s with all open deps to show in BLOCKED section, got: %s", issueWithAllOpenDeps.ID, strippedOutput)
+	}
+
+	// Closed blockers should show in CLOSED section
+	if !strings.Contains(output, " CLOSED ") {
+		t.Error("expected output to contain ' CLOSED ' header")
+	}
+}
+
 func TestListCommandAlignment(t *testing.T) {
 	tmpDir := t.TempDir()
 	filePath := filepath.Join(tmpDir, "mint-issues.yaml")

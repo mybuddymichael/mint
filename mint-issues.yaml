@@ -123,7 +123,9 @@ issues:
   mint-rp6w:
     id: mint-rp6w
     title: Unblock an issue when all blocking issues are closed
-    status: open
+    status: closed
+    comments:
+    - "Closed with reason: Added"
   mint-s3lm:
     id: mint-s3lm
     title: Detect circular dependencies when adding relationships and showing issues

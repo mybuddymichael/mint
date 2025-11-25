@@ -240,7 +240,7 @@ func listAction(ctx context.Context, cmd *cli.Command) error {
 	closedIssues := make([]*Issue, 0)
 	for _, issue := range issues {
 		if issue.Status == "open" {
-			if len(issue.DependsOn) == 0 {
+			if store.IsReady(issue) {
 				readyIssues = append(readyIssues, issue)
 			} else {
 				blockedIssues = append(blockedIssues, issue)

@@ -140,6 +140,17 @@ func (s *Store) ListIssues() []*Issue {
 	return issues
 }
 
+// IsReady returns true if the issue has no open dependencies
+func (s *Store) IsReady(issue *Issue) bool {
+	for _, depID := range issue.DependsOn {
+		dep := s.Issues[depID]
+		if dep != nil && dep.Status == "open" {
+			return false
+		}
+	}
+	return true
+}
+
 // FormatID computes minimum unique prefix length across all store issues,
 // then calls id.FormatID to apply ANSI formatting (underline + gray suffix)
 func (s *Store) FormatID(id string) string {
