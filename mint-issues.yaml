@@ -60,6 +60,13 @@ issues:
     status: closed
     comments:
     - "Closed with reason: Done"
+  mint-d6iu:
+    id: mint-d6iu
+    title: Make error handling less verbose
+    status: closed
+    comments:
+    - Right now, every line is printed individually, And every call to print line is checked for an error. Ideally, we would only need to check for an error once, maybe by creating a string and then printing it all together.
+    - "Closed with reason: Done"
   mint-g4uq:
     id: mint-g4uq
     title: Add single-letter aliases for update's flags
