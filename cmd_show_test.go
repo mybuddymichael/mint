@@ -149,14 +149,14 @@ func TestShowCommandWithRelationships(t *testing.T) {
 	if !strings.Contains(output, "Depends on") {
 		t.Errorf("expected output to contain 'Depends on', got: %s", output)
 	}
-	if !strings.Contains(output, "  "+issue2.ID+" Dependency issue") {
-		t.Errorf("expected output to contain '  %s Dependency issue', got: %s", issue2.ID, output)
+	if !strings.Contains(output, "  "+issue2.ID+" open Dependency issue") {
+		t.Errorf("expected output to contain '  %s open Dependency issue', got: %s", issue2.ID, output)
 	}
 	if !strings.Contains(output, "Blocks") {
 		t.Errorf("expected output to contain 'Blocks', got: %s", output)
 	}
-	if !strings.Contains(output, "  "+issue3.ID+" Blocked issue") {
-		t.Errorf("expected output to contain '  %s Blocked issue', got: %s", issue3.ID, output)
+	if !strings.Contains(output, "  "+issue3.ID+" open Blocked issue") {
+		t.Errorf("expected output to contain '  %s open Blocked issue', got: %s", issue3.ID, output)
 	}
 }
 

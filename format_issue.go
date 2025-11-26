@@ -20,7 +20,7 @@ func PrintIssueDetails(w io.Writer, issue *Issue, store *Store) error {
 			if err != nil {
 				return err
 			}
-			fmt.Fprintf(&b, "  %s %s\n", store.FormatID(dep.ID), dep.Title)
+			fmt.Fprintf(&b, "  %s %s %s\n", store.FormatID(dep.ID), dep.Status, dep.Title)
 		}
 	}
 	if len(issue.Blocks) > 0 {
@@ -30,7 +30,7 @@ func PrintIssueDetails(w io.Writer, issue *Issue, store *Store) error {
 			if err != nil {
 				return err
 			}
-			fmt.Fprintf(&b, "  %s %s\n", store.FormatID(blocked.ID), blocked.Title)
+			fmt.Fprintf(&b, "  %s %s %s\n", store.FormatID(blocked.ID), blocked.Status, blocked.Title)
 		}
 	}
 	if len(issue.Comments) > 0 {

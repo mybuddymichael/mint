@@ -94,6 +94,12 @@ issues:
     - u8jkhre
     comments:
     - We highlight the unique part of an ID when listing the IDs, but when we print an ID (such as when it's created), we should also highlight the unique part of the ID.
+  larw:
+    id: larw
+    title: Show the relationship issue statuses when showing issue details
+    status: closed
+    comments:
+    - "Closed with reason: Implemented status display in relationship sections"
   mfv0us:
     id: mfv0us
     title: Allow setting relationships when an issue is created
