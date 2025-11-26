@@ -1,5 +1,14 @@
 # Changelog
 
+## [0.6.0] - 2025-11-26
+
+### Features
+- Allow setting no prefix for issue IDs
+
+### Refactoring
+- Remove extra loop when listing issues
+- Use strings.Builder to compose text
+
 ## [0.5.1] - 2025-11-25
 
 ### Style
@@ -128,6 +137,7 @@
 - Add a basic program that will run
 - Add mise.toml
 
+[0.6.0]: https://github.com/mybuddymichael/mint/compare/v0.5.1..v0.6.0
 [0.5.1]: https://github.com/mybuddymichael/mint/compare/v0.5.0..v0.5.1
 [0.5.0]: https://github.com/mybuddymichael/mint/compare/v0.4.1..v0.5.0
 [0.4.1]: https://github.com/mybuddymichael/mint/compare/v0.4.0..v0.4.1
