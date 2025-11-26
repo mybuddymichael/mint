@@ -14,9 +14,25 @@ func (s *Store) SetPrefix(newPrefix string) error {
 	// Build mapping of old ID to new ID
 	idMap := make(map[string]string)
 	for oldID := range s.Issues {
-		// Extract suffix after old prefix, stripping any leading hyphen
-		suffix := strings.TrimPrefix(oldID[len(oldPrefix):], "-")
-		newID := newPrefix + "-" + suffix
+		// Extract nanoid suffix
+		var suffix string
+		if oldPrefix == "" {
+			// Old ID has no prefix, entire ID is the nanoid
+			suffix = oldID
+		} else {
+			// Old ID has format "prefix-nanoid", extract after prefix and hyphen
+			suffix = strings.TrimPrefix(oldID[len(oldPrefix):], "-")
+		}
+
+		// Build new ID
+		var newID string
+		if newPrefix == "" {
+			// New prefix is empty, ID is just the nanoid
+			newID = suffix
+		} else {
+			// New prefix exists, format as "prefix-nanoid"
+			newID = newPrefix + "-" + suffix
+		}
 		idMap[oldID] = newID
 	}
 

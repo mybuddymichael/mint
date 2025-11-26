@@ -119,6 +119,15 @@ Prefix set to "am" and all issues updated
 
 ## Tips and tricks
 
+### Use with agents
+
+Add something like this to your agent markdown file:
+
+```markdown
+## Issue tracking
+Use Mint exclusively to track and manage issues. Run `mint help` to see how to use it. Run `mint list --ready` to see issues that are ready for work.
+```
+
 ### Find issues that are ready for work
 
 Use `mint list --ready` to see issues that are ready for work. These are issues that are open and aren't blocked by anything else.
@@ -129,14 +138,9 @@ When issues are printed, the minimal unique part is highlighted. So a full issue
 
 The current unique part of an ID is always underlined for easy spotting.
 
-### Use with agents
+### Use without an issue prefix
 
-Add something like this to your agent markdown file:
-
-```markdown
-## Issue tracking
-Use Mint exclusively to track and manage issues. Run `mint help` to see how to use it. Run `mint list --ready` to see issues that are ready for work.
-```
+By default, issues will be given a prefix, like `mint-m3f`. But you can set the prefix to nothing and just use the nanoID for the issue IDs, like `m3f`.
 
 ## Issue storage
 

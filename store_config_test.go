@@ -182,6 +182,172 @@ func TestStoreSetPrefix_OldPrefixWithHyphen(t *testing.T) {
 	}
 }
 
+func TestStoreSetPrefix_EmptyToNonEmpty(t *testing.T) {
+	store := NewStore()
+	store.Prefix = ""
+	store.Issues = map[string]*Issue{
+		"abc123": {ID: "abc123", Title: "First", Status: "open"},
+		"def456": {ID: "def456", Title: "Second", Status: "open"},
+	}
+
+	err := store.SetPrefix("mint")
+	if err != nil {
+		t.Fatalf("SetPrefix() failed: %v", err)
+	}
+
+	if store.Prefix != "mint" {
+		t.Errorf("expected prefix 'mint', got '%s'", store.Prefix)
+	}
+
+	if _, exists := store.Issues["mint-abc123"]; !exists {
+		t.Error("expected 'mint-abc123' to exist")
+	}
+
+	if _, exists := store.Issues["mint-def456"]; !exists {
+		t.Error("expected 'mint-def456' to exist")
+	}
+
+	if _, exists := store.Issues["abc123"]; exists {
+		t.Error("old ID 'abc123' should not exist")
+	}
+}
+
+func TestStoreSetPrefix_NonEmptyToEmpty(t *testing.T) {
+	store := NewStore()
+	store.Prefix = "mint"
+	store.Issues = map[string]*Issue{
+		"mint-abc123": {ID: "mint-abc123", Title: "First", Status: "open"},
+		"mint-def456": {ID: "mint-def456", Title: "Second", Status: "open"},
+	}
+
+	err := store.SetPrefix("")
+	if err != nil {
+		t.Fatalf("SetPrefix() failed: %v", err)
+	}
+
+	if store.Prefix != "" {
+		t.Errorf("expected empty prefix, got '%s'", store.Prefix)
+	}
+
+	if _, exists := store.Issues["abc123"]; !exists {
+		t.Error("expected 'abc123' to exist")
+	}
+
+	if _, exists := store.Issues["def456"]; !exists {
+		t.Error("expected 'def456' to exist")
+	}
+
+	if _, exists := store.Issues["mint-abc123"]; exists {
+		t.Error("old ID 'mint-abc123' should not exist")
+	}
+}
+
+func TestStoreSetPrefix_EmptyToEmpty(t *testing.T) {
+	store := NewStore()
+	store.Prefix = ""
+	store.Issues = map[string]*Issue{
+		"abc123": {ID: "abc123", Title: "First", Status: "open"},
+	}
+
+	err := store.SetPrefix("")
+	if err != nil {
+		t.Fatalf("SetPrefix() failed: %v", err)
+	}
+
+	if store.Prefix != "" {
+		t.Errorf("expected empty prefix, got '%s'", store.Prefix)
+	}
+
+	// ID should remain unchanged
+	if _, exists := store.Issues["abc123"]; !exists {
+		t.Error("expected 'abc123' to still exist")
+	}
+
+	if store.Issues["abc123"].ID != "abc123" {
+		t.Errorf("expected ID 'abc123', got '%s'", store.Issues["abc123"].ID)
+	}
+}
+
+func TestStoreSetPrefix_EmptyToNonEmpty_WithRelationships(t *testing.T) {
+	store := NewStore()
+	store.Prefix = ""
+	store.Issues = map[string]*Issue{
+		"abc123": {
+			ID:        "abc123",
+			Title:     "First",
+			Status:    "open",
+			DependsOn: []string{"def456"},
+		},
+		"def456": {
+			ID:     "def456",
+			Title:  "Second",
+			Status: "open",
+			Blocks: []string{"abc123"},
+		},
+	}
+
+	err := store.SetPrefix("mint")
+	if err != nil {
+		t.Fatalf("SetPrefix() failed: %v", err)
+	}
+
+	// Check DependsOn was updated
+	if len(store.Issues["mint-abc123"].DependsOn) != 1 {
+		t.Fatalf("expected 1 dependency, got %d", len(store.Issues["mint-abc123"].DependsOn))
+	}
+	if store.Issues["mint-abc123"].DependsOn[0] != "mint-def456" {
+		t.Errorf("expected dependency 'mint-def456', got '%s'", store.Issues["mint-abc123"].DependsOn[0])
+	}
+
+	// Check Blocks was updated
+	if len(store.Issues["mint-def456"].Blocks) != 1 {
+		t.Fatalf("expected 1 blocker, got %d", len(store.Issues["mint-def456"].Blocks))
+	}
+	if store.Issues["mint-def456"].Blocks[0] != "mint-abc123" {
+		t.Errorf("expected blocker 'mint-abc123', got '%s'", store.Issues["mint-def456"].Blocks[0])
+	}
+}
+
+func TestStoreSetPrefix_NonEmptyToEmpty_WithRelationships(t *testing.T) {
+	store := NewStore()
+	store.Prefix = "mint"
+	store.Issues = map[string]*Issue{
+		"mint-abc123": {
+			ID:        "mint-abc123",
+			Title:     "First",
+			Status:    "open",
+			DependsOn: []string{"mint-def456"},
+		},
+		"mint-def456": {
+			ID:     "mint-def456",
+			Title:  "Second",
+			Status: "open",
+			Blocks: []string{"mint-abc123"},
+		},
+	}
+
+	err := store.SetPrefix("")
+	if err != nil {
+		t.Fatalf("SetPrefix() failed: %v", err)
+	}
+
+	// Check DependsOn was updated
+	if len(store.Issues["abc123"].DependsOn) != 1 {
+		t.Fatalf("expected 1 dependency, got %d", len(store.Issues["abc123"].DependsOn))
+	}
+	if store.Issues["abc123"].DependsOn[0] != "def456" {
+		t.Errorf("expected dependency 'def456', got '%s'", store.Issues["abc123"].DependsOn[0])
+	}
+
+	// Check Blocks was updated
+	if len(store.Issues["def456"].Blocks) != 1 {
+		t.Fatalf("expected 1 blocker, got %d", len(store.Issues["def456"].Blocks))
+	}
+	if store.Issues["def456"].Blocks[0] != "abc123" {
+		t.Errorf("expected blocker 'abc123', got '%s'", store.Issues["def456"].Blocks[0])
+	}
+}
+
 func TestGetStoreFilePath_EnvVar(t *testing.T) {
 	expectedPath := "/custom/path/to/mint-issues.yaml"
 	t.Setenv("MINT_STORE_FILE", expectedPath)

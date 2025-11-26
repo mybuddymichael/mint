@@ -140,6 +140,49 @@ func TestCalculateIDLength(t *testing.T) {
 	}
 }
 
+func TestGenerateIDEmptyPrefix(t *testing.T) {
+	prefix := ""
+	length := 7
+	id := GenerateID(prefix, length)
+
+	// Should have no hyphen, just the nanoid
+	if strings.Contains(id, "-") {
+		t.Errorf("expected no hyphen in ID with empty prefix, got '%s'", id)
+	}
+
+	// Should be exactly the nanoid length
+	if len(id) != length {
+		t.Errorf("expected ID length %d, got %d (ID: %s)", length, len(id), id)
+	}
+
+	// Verify only lowercase letters and numbers
+	allowedChars := "abcdefghijklmnopqrstuvwxyz0123456789"
+	for _, char := range id {
+		if !strings.ContainsRune(allowedChars, char) {
+			t.Errorf("ID contains invalid character '%c', ID: %s", char, id)
+		}
+	}
+}
+
+func TestGenerateIDEmptyPrefixUniqueness(t *testing.T) {
+	prefix := ""
+	length := 7
+	seen := make(map[string]bool)
+	iterations := 1000
+
+	for i := 0; i < iterations; i++ {
+		id := GenerateID(prefix, length)
+		if seen[id] {
+			t.Errorf("generated duplicate ID: %s", id)
+		}
+		seen[id] = true
+	}
+
+	if len(seen) != iterations {
+		t.Errorf("expected %d unique IDs, got %d", iterations, len(seen))
+	}
+}
+
 func TestFormatID(t *testing.T) {
 	tests := []struct {
 		name            string

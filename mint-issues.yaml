@@ -1,206 +1,212 @@
-prefix: mint
+prefix: ""
 issues:
-  mint-03kn:
-    id: mint-03kn
+  03kn:
+    id: 03kn
     title: Add single-letter aliases for common subcommands
     status: closed
     comments:
     - "Closed with reason: Added"
-  mint-3zpw65:
-    id: mint-3zpw65
+  3zpw65:
+    id: 3zpw65
     title: Add a '--open' flag to 'list' to only show open issues
     status: closed
-  mint-535v:
-    id: mint-535v
+  535v:
+    id: 535v
     title: Add delete subcommand
     status: closed
     comments:
     - "Closed with reason: Implemented"
-  mint-5zdpgt:
-    id: mint-5zdpgt
+  5zdpgt:
+    id: 5zdpgt
     title: Show minimum unique ID when listing issues
     status: closed
     blocks:
-    - mint-wjigoz
+    - wjigoz
     comments:
     - When listing all issues, we should highlight the part of the issue that is uniquely identifying, i.e. the part of the ID that the user would need to type to uniquely identify the issue. If there are two issues, mt-8a9jfnd and mt-8afj0qn, then mt-8a9 and mt-8af are enough to uniquely identify them. We should figure that out and highlight that part of the issue.
-  mint-6yx9is:
-    id: mint-6yx9is
+  6yx9is:
+    id: 6yx9is
     title: Add the set-prefix subcommand
     status: closed
     comments:
     - "Closed with reason: Implemented set-prefix subcommand"
-  mint-7d04s1s:
-    id: mint-7d04s1s
+  7d04s1s:
+    id: 7d04s1s
     title: Remove timestamps from error messages
     status: closed
     comments:
     - "Closed with reason: Fixed"
-  mint-87x5oz8:
-    id: mint-87x5oz8
+  87x5oz8:
+    id: 87x5oz8
     title: Make formatting nicer when listing issues
     status: closed
-  mint-ab8q1f:
-    id: mint-ab8q1f
+  ab8q1f:
+    id: ab8q1f
     title: Show comments with the 'show' subcommand
     status: closed
-  mint-an7no0:
-    id: mint-an7no0
+  an7no0:
+    id: an7no0
     title: Show relationships when running 'show' on an issue
     status: closed
-  mint-chay:
-    id: mint-chay
+  chay:
+    id: chay
     title: Show the title in the confirmation message when adding an issue
     status: closed
     comments:
     - "Closed with reason: Implemented"
-  mint-d69q:
-    id: mint-d69q
+  d69q:
+    id: d69q
     title: Show full issue details when closing an issue
     status: closed
     comments:
     - "Closed with reason: Done"
-  mint-d6iu:
-    id: mint-d6iu
+  d6iu:
+    id: d6iu
     title: Make error handling less verbose
     status: closed
     comments:
     - Right now, every line is printed individually, And every call to print line is checked for an error. Ideally, we would only need to check for an error once, maybe by creating a string and then printing it all together.
     - "Closed with reason: Done"
-  mint-g4uq:
-    id: mint-g4uq
+  g4uq:
+    id: g4uq
     title: Add single-letter aliases for update's flags
     status: closed
     comments:
     - We should add single-letter versions of the various flags to the update command to make it a little bit easier to type out by hand.
     - "https://cli.urfave.org/v3/examples/flags/basics/#version-flags"
     - "Closed with reason: Added"
-  mint-j8k2:
-    id: mint-j8k2
+  j8k2:
+    id: j8k2
     title: Calculate ID length dynamically based on issue count
     status: closed
     comments:
     - "Implemented dynamic ID length calculation using birthday paradox formula. IDs now start at 3 chars minimum and grow based on issue count (0.1% collision probability): 0-9 issues=3 chars, 10-49=4 chars, 50-99=5 chars, etc. Changes: Added CalculateIDLength() in id.go, updated GenerateID() signature, modified store.go AddIssue(), added comprehensive tests."
     - "Closed with reason: Implementation complete and all tests passing"
-  mint-jlv9eob:
-    id: mint-jlv9eob
+  jlv9eob:
+    id: jlv9eob
     title: Make the color of the extraneous id characters color 8
     status: closed
-  mint-l38ut0u:
-    id: mint-l38ut0u
+  l38ut0u:
+    id: l38ut0u
     title: Highlight the unique part of an ID when printing it
     status: closed
     blocks:
-    - mint-u8jkhre
+    - u8jkhre
     comments:
     - We highlight the unique part of an ID when listing the IDs, but when we print an ID (such as when it's created), we should also highlight the unique part of the ID.
-  mint-mfv0us:
-    id: mint-mfv0us
+  mfv0us:
+    id: mfv0us
     title: Allow setting relationships when an issue is created
     status: closed
     comments:
     - E.g., `mint create 'fix the bug' --blocks mint-a8`
     - "Closed with reason: Implemented --depends-on/-d and --blocks/-b flags for create command with full test coverage"
-  mint-ncc1dk:
-    id: mint-ncc1dk
+  ncc1dk:
+    id: ncc1dk
     title: Add a type field to issues
     status: closed
     comments:
     - "Closed with reason: Not right now?"
-  mint-njhr:
-    id: mint-njhr
+  njhr:
+    id: njhr
     title: When printing issue details, make the keys for each detail bold and ANSI color 5
     status: closed
     comments:
     - And we shouldn't have a colon after each of the keys.
     - "Closed with reason: completed"
-  mint-oz4u20:
-    id: mint-oz4u20
+  oz4u20:
+    id: oz4u20
     title: Add 'ready' subcommand
     status: closed
     comments:
     - "Closed with reason: Added"
-  mint-piyjpq:
-    id: mint-piyjpq
+  piyjpq:
+    id: piyjpq
     title: Don't put quotes around the title when listing or showing issues
     status: closed
-  mint-pwyu:
-    id: mint-pwyu
+  pwyu:
+    id: pwyu
     title: Use the proper method for storing the version
     status: closed
     comments:
     - "https://cli.urfave.org/v3/examples/flags/basics/#version-flags"
     - "Closed with reason: Implemented proper version handling using cli.Command.Version field"
-  mint-rmxy:
-    id: mint-rmxy
+  riq2:
+    id: riq2
+    title: Allow setting no prefix
+    status: closed
+    comments:
+    - If the user chooses no prefix, then issues should only have an ID that is the unique nano ID with no prefix and no hyphen before that.
+  rmxy:
+    id: rmxy
     title: Add a migration system to handle issue schema migration
     status: open
-  mint-rn8qjx:
-    id: mint-rn8qjx
+  rn8qjx:
+    id: rn8qjx
     title: Allow adding a description when creating an issue
     status: closed
     comments:
     - "Closed with reason: Added"
-  mint-rp6w:
-    id: mint-rp6w
+  rp6w:
+    id: rp6w
     title: Unblock an issue when all blocking issues are closed
     status: closed
     comments:
     - "Closed with reason: Added"
-  mint-s3lm:
-    id: mint-s3lm
+  s3lm:
+    id: s3lm
     title: Detect circular dependencies when adding relationships and showing issues
     status: open
-  mint-tsw5qkb:
-    id: mint-tsw5qkb
+  tsw5qkb:
+    id: tsw5qkb
     title: When adding a comment, show a clearer success message
     status: open
     comments:
     - We should show the text of the comment in the success message, similar to how we show the title when adding a new issue.
-  mint-u8jkhre:
-    id: mint-u8jkhre
+  u8jkhre:
+    id: u8jkhre
     title: Subcommands don't print the full ID when responding
     status: closed
     depends_on:
     - mint-l
     comments:
     - "Closed with reason: fixed"
-  mint-ufovp7:
-    id: mint-ufovp7
+  ufovp7:
+    id: ufovp7
     title: Allow 'add' as an alias for the 'create' subcommand
     status: closed
-  mint-vu2td8t:
-    id: mint-vu2td8t
+  vu2td8t:
+    id: vu2td8t
     title: Comments should appear below relationships in the show subcommand
     status: closed
     comments:
     - "Closed with reason: fixed"
-  mint-vvjkxz:
-    id: mint-vvjkxz
+  vvjkxz:
+    id: vvjkxz
     title: Change all references of 'mt' to 'mint'
     status: closed
-  mint-vx94mev:
-    id: mint-vx94mev
+  vx94mev:
+    id: vx94mev
     title: Help docs for mint update are confusing
     status: closed
     comments:
     - The --depends-on and --blocks flag documentation is confusing in its presentation.
     - "Closed with reason: Won't fix"
-  mint-wjigoz:
-    id: mint-wjigoz
+  wjigoz:
+    id: wjigoz
     title: Allow selecting issues by typing the minimum unique ID
     status: closed
     depends_on:
-    - mint-5zdpgt
-  mint-zn27bxh:
-    id: mint-zn27bxh
+    - 5zdpgt
+  zn27bxh:
+    id: zn27bxh
     title: "SetPrefix bug: drops first nanoid character when old prefix includes hyphen"
     status: closed
     comments:
     - "Bug in store.go:238 - SetPrefix function has 'suffix := oldID[len(oldPrefix)+1:]' which adds +1 to skip the hyphen separator. When old prefix was 'mt-' (included hyphen), this skipped 4 chars instead of 3, dropping first nanoid char. Example: 'mt-0ncc1dk' became 'mint-ncc1dk' (lost '0'). Affected issues: mint-3zpw65, mint-5zdpgt, mint-6yx9is, mint-ab8q1f, mint-an7no0, mint-mfv0us, mint-ncc1dk, mint-oz4u20, mint-piyjpq, mint-rn8qjx, mint-ufovp7, mint-vvjkxz. All have 6-char nanoids instead of 7. Newer issues (jlv9eob, l38ut0u, etc.) created after commit 6de96ff are correct with 7 chars."
     - Fixed in store.go:239 by changing 'suffix := oldID[len(oldPrefix)+1:]' to 'suffix := strings.TrimPrefix(oldID[len(oldPrefix):], "-")'. This handles both prefixes with and without trailing hyphens. Added regression test TestStoreSetPrefix_OldPrefixWithHyphen to prevent future occurrences.
     - "Closed with reason: Fixed and tested"
-  mint-zsbb:
-    id: mint-zsbb
+  zsbb:
+    id: zsbb
     title: Make a way to remove dependencies from an issue
     status: closed

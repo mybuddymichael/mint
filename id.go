@@ -41,11 +41,15 @@ func CalculateIDLength(issueCount int) int {
 
 // GenerateID generates a unique ID with the given prefix and length
 // Example: GenerateID("mint", 7) -> "mint-xgmx5l6"
+// Example: GenerateID("", 7) -> "xgmx5l6"
 func GenerateID(prefix string, length int) string {
 	id, err := gonanoid.Generate(customAlphabet, length)
 	if err != nil {
 		// Fallback to default if generation fails (should be rare)
 		panic(err)
+	}
+	if prefix == "" {
+		return id
 	}
 	return prefix + "-" + id
 }

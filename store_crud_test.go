@@ -141,3 +141,60 @@ func TestStoreGetIssue_WithPrefix(t *testing.T) {
 		t.Errorf("expected ID 'mint-abc123', got '%s'", issue.ID)
 	}
 }
+
+func TestStoreAddIssue_EmptyPrefix(t *testing.T) {
+	store := NewStore()
+	store.Prefix = ""
+
+	issue, err := store.AddIssue("Test issue")
+	if err != nil {
+		t.Fatalf("AddIssue() failed: %v", err)
+	}
+
+	if issue == nil {
+		t.Fatal("AddIssue() returned nil issue")
+	}
+
+	// Should have no hyphen
+	if strings.Contains(issue.ID, "-") {
+		t.Errorf("expected no hyphen in ID with empty prefix, got '%s'", issue.ID)
+	}
+
+	// Should be exactly the nanoid length (3 for first issue)
+	expectedLength := CalculateIDLength(0)
+	if len(issue.ID) != expectedLength {
+		t.Errorf("expected ID length %d, got %d (ID: %s)", expectedLength, len(issue.ID), issue.ID)
+	}
+
+	// Verify issue was added to store
+	if store.Issues[issue.ID] != issue {
+		t.Error("issue not found in store")
+	}
+}
+
+func TestStoreResolveIssueID_EmptyPrefix(t *testing.T) {
+	store := NewStore()
+	store.Prefix = ""
+	store.Issues = map[string]*Issue{
+		"abc123": {ID: "abc123", Title: "First", Status: "open"},
+		"def456": {ID: "def456", Title: "Second", Status: "open"},
+	}
+
+	// Test exact match
+	id, err := store.ResolveIssueID("abc123")
+	if err != nil {
+		t.Fatalf("ResolveIssueID() failed: %v", err)
+	}
+	if id != "abc123" {
+		t.Errorf("expected 'abc123', got '%s'", id)
+	}
+
+	// Test partial match
+	id, err = store.ResolveIssueID("a")
+	if err != nil {
+		t.Fatalf("ResolveIssueID() failed: %v", err)
+	}
+	if id != "abc123" {
+		t.Errorf("expected 'abc123', got '%s'", id)
+	}
+}

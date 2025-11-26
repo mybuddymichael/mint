@@ -14,13 +14,30 @@ func TestSetPrefixCommand_NoPrefix(t *testing.T) {
 	filePath := filepath.Join(tmpDir, "mint-issues.yaml")
 	t.Setenv("MINT_STORE_FILE", filePath)
 
+	store, _ := LoadStore(filePath)
+	issue1, _ := store.AddIssue("First issue")
+	oldID1 := issue1.ID
+	_ = store.Save(filePath)
+
 	cmd := newCommand()
 	var buf bytes.Buffer
 	cmd.Writer = &buf
 
+	// No prefix arg means set to empty string
 	err := cmd.Run(context.Background(), []string{"mint", "set-prefix"})
-	if err == nil {
-		t.Error("expected error when no prefix provided")
+	if err != nil {
+		t.Fatalf("set-prefix command failed: %v", err)
+	}
+
+	store, _ = LoadStore(filePath)
+	if store.Prefix != "" {
+		t.Errorf("expected empty prefix, got '%s'", store.Prefix)
+	}
+
+	// Verify issue ID was updated to remove prefix
+	expectedNewID := oldID1[len("mint")+1:]
+	if _, exists := store.Issues[expectedNewID]; !exists {
+		t.Errorf("expected new ID %s to exist", expectedNewID)
 	}
 }
 
@@ -447,5 +464,90 @@ func TestSetPrefixCommand_ChangeMultipleTimes(t *testing.T) {
 	}
 	if _, exists := store.Issues[intermediateID]; exists {
 		t.Errorf("intermediate ID %s should not exist", intermediateID)
+	}
+}
+
+func TestSetPrefixCommand_SetToEmpty(t *testing.T) {
+	tmpDir := t.TempDir()
+	filePath := filepath.Join(tmpDir, "mint-issues.yaml")
+	t.Setenv("MINT_STORE_FILE", filePath)
+
+	store, _ := LoadStore(filePath)
+	issue1, _ := store.AddIssue("First issue")
+	oldID1 := issue1.ID // Will be "mint-xyz"
+	_ = store.Save(filePath)
+
+	cmd := newCommand()
+	var buf bytes.Buffer
+	cmd.Writer = &buf
+
+	err := cmd.Run(context.Background(), []string{"mint", "set-prefix", ""})
+	if err != nil {
+		t.Fatalf("set-prefix command failed: %v", err)
+	}
+
+	store, _ = LoadStore(filePath)
+	if store.Prefix != "" {
+		t.Errorf("expected empty prefix, got '%s'", store.Prefix)
+	}
+
+	// Extract nanoid from old ID (after "mint-")
+	expectedNewID := oldID1[len("mint")+1:]
+
+	if _, exists := store.Issues[oldID1]; exists {
+		t.Error("old issue ID should not exist after prefix change to empty")
+	}
+	if _, exists := store.Issues[expectedNewID]; !exists {
+		t.Errorf("expected new ID %s to exist", expectedNewID)
+	}
+
+	// Verify no hyphens in new ID
+	for id := range store.Issues {
+		if strings.Contains(id, "-") {
+			t.Errorf("expected no hyphens in IDs with empty prefix, got '%s'", id)
+		}
+	}
+
+	output := stripANSI(buf.String())
+	if !strings.Contains(output, "Prefix set to \"\" and all issues updated") {
+		t.Errorf("expected success message for empty prefix, got: %s", output)
+	}
+}
+
+func TestSetPrefixCommand_FromEmptyToNonEmpty(t *testing.T) {
+	tmpDir := t.TempDir()
+	filePath := filepath.Join(tmpDir, "mint-issues.yaml")
+	t.Setenv("MINT_STORE_FILE", filePath)
+
+	// Create store with empty prefix
+	store := NewStore()
+	store.Prefix = ""
+	_ = store.Save(filePath)
+
+	// Manually add issue with no prefix
+	store.Issues = map[string]*Issue{
+		"abc123": {ID: "abc123", Title: "Test", Status: "open"},
+	}
+	_ = store.Save(filePath)
+
+	cmd := newCommand()
+	var buf bytes.Buffer
+	cmd.Writer = &buf
+
+	err := cmd.Run(context.Background(), []string{"mint", "set-prefix", "app"})
+	if err != nil {
+		t.Fatalf("set-prefix command failed: %v", err)
+	}
+
+	store, _ = LoadStore(filePath)
+	if store.Prefix != "app" {
+		t.Errorf("expected prefix 'app', got '%s'", store.Prefix)
+	}
+
+	if _, exists := store.Issues["abc123"]; exists {
+		t.Error("old ID 'abc123' should not exist")
+	}
+	if _, exists := store.Issues["app-abc123"]; !exists {
+		t.Error("expected 'app-abc123' to exist")
 	}
 }

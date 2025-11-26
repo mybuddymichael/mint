@@ -8,10 +8,7 @@ import (
 )
 
 func setPrefixAction(ctx context.Context, cmd *cli.Command) error {
-	if cmd.Args().Len() == 0 {
-		return fmt.Errorf("new prefix is required")
-	}
-
+	// Get first arg, returns empty string if no args (which is valid for empty prefix)
 	newPrefix := cmd.Args().First()
 
 	filePath, err := GetStoreFilePath()
