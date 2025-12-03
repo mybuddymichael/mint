@@ -243,3 +243,94 @@ func TestPrintIssueList_Basic(t *testing.T) {
 		t.Errorf("expected output to contain 'Second issue', got: %s", output)
 	}
 }
+
+func TestPrintIssueDetails_WithStaleDepends(t *testing.T) {
+	tmpDir := t.TempDir()
+	filePath := filepath.Join(tmpDir, "mint-issues.yaml")
+	t.Setenv("MINT_STORE_FILE", filePath)
+
+	store, _ := LoadStore(filePath)
+	issue, _ := store.AddIssue("Test issue with stale dependency")
+	// Manually inject stale reference
+	issue.DependsOn = []string{"nonexistent-id"}
+	_ = store.Save(filePath)
+
+	var buf bytes.Buffer
+	err := PrintIssueDetails(&buf, issue, store)
+	if err != nil {
+		t.Fatalf("PrintIssueDetails should not fail on stale refs: %v", err)
+	}
+
+	output := stripANSI(buf.String())
+	if !strings.Contains(output, "Depends on") {
+		t.Errorf("expected output to contain 'Depends on', got: %s", output)
+	}
+	if !strings.Contains(output, "nonexistent-id (not found)") {
+		t.Errorf("expected output to contain 'nonexistent-id (not found)', got: %s", output)
+	}
+}
+
+func TestPrintIssueDetails_WithStaleBlocks(t *testing.T) {
+	tmpDir := t.TempDir()
+	filePath := filepath.Join(tmpDir, "mint-issues.yaml")
+	t.Setenv("MINT_STORE_FILE", filePath)
+
+	store, _ := LoadStore(filePath)
+	issue, _ := store.AddIssue("Test issue with stale blocker")
+	// Manually inject stale reference
+	issue.Blocks = []string{"nonexistent-block"}
+	_ = store.Save(filePath)
+
+	var buf bytes.Buffer
+	err := PrintIssueDetails(&buf, issue, store)
+	if err != nil {
+		t.Fatalf("PrintIssueDetails should not fail on stale refs: %v", err)
+	}
+
+	output := stripANSI(buf.String())
+	if !strings.Contains(output, "Blocks") {
+		t.Errorf("expected output to contain 'Blocks', got: %s", output)
+	}
+	if !strings.Contains(output, "nonexistent-block (not found)") {
+		t.Errorf("expected output to contain 'nonexistent-block (not found)', got: %s", output)
+	}
+}
+
+func TestPrintIssueDetails_WithMixedValidAndStaleRefs(t *testing.T) {
+	tmpDir := t.TempDir()
+	filePath := filepath.Join(tmpDir, "mint-issues.yaml")
+	t.Setenv("MINT_STORE_FILE", filePath)
+
+	store, _ := LoadStore(filePath)
+	main, _ := store.AddIssue("Main issue")
+	validDep, _ := store.AddIssue("Valid dependency")
+	validBlock, _ := store.AddIssue("Valid blocker")
+	_ = store.AddDependency(main.ID, validDep.ID)
+	_ = store.AddBlocker(main.ID, validBlock.ID)
+	// Manually inject stale references
+	main.DependsOn = append(main.DependsOn, "stale-dep")
+	main.Blocks = append(main.Blocks, "stale-block")
+	_ = store.Save(filePath)
+
+	var buf bytes.Buffer
+	err := PrintIssueDetails(&buf, main, store)
+	if err != nil {
+		t.Fatalf("PrintIssueDetails should not fail on stale refs: %v", err)
+	}
+
+	output := stripANSI(buf.String())
+	// Check valid refs are shown normally
+	if !strings.Contains(output, validDep.ID+" open Valid dependency") {
+		t.Errorf("expected output to contain valid dependency, got: %s", output)
+	}
+	if !strings.Contains(output, validBlock.ID+" open Valid blocker") {
+		t.Errorf("expected output to contain valid blocker, got: %s", output)
+	}
+	// Check stale refs are shown with (not found)
+	if !strings.Contains(output, "stale-dep (not found)") {
+		t.Errorf("expected output to contain 'stale-dep (not found)', got: %s", output)
+	}
+	if !strings.Contains(output, "stale-block (not found)") {
+		t.Errorf("expected output to contain 'stale-block (not found)', got: %s", output)
+	}
+}

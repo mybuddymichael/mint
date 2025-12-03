@@ -36,6 +36,14 @@ issues:
     status: closed
     comments:
     - "Closed with reason: Fixed"
+  7rgp:
+    id: 7rgp
+    title: Audit codebase for inadequate stale reference handling
+    status: open
+    depends_on:
+    - perf
+    comments:
+    - "After fixing the show command crash on stale refs, audit the entire codebase to find other places where stale relationship references might cause issues.\n\nCheck:\n- Update command (does it validate refs before adding?)\n- Other display contexts beyond show\n- Any other operations that iterate through relationships\n- Consider whether we should validate/clean stale refs on store load\n\nThis is a follow-up to ensure comprehensive handling across all commands."
   87x5oz8:
     id: 87x5oz8
     title: Make formatting nicer when listing issues
@@ -126,6 +134,15 @@ issues:
     status: closed
     comments:
     - "Closed with reason: Added"
+  perf:
+    id: perf
+    title: Show command crashes when displaying issues with stale relationship references
+    status: closed
+    blocks:
+    - 7rgp
+    comments:
+    - "Running `mint show u8` crashes with 'issue mint-l not found'. Issue u8jkhre has stale dependency ref to non-existent 'mint-l'. Root cause: format_issue.go:16-34 calls store.GetIssue() without defensive handling. When referenced issue doesn't exist, crashes instead of gracefully degrading. DeleteIssue() cleanup works correctly; stale ref likely from manual YAML edit."
+    - "Closed with reason: Fixed by adding defensive error handling in format_issue.go. Stale relationship references now display as 'ID (not found)' instead of crashing. Added 4 comprehensive tests to prevent regression."
   piyjpq:
     id: piyjpq
     title: Don't put quotes around the title when listing or showing issues

@@ -271,3 +271,34 @@ func TestShowCommandAlias(t *testing.T) {
 		t.Errorf("expected output to contain 'Title   Test show issue', got: %s", output)
 	}
 }
+
+func TestShowCommandWithStaleRelationships(t *testing.T) {
+	tmpDir := t.TempDir()
+	filePath := filepath.Join(tmpDir, "mint-issues.yaml")
+	t.Setenv("MINT_STORE_FILE", filePath)
+
+	store, _ := LoadStore(filePath)
+	issue, _ := store.AddIssue("Issue with stale refs")
+	// Manually inject stale references
+	issue.DependsOn = []string{"stale-dependency"}
+	issue.Blocks = []string{"stale-blocker"}
+	_ = store.Save(filePath)
+
+	cmd := newCommand()
+	var buf bytes.Buffer
+	cmd.Writer = &buf
+
+	err := cmd.Run(context.Background(), []string{"mint", "show", issue.ID})
+	if err != nil {
+		t.Fatalf("show command should not fail on stale refs: %v", err)
+	}
+
+	output := stripANSI(buf.String())
+	// Check that stale refs are shown with (not found)
+	if !strings.Contains(output, "stale-dependency (not found)") {
+		t.Errorf("expected output to contain 'stale-dependency (not found)', got: %s", output)
+	}
+	if !strings.Contains(output, "stale-blocker (not found)") {
+		t.Errorf("expected output to contain 'stale-blocker (not found)', got: %s", output)
+	}
+}

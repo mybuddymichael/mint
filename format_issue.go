@@ -18,9 +18,10 @@ func PrintIssueDetails(w io.Writer, issue *Issue, store *Store) error {
 		for _, depID := range issue.DependsOn {
 			dep, err := store.GetIssue(depID)
 			if err != nil {
-				return err
+				fmt.Fprintf(&b, "  %s (not found)\n", store.FormatID(depID))
+			} else {
+				fmt.Fprintf(&b, "  %s %s %s\n", store.FormatID(dep.ID), dep.Status, dep.Title)
 			}
-			fmt.Fprintf(&b, "  %s %s %s\n", store.FormatID(dep.ID), dep.Status, dep.Title)
 		}
 	}
 	if len(issue.Blocks) > 0 {
@@ -28,9 +29,10 @@ func PrintIssueDetails(w io.Writer, issue *Issue, store *Store) error {
 		for _, blockID := range issue.Blocks {
 			blocked, err := store.GetIssue(blockID)
 			if err != nil {
-				return err
+				fmt.Fprintf(&b, "  %s (not found)\n", store.FormatID(blockID))
+			} else {
+				fmt.Fprintf(&b, "  %s %s %s\n", store.FormatID(blocked.ID), blocked.Status, blocked.Title)
 			}
-			fmt.Fprintf(&b, "  %s %s %s\n", store.FormatID(blocked.ID), blocked.Status, blocked.Title)
 		}
 	}
 	if len(issue.Comments) > 0 {
