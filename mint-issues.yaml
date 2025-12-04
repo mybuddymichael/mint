@@ -48,6 +48,10 @@ issues:
     id: 87x5oz8
     title: Make formatting nicer when listing issues
     status: closed
+  89q2:
+    id: 89q2
+    title: Add 'new' as an alias for 'create' and 'add'
+    status: open
   ab8q1f:
     id: ab8q1f
     title: Show comments with the 'show' subcommand
