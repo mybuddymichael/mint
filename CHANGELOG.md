@@ -1,5 +1,17 @@
 # Changelog
 
+## [0.7.0] - 2025-12-04
+
+### Features
+- Show the relationship issue statuses when showing details
+
+### Fixes
+- Safely handle stale references in relationships
+
+### Style
+- Add newlines to `show` contents
+- Add a newline before and after listing issues
+
 ## [0.6.0] - 2025-11-26
 
 ### Features
@@ -137,6 +149,7 @@
 - Add a basic program that will run
 - Add mise.toml
 
+[0.7.0]: https://github.com/mybuddymichael/mint/compare/v0.6.0..v0.7.0
 [0.6.0]: https://github.com/mybuddymichael/mint/compare/v0.5.1..v0.6.0
 [0.5.1]: https://github.com/mybuddymichael/mint/compare/v0.5.0..v0.5.1
 [0.5.0]: https://github.com/mybuddymichael/mint/compare/v0.4.1..v0.5.0
