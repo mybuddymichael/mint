@@ -56,6 +56,10 @@ issues:
     id: an7no0
     title: Show relationships when running 'show' on an issue
     status: closed
+  c4jg:
+    id: c4jg
+    title: Add newlines before and after the content when running `mint list`
+    status: open
   chay:
     id: chay
     title: Show the title in the confirmation message when adding an issue

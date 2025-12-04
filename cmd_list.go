@@ -59,6 +59,9 @@ func listAction(ctx context.Context, cmd *cli.Command) error {
 	readyOnly := cmd.Bool("ready")
 
 	// Display READY section
+	if _, err := fmt.Fprintln(w); err != nil {
+		return err
+	}
 	readyHeader := "\033[48;5;2m\033[38;5;0m READY \033[0m"
 	if _, err := fmt.Fprintln(w, readyHeader); err != nil {
 		return err
@@ -125,6 +128,10 @@ func listAction(ctx context.Context, cmd *cli.Command) error {
 				return err
 			}
 		}
+	}
+
+	if _, err := fmt.Fprintln(w); err != nil {
+		return err
 	}
 
 	return nil

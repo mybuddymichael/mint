@@ -614,3 +614,34 @@ func TestListCommandAlias(t *testing.T) {
 		t.Errorf("expected output to contain issue ID '%s', got: %s", issue.ID, output)
 	}
 }
+
+func TestListCommandNewlines(t *testing.T) {
+	tmpDir := t.TempDir()
+	filePath := filepath.Join(tmpDir, "mint-issues.yaml")
+	t.Setenv("MINT_STORE_FILE", filePath)
+
+	store, _ := LoadStore(filePath)
+	_, _ = store.AddIssue("Test issue")
+	_ = store.Save(filePath)
+
+	cmd := newCommand()
+	var buf bytes.Buffer
+	cmd.Writer = &buf
+
+	err := cmd.Run(context.Background(), []string{"mint", "list"})
+	if err != nil {
+		t.Fatalf("list command failed: %v", err)
+	}
+
+	output := buf.String()
+
+	// Should start with a blank line before READY header
+	if !strings.HasPrefix(output, "\n") {
+		t.Error("expected output to start with blank line before READY header")
+	}
+
+	// Should end with a blank line after all content
+	if !strings.HasSuffix(output, "\n\n") {
+		t.Errorf("expected output to end with double newline (content newline + final blank), got: %q", output[len(output)-10:])
+	}
+}
