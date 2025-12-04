@@ -90,6 +90,14 @@ issues:
     comments:
     - Right now, every line is printed individually, And every call to print line is checked for an error. Ideally, we would only need to check for an error once, maybe by creating a string and then printing it all together.
     - "Closed with reason: Done"
+  f3ai:
+    id: f3ai
+    title: Store updated timestamp on issues
+    status: open
+    depends_on:
+    - rmxy
+    blocks:
+    - j5tx
   g4uq:
     id: g4uq
     title: Add single-letter aliases for update's flags
@@ -98,6 +106,15 @@ issues:
     - We should add single-letter versions of the various flags to the update command to make it a little bit easier to type out by hand.
     - "https://cli.urfave.org/v3/examples/flags/basics/#version-flags"
     - "Closed with reason: Added"
+  j5tx:
+    id: j5tx
+    title: Add --sort flag to list command with id/created/updated options
+    status: open
+    depends_on:
+    - xu1v
+    - f3ai
+    blocks:
+    - s5az
   j8k2:
     id: j8k2
     title: Calculate ID length dynamically based on issue count
@@ -179,6 +196,9 @@ issues:
     id: rmxy
     title: Add a migration system to handle issue schema migration
     status: open
+    blocks:
+    - xu1v
+    - f3ai
   rn8qjx:
     id: rn8qjx
     title: Allow adding a description when creating an issue
@@ -195,6 +215,12 @@ issues:
     id: s3lm
     title: Detect circular dependencies when adding relationships and showing issues
     status: open
+  s5az:
+    id: s5az
+    title: Update README with list --sort documentation
+    status: open
+    depends_on:
+    - j5tx
   tsw5qkb:
     id: tsw5qkb
     title: When adding a comment, show a clearer success message
@@ -236,6 +262,14 @@ issues:
     status: closed
     depends_on:
     - 5zdpgt
+  xu1v:
+    id: xu1v
+    title: Store created timestamp on issues
+    status: open
+    depends_on:
+    - rmxy
+    blocks:
+    - j5tx
   zn27bxh:
     id: zn27bxh
     title: "SetPrefix bug: drops first nanoid character when old prefix includes hyphen"
