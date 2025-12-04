@@ -60,6 +60,10 @@ issues:
     id: an7no0
     title: Show relationships when running 'show' on an issue
     status: closed
+  butl:
+    id: butl
+    title: Add newlines to show command output
+    status: closed
   c4jg:
     id: c4jg
     title: Add newlines before and after the content when running `mint list`

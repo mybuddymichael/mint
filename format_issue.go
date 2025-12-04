@@ -10,9 +10,13 @@ import (
 // Dependencies, Blocks, and Comments
 func PrintIssueDetails(w io.Writer, issue *Issue, store *Store) error {
 	var b strings.Builder
+	fmt.Fprintln(&b)
 	fmt.Fprintf(&b, "\033[1m\033[38;5;5mID\033[0m      %s\n", store.FormatID(issue.ID))
 	fmt.Fprintf(&b, "\033[1m\033[38;5;5mTitle\033[0m   %s\n", issue.Title)
 	fmt.Fprintf(&b, "\033[1m\033[38;5;5mStatus\033[0m  %s\n", issue.Status)
+	if len(issue.DependsOn) > 0 || len(issue.Blocks) > 0 || len(issue.Comments) > 0 {
+		fmt.Fprintln(&b)
+	}
 	if len(issue.DependsOn) > 0 {
 		fmt.Fprintln(&b, "\033[1m\033[38;5;5mDepends on\033[0m")
 		for _, depID := range issue.DependsOn {
@@ -25,6 +29,10 @@ func PrintIssueDetails(w io.Writer, issue *Issue, store *Store) error {
 		}
 	}
 	if len(issue.Blocks) > 0 {
+		// Add blank line between Blocks and Depends on sections
+		if len(issue.DependsOn) > 0 {
+			fmt.Fprintln(&b)
+		}
 		fmt.Fprintln(&b, "\033[1m\033[38;5;5mBlocks\033[0m")
 		for _, blockID := range issue.Blocks {
 			blocked, err := store.GetIssue(blockID)
@@ -36,11 +44,16 @@ func PrintIssueDetails(w io.Writer, issue *Issue, store *Store) error {
 		}
 	}
 	if len(issue.Comments) > 0 {
+		// Add blank line between Comments and relationship sections (Depends on/Blocks)
+		if len(issue.DependsOn) > 0 || len(issue.Blocks) > 0 {
+			fmt.Fprintln(&b)
+		}
 		fmt.Fprintln(&b, "\033[1m\033[38;5;5mComments\033[0m")
 		for _, comment := range issue.Comments {
 			fmt.Fprintf(&b, "  %s\n", comment)
 		}
 	}
+	fmt.Fprintln(&b)
 	_, err := fmt.Fprint(w, b.String())
 	return err
 }

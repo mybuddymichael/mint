@@ -334,3 +334,45 @@ func TestPrintIssueDetails_WithMixedValidAndStaleRefs(t *testing.T) {
 		t.Errorf("expected output to contain 'stale-block (not found)', got: %s", output)
 	}
 }
+
+func TestPrintIssueDetails_Whitespace(t *testing.T) {
+	tmpDir := t.TempDir()
+	filePath := filepath.Join(tmpDir, "mint-issues.yaml")
+	t.Setenv("MINT_STORE_FILE", filePath)
+
+	store, _ := LoadStore(filePath)
+	issue, _ := store.AddIssue("Test issue")
+	dep, _ := store.AddIssue("Dependency")
+	_ = store.AddDependency(issue.ID, dep.ID)
+	_ = store.AddComment(issue.ID, "Test comment")
+	_ = store.Save(filePath)
+
+	var buf bytes.Buffer
+	err := PrintIssueDetails(&buf, issue, store)
+	if err != nil {
+		t.Fatalf("PrintIssueDetails failed: %v", err)
+	}
+
+	output := buf.String()
+	stripped := stripANSI(output)
+
+	// Should start with newline
+	if !strings.HasPrefix(output, "\n") {
+		t.Errorf("expected output to start with newline")
+	}
+
+	// Should have blank line between Status and Depends on
+	if !strings.Contains(stripped, "Status  open\n\nDepends on") {
+		t.Errorf("expected blank line between Status and Depends on, got: %s", stripped)
+	}
+
+	// Should have blank line between Depends on and Comments
+	if !strings.Contains(stripped, "Dependency\n\nComments") {
+		t.Errorf("expected blank line between Depends on and Comments, got: %s", stripped)
+	}
+
+	// Should end with newline
+	if !strings.HasSuffix(output, "\n") {
+		t.Errorf("expected output to end with newline")
+	}
+}

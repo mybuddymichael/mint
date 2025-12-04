@@ -90,7 +90,7 @@ func updateAction(ctx context.Context, cmd *cli.Command) error {
 	}
 
 	w := cmd.Root().Writer
-	if _, err := fmt.Fprintf(w, "\x1b[1;32m✔︎ Issue updated\x1b[0m\n\n"); err != nil {
+	if _, err := fmt.Fprintf(w, "\x1b[1;32m✔︎ Issue updated\x1b[0m\n"); err != nil {
 		return err
 	}
 	return PrintIssueDetails(w, issue, store)
