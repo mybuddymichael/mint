@@ -7,9 +7,6 @@ run = "go test ./..."
 [tasks.coverage]
 run = "go test -coverprofile=/tmp/coverage.out ./... && go tool cover -func=/tmp/coverage.out"
 
-# [tasks.build-check]
-# run = "go build -o /dev/null ."
-
 [tasks.build-dev]
 run = "go build -o mint -ldflags=\"-X main.version=dev-$(jj log -r @ -T 'change_id' --no-graph | cut -c1-4)\""
 sources = ["**/*.go"]
@@ -34,7 +31,3 @@ run = "git-cliff -o CHANGELOG.md"
 
 [tasks.release]
 run = "./release.sh"
-
-# [tasks.release]
-# description = "Create a new release"
-# file = "scripts/release.sh"
