@@ -39,11 +39,12 @@ issues:
   7rgp:
     id: 7rgp
     title: Audit codebase for inadequate stale reference handling
-    status: open
+    status: closed
     depends_on:
     - perf
     comments:
     - "After fixing the show command crash on stale refs, audit the entire codebase to find other places where stale relationship references might cause issues.\n\nCheck:\n- Update command (does it validate refs before adding?)\n- Other display contexts beyond show\n- Any other operations that iterate through relationships\n- Consider whether we should validate/clean stale refs on store load\n\nThis is a follow-up to ensure comprehensive handling across all commands."
+    - "Closed with reason: Done"
   87x5oz8:
     id: 87x5oz8
     title: Make formatting nicer when listing issues
@@ -67,7 +68,9 @@ issues:
   c4jg:
     id: c4jg
     title: Add newlines before and after the content when running `mint list`
-    status: open
+    status: closed
+    comments:
+    - "Closed with reason: Done"
   chay:
     id: chay
     title: Show the title in the confirmation message when adding an issue
