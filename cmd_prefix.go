@@ -7,7 +7,7 @@ import (
 	"github.com/urfave/cli/v3"
 )
 
-func setPrefixAction(ctx context.Context, cmd *cli.Command) error {
+func setPrefixAction(_ context.Context, cmd *cli.Command) error {
 	// Get first arg, returns empty string if no args (which is valid for empty prefix)
 	newPrefix := cmd.Args().First()
 

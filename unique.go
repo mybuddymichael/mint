@@ -43,11 +43,8 @@ func MinUniquePrefixLengths(ids []string) map[string]int {
 }
 
 func commonPrefixLen(a, b string) int {
-	maxCheck := len(a)
-	if len(b) < maxCheck {
-		maxCheck = len(b)
-	}
-	for i := 0; i < maxCheck; i++ {
+	maxCheck := min(len(a), len(b))
+	for i := range maxCheck {
 		if a[i] != b[i] {
 			return i
 		}

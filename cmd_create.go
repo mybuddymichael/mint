@@ -7,7 +7,7 @@ import (
 	"github.com/urfave/cli/v3"
 )
 
-func createAction(ctx context.Context, cmd *cli.Command) error {
+func createAction(_ context.Context, cmd *cli.Command) error {
 	if cmd.Args().Len() == 0 {
 		return fmt.Errorf("title is required")
 	}

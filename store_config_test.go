@@ -367,22 +367,12 @@ func TestGetStoreFilePath_GitInCurrentDir(t *testing.T) {
 
 	tmpDir := t.TempDir()
 	gitDir := filepath.Join(tmpDir, ".git")
-	err := os.Mkdir(gitDir, 0o755)
+	err := os.Mkdir(gitDir, 0o750)
 	if err != nil {
 		t.Fatalf("failed to create .git dir: %v", err)
 	}
 
-	// Save and restore cwd
-	origCwd, err := os.Getwd()
-	if err != nil {
-		t.Fatalf("failed to get cwd: %v", err)
-	}
-	defer func() { _ = os.Chdir(origCwd) }()
-
-	err = os.Chdir(tmpDir)
-	if err != nil {
-		t.Fatalf("failed to chdir: %v", err)
-	}
+	t.Chdir(tmpDir)
 
 	path, err := GetStoreFilePath()
 	if err != nil {
@@ -390,14 +380,20 @@ func TestGetStoreFilePath_GitInCurrentDir(t *testing.T) {
 	}
 
 	// Resolve symlinks on directory for comparison (macOS /var -> /private/var)
+	resolvedPathDir, err := filepath.EvalSymlinks(filepath.Dir(path))
+	if err != nil {
+		t.Fatalf("failed to resolve path dir symlinks: %v", err)
+	}
+	resolvedPath := filepath.Join(resolvedPathDir, filepath.Base(path))
+
 	resolvedTmpDir, err := filepath.EvalSymlinks(tmpDir)
 	if err != nil {
-		t.Fatalf("failed to resolve symlinks: %v", err)
+		t.Fatalf("failed to resolve tmpdir symlinks: %v", err)
 	}
 	expectedPath := filepath.Join(resolvedTmpDir, "mint-issues.yaml")
 
-	if path != expectedPath {
-		t.Errorf("expected path '%s', got '%s'", expectedPath, path)
+	if resolvedPath != expectedPath {
+		t.Errorf("expected path '%s', got '%s'", expectedPath, resolvedPath)
 	}
 }
 
@@ -406,28 +402,18 @@ func TestGetStoreFilePath_GitInParent(t *testing.T) {
 
 	tmpDir := t.TempDir()
 	gitDir := filepath.Join(tmpDir, ".git")
-	err := os.Mkdir(gitDir, 0o755)
+	err := os.Mkdir(gitDir, 0o750)
 	if err != nil {
 		t.Fatalf("failed to create .git dir: %v", err)
 	}
 
 	childDir := filepath.Join(tmpDir, "child")
-	err = os.Mkdir(childDir, 0o755)
+	err = os.Mkdir(childDir, 0o750)
 	if err != nil {
 		t.Fatalf("failed to create child dir: %v", err)
 	}
 
-	// Save and restore cwd
-	origCwd, err := os.Getwd()
-	if err != nil {
-		t.Fatalf("failed to get cwd: %v", err)
-	}
-	defer func() { _ = os.Chdir(origCwd) }()
-
-	err = os.Chdir(childDir)
-	if err != nil {
-		t.Fatalf("failed to chdir: %v", err)
-	}
+	t.Chdir(childDir)
 
 	path, err := GetStoreFilePath()
 	if err != nil {
@@ -435,14 +421,20 @@ func TestGetStoreFilePath_GitInParent(t *testing.T) {
 	}
 
 	// Resolve symlinks on directory for comparison (macOS /var -> /private/var)
+	resolvedPathDir, err := filepath.EvalSymlinks(filepath.Dir(path))
+	if err != nil {
+		t.Fatalf("failed to resolve path dir symlinks: %v", err)
+	}
+	resolvedPath := filepath.Join(resolvedPathDir, filepath.Base(path))
+
 	resolvedTmpDir, err := filepath.EvalSymlinks(tmpDir)
 	if err != nil {
-		t.Fatalf("failed to resolve symlinks: %v", err)
+		t.Fatalf("failed to resolve tmpdir symlinks: %v", err)
 	}
 	expectedPath := filepath.Join(resolvedTmpDir, "mint-issues.yaml")
 
-	if path != expectedPath {
-		t.Errorf("expected path '%s', got '%s'", expectedPath, path)
+	if resolvedPath != expectedPath {
+		t.Errorf("expected path '%s', got '%s'", expectedPath, resolvedPath)
 	}
 }
 
@@ -451,29 +443,19 @@ func TestGetStoreFilePath_GitMultipleLevelsUp(t *testing.T) {
 
 	tmpDir := t.TempDir()
 	gitDir := filepath.Join(tmpDir, ".git")
-	err := os.Mkdir(gitDir, 0o755)
+	err := os.Mkdir(gitDir, 0o750)
 	if err != nil {
 		t.Fatalf("failed to create .git dir: %v", err)
 	}
 
 	// Create nested directory structure: root/a/b/c
 	deepDir := filepath.Join(tmpDir, "a", "b", "c")
-	err = os.MkdirAll(deepDir, 0o755)
+	err = os.MkdirAll(deepDir, 0o750)
 	if err != nil {
 		t.Fatalf("failed to create deep dir: %v", err)
 	}
 
-	// Save and restore cwd
-	origCwd, err := os.Getwd()
-	if err != nil {
-		t.Fatalf("failed to get cwd: %v", err)
-	}
-	defer func() { _ = os.Chdir(origCwd) }()
-
-	err = os.Chdir(deepDir)
-	if err != nil {
-		t.Fatalf("failed to chdir: %v", err)
-	}
+	t.Chdir(deepDir)
 
 	path, err := GetStoreFilePath()
 	if err != nil {
@@ -481,14 +463,20 @@ func TestGetStoreFilePath_GitMultipleLevelsUp(t *testing.T) {
 	}
 
 	// Resolve symlinks on directory for comparison (macOS /var -> /private/var)
+	resolvedPathDir, err := filepath.EvalSymlinks(filepath.Dir(path))
+	if err != nil {
+		t.Fatalf("failed to resolve path dir symlinks: %v", err)
+	}
+	resolvedPath := filepath.Join(resolvedPathDir, filepath.Base(path))
+
 	resolvedTmpDir, err := filepath.EvalSymlinks(tmpDir)
 	if err != nil {
-		t.Fatalf("failed to resolve symlinks: %v", err)
+		t.Fatalf("failed to resolve tmpdir symlinks: %v", err)
 	}
 	expectedPath := filepath.Join(resolvedTmpDir, "mint-issues.yaml")
 
-	if path != expectedPath {
-		t.Errorf("expected path '%s', got '%s'", expectedPath, path)
+	if resolvedPath != expectedPath {
+		t.Errorf("expected path '%s', got '%s'", expectedPath, resolvedPath)
 	}
 }
 
@@ -497,17 +485,7 @@ func TestGetStoreFilePath_NoGitFallback(t *testing.T) {
 
 	tmpDir := t.TempDir()
 
-	// Save and restore cwd
-	origCwd, err := os.Getwd()
-	if err != nil {
-		t.Fatalf("failed to get cwd: %v", err)
-	}
-	defer func() { _ = os.Chdir(origCwd) }()
-
-	err = os.Chdir(tmpDir)
-	if err != nil {
-		t.Fatalf("failed to chdir: %v", err)
-	}
+	t.Chdir(tmpDir)
 
 	path, err := GetStoreFilePath()
 	if err != nil {
@@ -515,13 +493,19 @@ func TestGetStoreFilePath_NoGitFallback(t *testing.T) {
 	}
 
 	// Resolve symlinks on directory for comparison (macOS /var -> /private/var)
+	resolvedPathDir, err := filepath.EvalSymlinks(filepath.Dir(path))
+	if err != nil {
+		t.Fatalf("failed to resolve path dir symlinks: %v", err)
+	}
+	resolvedPath := filepath.Join(resolvedPathDir, filepath.Base(path))
+
 	resolvedTmpDir, err := filepath.EvalSymlinks(tmpDir)
 	if err != nil {
-		t.Fatalf("failed to resolve symlinks: %v", err)
+		t.Fatalf("failed to resolve tmpdir symlinks: %v", err)
 	}
 	expectedPath := filepath.Join(resolvedTmpDir, "mint-issues.yaml")
 
-	if path != expectedPath {
-		t.Errorf("expected path '%s', got '%s'", expectedPath, path)
+	if resolvedPath != expectedPath {
+		t.Errorf("expected path '%s', got '%s'", expectedPath, resolvedPath)
 	}
 }

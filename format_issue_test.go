@@ -218,10 +218,7 @@ func TestPrintIssueList_Basic(t *testing.T) {
 	_ = store.Save(filePath)
 
 	issues := []*Issue{issue1, issue2}
-	maxIDLen := len(issue1.ID)
-	if len(issue2.ID) > maxIDLen {
-		maxIDLen = len(issue2.ID)
-	}
+	maxIDLen := max(len(issue1.ID), len(issue2.ID))
 
 	var buf bytes.Buffer
 	err := printIssueList(&buf, issues, maxIDLen, store)

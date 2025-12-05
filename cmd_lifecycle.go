@@ -7,7 +7,7 @@ import (
 	"github.com/urfave/cli/v3"
 )
 
-func closeAction(ctx context.Context, cmd *cli.Command) error {
+func closeAction(_ context.Context, cmd *cli.Command) error {
 	if cmd.Args().Len() == 0 {
 		return fmt.Errorf("issue ID is required")
 	}
@@ -51,7 +51,7 @@ func closeAction(ctx context.Context, cmd *cli.Command) error {
 	return PrintIssueDetails(w, issue, store)
 }
 
-func openAction(ctx context.Context, cmd *cli.Command) error {
+func openAction(_ context.Context, cmd *cli.Command) error {
 	if cmd.Args().Len() == 0 {
 		return fmt.Errorf("issue ID is required")
 	}
@@ -87,7 +87,7 @@ func openAction(ctx context.Context, cmd *cli.Command) error {
 	return err
 }
 
-func deleteAction(ctx context.Context, cmd *cli.Command) error {
+func deleteAction(_ context.Context, cmd *cli.Command) error {
 	if cmd.Args().Len() == 0 {
 		return fmt.Errorf("issue ID is required")
 	}

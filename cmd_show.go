@@ -7,7 +7,7 @@ import (
 	"github.com/urfave/cli/v3"
 )
 
-func showAction(ctx context.Context, cmd *cli.Command) error {
+func showAction(_ context.Context, cmd *cli.Command) error {
 	if cmd.Args().Len() == 0 {
 		return fmt.Errorf("issue ID is required")
 	}

@@ -115,6 +115,7 @@ func TestStoreSaveOrderDeterministic(t *testing.T) {
 		t.Fatalf("first Save() failed: %v", err)
 	}
 
+	// #nosec G304 -- filePath is constructed from t.TempDir() in test setup, safe test fixture path
 	firstSave, err := os.ReadFile(filePath)
 	if err != nil {
 		t.Fatalf("failed to read first save: %v", err)
@@ -126,6 +127,7 @@ func TestStoreSaveOrderDeterministic(t *testing.T) {
 		t.Fatalf("second Save() failed: %v", err)
 	}
 
+	// #nosec G304 -- filePath is constructed from t.TempDir() in test setup, safe test fixture path
 	secondSave, err := os.ReadFile(filePath)
 	if err != nil {
 		t.Fatalf("failed to read second save: %v", err)
@@ -156,6 +158,7 @@ func TestStoreSaveOrderSorted(t *testing.T) {
 		t.Fatalf("Save() failed: %v", err)
 	}
 
+	// #nosec G304 -- filePath is constructed from t.TempDir() in test setup, safe test fixture path
 	content, err := os.ReadFile(filePath)
 	if err != nil {
 		t.Fatalf("failed to read file: %v", err)

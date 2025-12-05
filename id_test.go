@@ -44,7 +44,7 @@ func TestGenerateIDUniqueness(t *testing.T) {
 	seen := make(map[string]bool)
 	iterations := 1000
 
-	for i := 0; i < iterations; i++ {
+	for range iterations {
 		id := GenerateID(prefix, length)
 		if seen[id] {
 			t.Errorf("generated duplicate ID: %s", id)
@@ -170,7 +170,7 @@ func TestGenerateIDEmptyPrefixUniqueness(t *testing.T) {
 	seen := make(map[string]bool)
 	iterations := 1000
 
-	for i := 0; i < iterations; i++ {
+	for range iterations {
 		id := GenerateID(prefix, length)
 		if seen[id] {
 			t.Errorf("generated duplicate ID: %s", id)

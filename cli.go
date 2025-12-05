@@ -1,3 +1,4 @@
+// Package main provides a CLI tool for managing project issues.
 package main
 
 import (

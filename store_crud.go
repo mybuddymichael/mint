@@ -12,7 +12,7 @@ func (s *Store) AddIssue(title string) (*Issue, error) {
 	length := CalculateIDLength(len(s.Issues))
 
 	var id string
-	for i := 0; i < maxRetries; i++ {
+	for i := range maxRetries {
 		id = GenerateID(s.Prefix, length)
 		if _, exists := s.Issues[id]; !exists {
 			break

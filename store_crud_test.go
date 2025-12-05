@@ -41,7 +41,7 @@ func TestStoreAddIssueUnique(t *testing.T) {
 
 	// Add multiple issues and verify IDs are unique
 	ids := make(map[string]bool)
-	for i := 0; i < 100; i++ {
+	for i := range 100 {
 		issue, err := store.AddIssue("Test issue")
 		if err != nil {
 			t.Fatalf("AddIssue() failed on iteration %d: %v", i, err)

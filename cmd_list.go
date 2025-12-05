@@ -8,7 +8,7 @@ import (
 	"github.com/urfave/cli/v3"
 )
 
-func listAction(ctx context.Context, cmd *cli.Command) error {
+func listAction(_ context.Context, cmd *cli.Command) error {
 	filePath, err := GetStoreFilePath()
 	if err != nil {
 		return err

@@ -33,6 +33,7 @@ func NewStore() *Store {
 // LoadStore loads a store from a YAML file
 // If the file doesn't exist, returns a new store with defaults
 func LoadStore(filePath string) (*Store, error) {
+	// #nosec G304 -- filePath comes from GetStoreFilePath() which returns application-controlled paths (env var or git root), not untrusted user input
 	data, err := os.ReadFile(filePath)
 	if err != nil {
 		if os.IsNotExist(err) {
@@ -56,5 +57,5 @@ func (s *Store) Save(filePath string) error {
 		return err
 	}
 
-	return os.WriteFile(filePath, data, 0o644)
+	return os.WriteFile(filePath, data, 0o600)
 }
