@@ -2,6 +2,7 @@ package main
 
 import (
 	"testing"
+	"time"
 )
 
 func TestStoreRemoveDependency(t *testing.T) {
@@ -171,5 +172,101 @@ func TestStoreRemoveBlocker_MultipleRelationships(t *testing.T) {
 	}
 	if len(issue3.DependsOn) != 1 {
 		t.Errorf("expected issue3 to still have 1 dependency, got %d", len(issue3.DependsOn))
+	}
+}
+
+func TestStoreAddDependency_UpdatesBothTimestamps(t *testing.T) {
+	store := NewStore()
+	issue1, _ := store.AddIssue("Issue 1")
+	issue2, _ := store.AddIssue("Issue 2")
+
+	original1 := issue1.UpdatedAt
+	original2 := issue2.UpdatedAt
+	time.Sleep(10 * time.Millisecond)
+
+	// issue2 depends on issue1
+	err := store.AddDependency(issue2.ID, issue1.ID)
+	if err != nil {
+		t.Fatalf("AddDependency() failed: %v", err)
+	}
+
+	if !issue1.UpdatedAt.After(original1) {
+		t.Error("issue1 (blocker) UpdatedAt should be updated")
+	}
+
+	if !issue2.UpdatedAt.After(original2) {
+		t.Error("issue2 (dependent) UpdatedAt should be updated")
+	}
+}
+
+func TestStoreAddBlocker_UpdatesBothTimestamps(t *testing.T) {
+	store := NewStore()
+	issue1, _ := store.AddIssue("Issue 1")
+	issue2, _ := store.AddIssue("Issue 2")
+
+	original1 := issue1.UpdatedAt
+	original2 := issue2.UpdatedAt
+	time.Sleep(10 * time.Millisecond)
+
+	// issue1 blocks issue2
+	err := store.AddBlocker(issue1.ID, issue2.ID)
+	if err != nil {
+		t.Fatalf("AddBlocker() failed: %v", err)
+	}
+
+	if !issue1.UpdatedAt.After(original1) {
+		t.Error("issue1 (blocker) UpdatedAt should be updated")
+	}
+
+	if !issue2.UpdatedAt.After(original2) {
+		t.Error("issue2 (blocked) UpdatedAt should be updated")
+	}
+}
+
+func TestStoreRemoveDependency_UpdatesBothTimestamps(t *testing.T) {
+	store := NewStore()
+	issue1, _ := store.AddIssue("Issue 1")
+	issue2, _ := store.AddIssue("Issue 2")
+	_ = store.AddDependency(issue2.ID, issue1.ID)
+
+	original1 := issue1.UpdatedAt
+	original2 := issue2.UpdatedAt
+	time.Sleep(10 * time.Millisecond)
+
+	err := store.RemoveDependency(issue2.ID, issue1.ID)
+	if err != nil {
+		t.Fatalf("RemoveDependency() failed: %v", err)
+	}
+
+	if !issue1.UpdatedAt.After(original1) {
+		t.Error("issue1 UpdatedAt should be updated")
+	}
+
+	if !issue2.UpdatedAt.After(original2) {
+		t.Error("issue2 UpdatedAt should be updated")
+	}
+}
+
+func TestStoreRemoveBlocker_UpdatesBothTimestamps(t *testing.T) {
+	store := NewStore()
+	issue1, _ := store.AddIssue("Issue 1")
+	issue2, _ := store.AddIssue("Issue 2")
+	_ = store.AddBlocker(issue1.ID, issue2.ID)
+
+	original1 := issue1.UpdatedAt
+	original2 := issue2.UpdatedAt
+	time.Sleep(10 * time.Millisecond)
+
+	err := store.RemoveBlocker(issue1.ID, issue2.ID)
+	if err != nil {
+		t.Fatalf("RemoveBlocker() failed: %v", err)
+	}
+
+	if !issue1.UpdatedAt.After(original1) {
+		t.Error("issue1 UpdatedAt should be updated")
+	}
+
+	if !issue2.UpdatedAt.After(original2) {
+		t.Error("issue2 UpdatedAt should be updated")
 	}
 }

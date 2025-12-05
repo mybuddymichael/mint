@@ -2,6 +2,7 @@ package main
 
 import (
 	"testing"
+	"time"
 )
 
 func TestStoreCloseIssue(t *testing.T) {
@@ -163,5 +164,54 @@ func TestStoreDeleteIssue_NotFound(t *testing.T) {
 	expectedErr := "issue not found: mint-nonexistent"
 	if err.Error() != expectedErr {
 		t.Errorf("expected error '%s', got '%s'", expectedErr, err.Error())
+	}
+}
+
+func TestStoreAddComment_UpdatesTimestamp(t *testing.T) {
+	store := NewStore()
+	issue, _ := store.AddIssue("Test")
+	originalUpdated := issue.UpdatedAt
+	time.Sleep(10 * time.Millisecond)
+
+	err := store.AddComment(issue.ID, "Comment")
+	if err != nil {
+		t.Fatalf("AddComment() failed: %v", err)
+	}
+
+	if !issue.UpdatedAt.After(originalUpdated) {
+		t.Errorf("UpdatedAt should be after original")
+	}
+}
+
+func TestStoreCloseIssue_UpdatesTimestamp(t *testing.T) {
+	store := NewStore()
+	issue, _ := store.AddIssue("Test")
+	originalUpdated := issue.UpdatedAt
+	time.Sleep(10 * time.Millisecond)
+
+	err := store.CloseIssue(issue.ID, "")
+	if err != nil {
+		t.Fatalf("CloseIssue() failed: %v", err)
+	}
+
+	if !issue.UpdatedAt.After(originalUpdated) {
+		t.Errorf("UpdatedAt should be after original")
+	}
+}
+
+func TestStoreReopenIssue_UpdatesTimestamp(t *testing.T) {
+	store := NewStore()
+	issue, _ := store.AddIssue("Test")
+	_ = store.CloseIssue(issue.ID, "")
+	originalUpdated := issue.UpdatedAt
+	time.Sleep(10 * time.Millisecond)
+
+	err := store.ReopenIssue(issue.ID)
+	if err != nil {
+		t.Fatalf("ReopenIssue() failed: %v", err)
+	}
+
+	if !issue.UpdatedAt.After(originalUpdated) {
+		t.Errorf("UpdatedAt should be after original")
 	}
 }

@@ -2,6 +2,7 @@ package main
 
 import (
 	"os"
+	"time"
 
 	"github.com/goccy/go-yaml"
 )
@@ -14,12 +15,14 @@ type Store struct {
 
 // Issue represents a single issue
 type Issue struct {
-	ID        string   `yaml:"id"`
-	Title     string   `yaml:"title"`
-	Status    string   `yaml:"status"`
-	DependsOn []string `yaml:"depends_on,omitempty"`
-	Blocks    []string `yaml:"blocks,omitempty"`
-	Comments  []string `yaml:"comments,omitempty"`
+	ID        string    `yaml:"id"`
+	Title     string    `yaml:"title"`
+	Status    string    `yaml:"status"`
+	CreatedAt time.Time `yaml:"created_at"`
+	UpdatedAt time.Time `yaml:"updated_at"`
+	DependsOn []string  `yaml:"depends_on,omitempty"`
+	Blocks    []string  `yaml:"blocks,omitempty"`
+	Comments  []string  `yaml:"comments,omitempty"`
 }
 
 // NewStore creates a new store with defaults
@@ -58,4 +61,12 @@ func (s *Store) Save(filePath string) error {
 	}
 
 	return os.WriteFile(filePath, data, 0o600)
+}
+
+// touch updates the UpdatedAt timestamp for one or more issues
+func (s *Store) touch(issues ...*Issue) {
+	now := time.Now()
+	for _, issue := range issues {
+		issue.UpdatedAt = now
+	}
 }

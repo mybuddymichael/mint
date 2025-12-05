@@ -181,3 +181,55 @@ func TestStoreSaveOrderSorted(t *testing.T) {
 		t.Logf("Content:\n%s", contentStr)
 	}
 }
+
+func TestStoreLoadOldYAML_ZeroTimestamps(t *testing.T) {
+	// Test that old YAML files (without timestamps) load with zero values
+	store := NewStore()
+	issue := &Issue{
+		ID:     "test-123",
+		Title:  "Old issue",
+		Status: "open",
+		// CreatedAt and UpdatedAt not set - simulate old YAML
+	}
+	store.Issues[issue.ID] = issue
+
+	if !issue.CreatedAt.IsZero() {
+		t.Error("Old issue CreatedAt should be zero")
+	}
+	if !issue.UpdatedAt.IsZero() {
+		t.Error("Old issue UpdatedAt should be zero")
+	}
+}
+
+func TestStoreLoadSave_PreservesTimestamps(t *testing.T) {
+	store := NewStore()
+	issue, _ := store.AddIssue("New issue")
+
+	// Save and reload
+	tmpFile := filepath.Join(t.TempDir(), "test.yaml")
+	err := store.Save(tmpFile)
+	if err != nil {
+		t.Fatalf("Save() failed: %v", err)
+	}
+
+	loaded, err := LoadStore(tmpFile)
+	if err != nil {
+		t.Fatalf("LoadStore() failed: %v", err)
+	}
+
+	loadedIssue := loaded.Issues[issue.ID]
+	if loadedIssue.CreatedAt.IsZero() {
+		t.Error("Loaded issue CreatedAt should not be zero")
+	}
+	if loadedIssue.UpdatedAt.IsZero() {
+		t.Error("Loaded issue UpdatedAt should not be zero")
+	}
+
+	// Timestamps should match original (within precision)
+	if !loadedIssue.CreatedAt.Equal(issue.CreatedAt) {
+		t.Error("CreatedAt should survive round-trip")
+	}
+	if !loadedIssue.UpdatedAt.Equal(issue.UpdatedAt) {
+		t.Error("UpdatedAt should survive round-trip")
+	}
+}

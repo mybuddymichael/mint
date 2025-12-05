@@ -3,6 +3,7 @@ package main
 import (
 	"strings"
 	"testing"
+	"time"
 )
 
 func TestStoreAddIssue(t *testing.T) {
@@ -196,5 +197,60 @@ func TestStoreResolveIssueID_EmptyPrefix(t *testing.T) {
 	}
 	if id != "abc123" {
 		t.Errorf("expected 'abc123', got '%s'", id)
+	}
+}
+
+func TestStoreAddIssue_Timestamps(t *testing.T) {
+	store := NewStore()
+
+	before := time.Now()
+	issue, err := store.AddIssue("Test issue")
+	after := time.Now()
+
+	if err != nil {
+		t.Fatalf("AddIssue() failed: %v", err)
+	}
+
+	// CreatedAt should be set
+	if issue.CreatedAt.IsZero() {
+		t.Error("CreatedAt should not be zero")
+	}
+
+	// UpdatedAt should be set
+	if issue.UpdatedAt.IsZero() {
+		t.Error("UpdatedAt should not be zero")
+	}
+
+	// Both should equal on creation
+	if !issue.CreatedAt.Equal(issue.UpdatedAt) {
+		t.Errorf("CreatedAt and UpdatedAt should be equal on creation, got CreatedAt=%v, UpdatedAt=%v",
+			issue.CreatedAt, issue.UpdatedAt)
+	}
+
+	// Timestamps should be within test execution window
+	if issue.CreatedAt.Before(before) || issue.CreatedAt.After(after) {
+		t.Errorf("CreatedAt should be between %v and %v, got %v", before, after, issue.CreatedAt)
+	}
+}
+
+func TestStoreUpdateIssueTitle_UpdatesTimestamp(t *testing.T) {
+	store := NewStore()
+	issue, _ := store.AddIssue("Original")
+
+	originalCreated := issue.CreatedAt
+	originalUpdated := issue.UpdatedAt
+	time.Sleep(10 * time.Millisecond) // Ensure timestamp differs
+
+	err := store.UpdateIssueTitle(issue.ID, "New title")
+	if err != nil {
+		t.Fatalf("UpdateIssueTitle() failed: %v", err)
+	}
+
+	if !issue.UpdatedAt.After(originalUpdated) {
+		t.Errorf("UpdatedAt should be after original, got original=%v, new=%v", originalUpdated, issue.UpdatedAt)
+	}
+
+	if !issue.CreatedAt.Equal(originalCreated) {
+		t.Error("CreatedAt should not change on update")
 	}
 }

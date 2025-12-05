@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"io"
 	"strings"
+	"time"
 )
 
 // PrintIssueDetails prints full issue details including ID, Title, Status,
@@ -14,6 +15,12 @@ func PrintIssueDetails(w io.Writer, issue *Issue, store *Store) error {
 	fmt.Fprintf(&b, "\033[1m\033[38;5;5mID\033[0m      %s\n", store.FormatID(issue.ID))
 	fmt.Fprintf(&b, "\033[1m\033[38;5;5mTitle\033[0m   %s\n", issue.Title)
 	fmt.Fprintf(&b, "\033[1m\033[38;5;5mStatus\033[0m  %s\n", issue.Status)
+	if !issue.CreatedAt.IsZero() {
+		fmt.Fprintf(&b, "\033[1m\033[38;5;5mCreated\033[0m %s\n", issue.CreatedAt.Format(time.DateTime))
+	}
+	if !issue.UpdatedAt.IsZero() {
+		fmt.Fprintf(&b, "\033[1m\033[38;5;5mUpdated\033[0m %s\n", issue.UpdatedAt.Format(time.DateTime))
+	}
 	if len(issue.DependsOn) > 0 || len(issue.Blocks) > 0 || len(issue.Comments) > 0 {
 		fmt.Fprintln(&b)
 	}

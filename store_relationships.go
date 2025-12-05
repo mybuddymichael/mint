@@ -14,6 +14,7 @@ func (s *Store) AddDependency(issueID, dependsOnID string) error {
 
 	issue.DependsOn = append(issue.DependsOn, dependsOnID)
 	blocker.Blocks = append(blocker.Blocks, issueID)
+	s.touch(issue, blocker)
 	return nil
 }
 
@@ -31,6 +32,7 @@ func (s *Store) AddBlocker(issueID, blockedID string) error {
 
 	issue.Blocks = append(issue.Blocks, blockedID)
 	blocked.DependsOn = append(blocked.DependsOn, issueID)
+	s.touch(issue, blocked)
 	return nil
 }
 
@@ -64,6 +66,7 @@ func (s *Store) RemoveDependency(issueID, dependsOnID string) error {
 	}
 	blocker.Blocks = newBlocks
 
+	s.touch(issue, blocker)
 	return nil
 }
 
@@ -97,5 +100,6 @@ func (s *Store) RemoveBlocker(issueID, blockedID string) error {
 	}
 	blocked.DependsOn = newDeps
 
+	s.touch(issue, blocked)
 	return nil
 }

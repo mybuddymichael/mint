@@ -3,6 +3,7 @@ package main
 import (
 	"fmt"
 	"sort"
+	"time"
 )
 
 // AddIssue creates a new issue with a unique ID and adds it to the store
@@ -23,10 +24,13 @@ func (s *Store) AddIssue(title string) (*Issue, error) {
 		}
 	}
 
+	now := time.Now()
 	issue := &Issue{
-		ID:     id,
-		Title:  title,
-		Status: "open",
+		ID:        id,
+		Title:     title,
+		Status:    "open",
+		CreatedAt: now,
+		UpdatedAt: now,
 	}
 
 	s.Issues[id] = issue
@@ -112,5 +116,6 @@ func (s *Store) UpdateIssueTitle(id, title string) error {
 		return err
 	}
 	issue.Title = title
+	s.touch(issue)
 	return nil
 }

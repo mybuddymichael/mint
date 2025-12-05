@@ -358,9 +358,13 @@ func TestPrintIssueDetails_Whitespace(t *testing.T) {
 		t.Errorf("expected output to start with newline")
 	}
 
-	// Should have blank line between Status and Depends on
-	if !strings.Contains(stripped, "Status  open\n\nDepends on") {
-		t.Errorf("expected blank line between Status and Depends on, got: %s", stripped)
+	// Should have timestamps followed by blank line before Depends on
+	if !strings.Contains(stripped, "Updated") {
+		t.Errorf("expected Updated timestamp, got: %s", stripped)
+	}
+	// Check for blank line before Depends on (after timestamps)
+	if !strings.Contains(stripped, "\n\nDepends on") {
+		t.Errorf("expected blank line before Depends on, got: %s", stripped)
 	}
 
 	// Should have blank line between Depends on and Comments

@@ -9,6 +9,7 @@ func (s *Store) AddComment(id, comment string) error {
 		return err
 	}
 	issue.Comments = append(issue.Comments, comment)
+	s.touch(issue)
 	return nil
 }
 
@@ -22,6 +23,7 @@ func (s *Store) CloseIssue(id, reason string) error {
 	if reason != "" {
 		issue.Comments = append(issue.Comments, fmt.Sprintf("Closed with reason: %s", reason))
 	}
+	s.touch(issue)
 	return nil
 }
 
@@ -32,6 +34,7 @@ func (s *Store) ReopenIssue(id string) error {
 		return fmt.Errorf("issue not found: %s", id)
 	}
 	issue.Status = "open"
+	s.touch(issue)
 	return nil
 }
 
