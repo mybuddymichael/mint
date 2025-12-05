@@ -195,10 +195,12 @@ issues:
   rmxy:
     id: rmxy
     title: Add a migration system to handle issue schema migration
-    status: open
+    status: closed
     blocks:
     - xu1v
     - f3ai
+    comments:
+    - "Closed with reason: Not needed"
   rn8qjx:
     id: rn8qjx
     title: Allow adding a description when creating an issue
