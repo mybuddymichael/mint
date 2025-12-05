@@ -1,0 +1,17 @@
+version: "2"
+
+linters:
+  enable:
+    - gocritic
+    - gosec
+    - modernize
+    - usetesting
+    - revive
+
+issues:
+  fix: true
+
+output:
+  formats:
+    tab:
+      path: stdout
