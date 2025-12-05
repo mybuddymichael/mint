@@ -8,8 +8,9 @@ import (
 
 // Store represents the mint issue store
 type Store struct {
-	Prefix string            `yaml:"prefix"`
-	Issues map[string]*Issue `yaml:"issues"`
+	SchemaVersion int               `yaml:"schema_version"`
+	Prefix        string            `yaml:"prefix"`
+	Issues        map[string]*Issue `yaml:"issues"`
 }
 
 // Issue represents a single issue
@@ -25,8 +26,9 @@ type Issue struct {
 // NewStore creates a new store with defaults
 func NewStore() *Store {
 	return &Store{
-		Prefix: "mint",
-		Issues: make(map[string]*Issue),
+		SchemaVersion: CurrentSchemaVersion,
+		Prefix:        "mint",
+		Issues:        make(map[string]*Issue),
 	}
 }
 
@@ -41,9 +43,30 @@ func LoadStore(filePath string) (*Store, error) {
 		return nil, err
 	}
 
-	store := NewStore()
+	// Use zero-value Store instead of NewStore() so missing fields
+	// (like schema_version in v0 files) default to 0, triggering migrations
+	store := &Store{}
 	if err := yaml.Unmarshal(data, store); err != nil {
 		return nil, err
+	}
+
+	// Initialize maps if nil (for empty files)
+	if store.Issues == nil {
+		store.Issues = make(map[string]*Issue)
+	}
+
+	// Run migrations if needed
+	migrated, err := RunMigrations(store)
+	if err != nil {
+		return nil, err
+	}
+
+	// Save and notify if migrated
+	if migrated {
+		if err := store.Save(filePath); err != nil {
+			return nil, err
+		}
+		println("\x1b[1;33mYou're using a new version of mint. Issue file updated.\x1b[0m\n")
 	}
 
 	return store, nil
