@@ -76,9 +76,11 @@ issues:
   89q2:
     id: 89q2
     title: Add 'new' as an alias for 'create' and 'add'
-    status: open
+    status: closed
     created_at: 0001-01-01T00:00:00Z
-    updated_at: 0001-01-01T00:00:00Z
+    updated_at: 2025-12-10T10:58:24.045695-08:00
+    comments:
+    - "Closed with reason: Added 'new' and 'n' as aliases for the create command"
   ab8q1f:
     id: ab8q1f
     title: Show comments with the 'show' subcommand

@@ -161,6 +161,54 @@ func TestCreateCommandAliasA(t *testing.T) {
 	}
 }
 
+func TestCreateCommandAliasNew(t *testing.T) {
+	tmpDir := t.TempDir()
+	filePath := filepath.Join(tmpDir, "mint-issues.yaml")
+
+	cmd := newCommand()
+	var buf bytes.Buffer
+	cmd.Writer = &buf
+
+	t.Setenv("MINT_STORE_FILE", filePath)
+
+	err := cmd.Run(context.Background(), []string{"mint", "new", "Test issue"})
+	if err != nil {
+		t.Fatalf("new alias command failed: %v", err)
+	}
+
+	output := stripANSI(buf.String())
+	if !strings.Contains(output, "✔︎ Created issue") {
+		t.Errorf("expected output to contain '✔︎ Created issue', got: %s", output)
+	}
+	if !strings.Contains(output, "Title   Test issue") {
+		t.Errorf("expected output to contain 'Title   Test issue', got: %s", output)
+	}
+}
+
+func TestCreateCommandAliasN(t *testing.T) {
+	tmpDir := t.TempDir()
+	filePath := filepath.Join(tmpDir, "mint-issues.yaml")
+
+	cmd := newCommand()
+	var buf bytes.Buffer
+	cmd.Writer = &buf
+
+	t.Setenv("MINT_STORE_FILE", filePath)
+
+	err := cmd.Run(context.Background(), []string{"mint", "n", "Test issue"})
+	if err != nil {
+		t.Fatalf("n alias command failed: %v", err)
+	}
+
+	output := stripANSI(buf.String())
+	if !strings.Contains(output, "✔︎ Created issue") {
+		t.Errorf("expected output to contain '✔︎ Created issue', got: %s", output)
+	}
+	if !strings.Contains(output, "Title   Test issue") {
+		t.Errorf("expected output to contain 'Title   Test issue', got: %s", output)
+	}
+}
+
 func TestCreateCommandWithDescription(t *testing.T) {
 	tmpDir := t.TempDir()
 	filePath := filepath.Join(tmpDir, "mint-issues.yaml")
