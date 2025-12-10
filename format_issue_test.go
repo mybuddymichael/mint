@@ -5,6 +5,7 @@ import (
 	"path/filepath"
 	"strings"
 	"testing"
+	"time"
 )
 
 func TestPrintIssueDetails_BasicIssue(t *testing.T) {
@@ -375,5 +376,158 @@ func TestPrintIssueDetails_Whitespace(t *testing.T) {
 	// Should end with newline
 	if !strings.HasSuffix(output, "\n") {
 		t.Errorf("expected output to end with newline")
+	}
+}
+
+func TestFormatRelativeTime_Seconds(t *testing.T) {
+	now := time.Now()
+	tests := []struct {
+		name     string
+		duration time.Duration
+		expected string
+	}{
+		{"4 seconds ago", 4 * time.Second, "4s ago"},
+		{"1 second ago", 1 * time.Second, "1s ago"},
+		{"30 seconds ago", 30 * time.Second, "30s ago"},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			past := now.Add(-tt.duration)
+			result := formatRelativeTime(past)
+			if result != tt.expected {
+				t.Errorf("expected %q, got %q", tt.expected, result)
+			}
+		})
+	}
+}
+
+func TestFormatRelativeTime_Minutes(t *testing.T) {
+	now := time.Now()
+	tests := []struct {
+		name     string
+		duration time.Duration
+		expected string
+	}{
+		{"1 minute ago", 1 * time.Minute, "1m ago"},
+		{"5 minutes ago", 5 * time.Minute, "5m ago"},
+		{"59 minutes ago", 59 * time.Minute, "59m ago"},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			past := now.Add(-tt.duration)
+			result := formatRelativeTime(past)
+			if result != tt.expected {
+				t.Errorf("expected %q, got %q", tt.expected, result)
+			}
+		})
+	}
+}
+
+func TestFormatRelativeTime_Hours(t *testing.T) {
+	now := time.Now()
+	tests := []struct {
+		name     string
+		duration time.Duration
+		expected string
+	}{
+		{"1 hour ago", 1 * time.Hour, "1h ago"},
+		{"3 hours ago", 3 * time.Hour, "3h ago"},
+		{"23 hours ago", 23 * time.Hour, "23h ago"},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			past := now.Add(-tt.duration)
+			result := formatRelativeTime(past)
+			if result != tt.expected {
+				t.Errorf("expected %q, got %q", tt.expected, result)
+			}
+		})
+	}
+}
+
+func TestFormatRelativeTime_Days(t *testing.T) {
+	now := time.Now()
+	tests := []struct {
+		name     string
+		duration time.Duration
+		expected string
+	}{
+		{"1 day ago", 24 * time.Hour, "1d ago"},
+		{"2 days ago", 48 * time.Hour, "2d ago"},
+		{"5 days ago", 120 * time.Hour, "5d ago"},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			past := now.Add(-tt.duration)
+			result := formatRelativeTime(past)
+			if result != tt.expected {
+				t.Errorf("expected %q, got %q", tt.expected, result)
+			}
+		})
+	}
+}
+
+func TestFormatRelativeTime_MixedUnits(t *testing.T) {
+	now := time.Now()
+	tests := []struct {
+		name     string
+		duration time.Duration
+		expected string
+	}{
+		// Mixed durations should show only the largest unit
+		{"5 hours 31 minutes 4 seconds", 5*time.Hour + 31*time.Minute + 4*time.Second, "5h ago"},
+		{"2 days 5 hours 31 minutes", 2*24*time.Hour + 5*time.Hour + 31*time.Minute, "2d ago"},
+		{"31 minutes 45 seconds", 31*time.Minute + 45*time.Second, "31m ago"},
+		{"1 hour 59 minutes 59 seconds", 1*time.Hour + 59*time.Minute + 59*time.Second, "1h ago"},
+		{"23 hours 59 minutes 59 seconds", 23*time.Hour + 59*time.Minute + 59*time.Second, "23h ago"},
+		{"10 days 12 hours 30 minutes", 10*24*time.Hour + 12*time.Hour + 30*time.Minute, "10d ago"},
+		{"59 seconds", 59 * time.Second, "59s ago"},
+		{"1 minute 30 seconds", 1*time.Minute + 30*time.Second, "1m ago"},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			past := now.Add(-tt.duration)
+			result := formatRelativeTime(past)
+			if result != tt.expected {
+				t.Errorf("expected %q, got %q", tt.expected, result)
+			}
+		})
+	}
+}
+
+func TestPrintIssueDetails_WithRelativeTimestamps(t *testing.T) {
+	tmpDir := t.TempDir()
+	filePath := filepath.Join(tmpDir, "mint-issues.yaml")
+	t.Setenv("MINT_STORE_FILE", filePath)
+
+	store, _ := LoadStore(filePath)
+	issue, _ := store.AddIssue("Test issue")
+	_ = store.Save(filePath)
+
+	var buf bytes.Buffer
+	err := PrintIssueDetails(&buf, issue, store)
+	if err != nil {
+		t.Fatalf("PrintIssueDetails failed: %v", err)
+	}
+
+	output := stripANSI(buf.String())
+
+	// Check that Created timestamp has relative time in parentheses
+	if !strings.Contains(output, "Created") {
+		t.Errorf("expected 'Created' in output, got: %s", output)
+	}
+	// Look for pattern like "2025-12-10 11:01:25 (0s ago)" or similar
+	if !strings.Contains(output, "ago)") {
+		t.Errorf("expected relative time in Created field, got: %s", output)
+	}
+
+	// Check that Updated timestamp has relative time in parentheses
+	if !strings.Contains(output, "Updated") {
+		t.Errorf("expected 'Updated' in output, got: %s", output)
 	}
 }

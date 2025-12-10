@@ -81,6 +81,14 @@ issues:
     updated_at: 2025-12-10T10:58:24.045695-08:00
     comments:
     - "Closed with reason: Added 'new' and 'n' as aliases for the create command"
+  9eqf:
+    id: 9eqf
+    title: Add a --limit flag to limit how many issues are shown
+    status: open
+    created_at: 2025-12-10T11:00:28.393033-08:00
+    updated_at: 2025-12-10T11:00:28.393034-08:00
+    comments:
+    - It should also have a -L flag as a flag alias. The limit should apply to each section. So if I pass --limit 10, then in each ready section it would show a maximum of 10 issues.
   ab8q1f:
     id: ab8q1f
     title: Show comments with the 'show' subcommand
@@ -93,6 +101,14 @@ issues:
     status: closed
     created_at: 0001-01-01T00:00:00Z
     updated_at: 0001-01-01T00:00:00Z
+  auh3:
+    id: auh3
+    title: Test relative timestamps
+    status: closed
+    created_at: 2025-12-10T11:16:01.309855-08:00
+    updated_at: 2025-12-10T11:26:08.87964-08:00
+    comments:
+    - Feature implemented and comprehensively tested with mixed-unit duration cases
   butl:
     id: butl
     title: Add newlines to show command output
@@ -152,6 +168,14 @@ issues:
     - We should add single-letter versions of the various flags to the update command to make it a little bit easier to type out by hand.
     - "https://cli.urfave.org/v3/examples/flags/basics/#version-flags"
     - "Closed with reason: Added"
+  glr3:
+    id: glr3
+    title: Show relative date times in the created and updated fields when showing an issue
+    status: closed
+    created_at: 2025-12-10T11:01:25.032682-08:00
+    updated_at: 2025-12-10T11:16:02.727725-08:00
+    comments:
+    - We should continue to show the time, but in parentheses we should show something like(2 days ago) or (5 hours ago).
   j5tx:
     id: j5tx
     title: Add --sort flag to list command with id/created/updated options

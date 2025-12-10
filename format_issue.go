@@ -7,6 +7,34 @@ import (
 	"time"
 )
 
+// formatRelativeTime returns a relative time string like "2d ago" or "5m ago"
+// for the given time. It does not include parentheses.
+func formatRelativeTime(t time.Time) string {
+	duration := time.Since(t)
+
+	// Handle seconds
+	if duration < time.Minute {
+		seconds := int(duration.Seconds())
+		return fmt.Sprintf("%ds ago", seconds)
+	}
+
+	// Handle minutes
+	if duration < time.Hour {
+		minutes := int(duration.Minutes())
+		return fmt.Sprintf("%dm ago", minutes)
+	}
+
+	// Handle hours
+	if duration < 24*time.Hour {
+		hours := int(duration.Hours())
+		return fmt.Sprintf("%dh ago", hours)
+	}
+
+	// Handle days
+	days := int(duration.Hours() / 24)
+	return fmt.Sprintf("%dd ago", days)
+}
+
 // PrintIssueDetails prints full issue details including ID, Title, Status,
 // Dependencies, Blocks, and Comments
 func PrintIssueDetails(w io.Writer, issue *Issue, store *Store) error {
@@ -16,10 +44,10 @@ func PrintIssueDetails(w io.Writer, issue *Issue, store *Store) error {
 	fmt.Fprintf(&b, "\033[1m\033[38;5;5mTitle\033[0m   %s\n", issue.Title)
 	fmt.Fprintf(&b, "\033[1m\033[38;5;5mStatus\033[0m  %s\n", issue.Status)
 	if !issue.CreatedAt.IsZero() {
-		fmt.Fprintf(&b, "\033[1m\033[38;5;5mCreated\033[0m %s\n", issue.CreatedAt.Format(time.DateTime))
+		fmt.Fprintf(&b, "\033[1m\033[38;5;5mCreated\033[0m %s (%s)\n", issue.CreatedAt.Format(time.DateTime), formatRelativeTime(issue.CreatedAt))
 	}
 	if !issue.UpdatedAt.IsZero() {
-		fmt.Fprintf(&b, "\033[1m\033[38;5;5mUpdated\033[0m %s\n", issue.UpdatedAt.Format(time.DateTime))
+		fmt.Fprintf(&b, "\033[1m\033[38;5;5mUpdated\033[0m %s (%s)\n", issue.UpdatedAt.Format(time.DateTime), formatRelativeTime(issue.UpdatedAt))
 	}
 	if len(issue.DependsOn) > 0 || len(issue.Blocks) > 0 || len(issue.Comments) > 0 {
 		fmt.Fprintln(&b)
