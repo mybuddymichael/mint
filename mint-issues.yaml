@@ -8,6 +8,14 @@ issues:
     updated_at: 0001-01-01T00:00:00Z
     comments:
     - "Closed with reason: Added"
+  2vwz:
+    id: 2vwz
+    title: Update how we're sorting issues when listing them
+    status: closed
+    created_at: 2025-12-10T09:04:54.49869-08:00
+    updated_at: 2025-12-10T09:22:04.677985-08:00
+    comments:
+    - Now that we have created at and updated timestamps, we should sort the list of issues differently. For ready and blocked issues, we should sort those by when they were created from newest to oldest. And the list of closed issues we should sort by when they were updated with the most recently updated at the top.
   3zpw65:
     id: 3zpw65
     title: Add a '--open' flag to 'list' to only show open issues
@@ -125,9 +133,9 @@ issues:
   f3ai:
     id: f3ai
     title: Store updated timestamp on issues
-    status: open
+    status: closed
     created_at: 0001-01-01T00:00:00Z
-    updated_at: 0001-01-01T00:00:00Z
+    updated_at: 2025-12-10T09:03:23.595953-08:00
     depends_on:
     - rmxy
     blocks:
@@ -353,9 +361,9 @@ issues:
   xu1v:
     id: xu1v
     title: Store created timestamp on issues
-    status: open
+    status: closed
     created_at: 0001-01-01T00:00:00Z
-    updated_at: 0001-01-01T00:00:00Z
+    updated_at: 2025-12-10T09:03:28.343507-08:00
     depends_on:
     - rmxy
     blocks:

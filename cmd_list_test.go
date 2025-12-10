@@ -6,6 +6,7 @@ import (
 	"path/filepath"
 	"strings"
 	"testing"
+	"time"
 )
 
 func TestListCommand(t *testing.T) {
@@ -643,5 +644,168 @@ func TestListCommandNewlines(t *testing.T) {
 	// Should end with a blank line after all content
 	if !strings.HasSuffix(output, "\n\n") {
 		t.Errorf("expected output to end with double newline (content newline + final blank), got: %q", output[len(output)-10:])
+	}
+}
+
+func TestListSortsReadyByCreatedAt(t *testing.T) {
+	tmpDir := t.TempDir()
+	filePath := filepath.Join(tmpDir, "mint-issues.yaml")
+	t.Setenv("MINT_STORE_FILE", filePath)
+
+	store := NewStore()
+	now := time.Now()
+
+	// Create 5 ready issues with different creation times, added in shuffled order
+	store.Issues["issue3"] = &Issue{ID: "issue3", Title: "Third oldest", Status: "open", CreatedAt: now.Add(-3 * time.Hour)}
+	store.Issues["issue1"] = &Issue{ID: "issue1", Title: "Oldest", Status: "open", CreatedAt: now.Add(-5 * time.Hour)}
+	store.Issues["issue5"] = &Issue{ID: "issue5", Title: "Newest", Status: "open", CreatedAt: now}
+	store.Issues["issue2"] = &Issue{ID: "issue2", Title: "Second oldest", Status: "open", CreatedAt: now.Add(-4 * time.Hour)}
+	store.Issues["issue4"] = &Issue{ID: "issue4", Title: "Second newest", Status: "open", CreatedAt: now.Add(-1 * time.Hour)}
+
+	_ = store.Save(filePath)
+
+	cmd := newCommand()
+	var buf bytes.Buffer
+	cmd.Writer = &buf
+
+	err := cmd.Run(context.Background(), []string{"mint", "list"})
+	if err != nil {
+		t.Fatalf("list command failed: %v", err)
+	}
+
+	output := stripANSI(buf.String())
+
+	// Find positions of each issue ID in output
+	idx1 := strings.Index(output, "issue1")
+	idx2 := strings.Index(output, "issue2")
+	idx3 := strings.Index(output, "issue3")
+	idx4 := strings.Index(output, "issue4")
+	idx5 := strings.Index(output, "issue5")
+
+	// Verify all issues are present
+	if idx1 == -1 || idx2 == -1 || idx3 == -1 || idx4 == -1 || idx5 == -1 {
+		t.Fatalf("expected all issues in output, got: %s", output)
+	}
+
+	// Verify order: newest to oldest (issue5, issue4, issue3, issue2, issue1)
+	if idx5 >= idx4 || idx4 >= idx3 || idx3 >= idx2 || idx2 >= idx1 {
+		t.Errorf("expected ready issues sorted by CreatedAt (newest first): issue5(%d), issue4(%d), issue3(%d), issue2(%d), issue1(%d)\noutput:\n%s",
+			idx5, idx4, idx3, idx2, idx1, output)
+	}
+}
+
+func TestListSortsBlockedByCreatedAt(t *testing.T) {
+	tmpDir := t.TempDir()
+	filePath := filepath.Join(tmpDir, "mint-issues.yaml")
+	t.Setenv("MINT_STORE_FILE", filePath)
+
+	store := NewStore()
+	now := time.Now()
+
+	// Create a blocker issue
+	store.Issues["blocker"] = &Issue{ID: "blocker", Title: "Blocker", Status: "open", CreatedAt: now}
+
+	// Create 5 blocked issues with different creation times, added in shuffled order
+	store.Issues["blocked3"] = &Issue{ID: "blocked3", Title: "Third oldest blocked", Status: "open", CreatedAt: now.Add(-3 * time.Hour), DependsOn: []string{"blocker"}}
+	store.Issues["blocked1"] = &Issue{ID: "blocked1", Title: "Oldest blocked", Status: "open", CreatedAt: now.Add(-5 * time.Hour), DependsOn: []string{"blocker"}}
+	store.Issues["blocked5"] = &Issue{ID: "blocked5", Title: "Newest blocked", Status: "open", CreatedAt: now.Add(-30 * time.Minute), DependsOn: []string{"blocker"}}
+	store.Issues["blocked2"] = &Issue{ID: "blocked2", Title: "Second oldest blocked", Status: "open", CreatedAt: now.Add(-4 * time.Hour), DependsOn: []string{"blocker"}}
+	store.Issues["blocked4"] = &Issue{ID: "blocked4", Title: "Second newest blocked", Status: "open", CreatedAt: now.Add(-1 * time.Hour), DependsOn: []string{"blocker"}}
+
+	_ = store.Save(filePath)
+
+	cmd := newCommand()
+	var buf bytes.Buffer
+	cmd.Writer = &buf
+
+	err := cmd.Run(context.Background(), []string{"mint", "list"})
+	if err != nil {
+		t.Fatalf("list command failed: %v", err)
+	}
+
+	output := stripANSI(buf.String())
+
+	// Find BLOCKED section
+	blockedIdx := strings.Index(output, "BLOCKED")
+	closedIdx := strings.Index(output, "CLOSED")
+	if blockedIdx == -1 || closedIdx == -1 {
+		t.Fatalf("expected BLOCKED and CLOSED sections in output")
+	}
+
+	// Extract just the BLOCKED section
+	blockedSection := output[blockedIdx:closedIdx]
+
+	// Find positions of each blocked issue in the BLOCKED section
+	idx1 := strings.Index(blockedSection, "blocked1")
+	idx2 := strings.Index(blockedSection, "blocked2")
+	idx3 := strings.Index(blockedSection, "blocked3")
+	idx4 := strings.Index(blockedSection, "blocked4")
+	idx5 := strings.Index(blockedSection, "blocked5")
+
+	// Verify all blocked issues are present
+	if idx1 == -1 || idx2 == -1 || idx3 == -1 || idx4 == -1 || idx5 == -1 {
+		t.Fatalf("expected all blocked issues in BLOCKED section, got: %s", blockedSection)
+	}
+
+	// Verify order: newest to oldest (blocked5, blocked4, blocked3, blocked2, blocked1)
+	if idx5 >= idx4 || idx4 >= idx3 || idx3 >= idx2 || idx2 >= idx1 {
+		t.Errorf("expected blocked issues sorted by CreatedAt (newest first): blocked5(%d), blocked4(%d), blocked3(%d), blocked2(%d), blocked1(%d)\nblocked section:\n%s",
+			idx5, idx4, idx3, idx2, idx1, blockedSection)
+	}
+}
+
+func TestListSortsClosedByUpdatedAt(t *testing.T) {
+	tmpDir := t.TempDir()
+	filePath := filepath.Join(tmpDir, "mint-issues.yaml")
+	t.Setenv("MINT_STORE_FILE", filePath)
+
+	store := NewStore()
+	now := time.Now()
+
+	// Create 5 closed issues with different update times, added in shuffled order
+	store.Issues["closed3"] = &Issue{ID: "closed3", Title: "Third oldest update", Status: "closed", CreatedAt: now.Add(-10 * time.Hour), UpdatedAt: now.Add(-3 * time.Hour)}
+	store.Issues["closed1"] = &Issue{ID: "closed1", Title: "Oldest update", Status: "closed", CreatedAt: now.Add(-10 * time.Hour), UpdatedAt: now.Add(-5 * time.Hour)}
+	store.Issues["closed5"] = &Issue{ID: "closed5", Title: "Newest update", Status: "closed", CreatedAt: now.Add(-10 * time.Hour), UpdatedAt: now}
+	store.Issues["closed2"] = &Issue{ID: "closed2", Title: "Second oldest update", Status: "closed", CreatedAt: now.Add(-10 * time.Hour), UpdatedAt: now.Add(-4 * time.Hour)}
+	store.Issues["closed4"] = &Issue{ID: "closed4", Title: "Second newest update", Status: "closed", CreatedAt: now.Add(-10 * time.Hour), UpdatedAt: now.Add(-1 * time.Hour)}
+
+	_ = store.Save(filePath)
+
+	cmd := newCommand()
+	var buf bytes.Buffer
+	cmd.Writer = &buf
+
+	err := cmd.Run(context.Background(), []string{"mint", "list"})
+	if err != nil {
+		t.Fatalf("list command failed: %v", err)
+	}
+
+	output := stripANSI(buf.String())
+
+	// Find CLOSED section
+	closedIdx := strings.Index(output, "CLOSED")
+	if closedIdx == -1 {
+		t.Fatalf("expected CLOSED section in output")
+	}
+
+	// Extract just the CLOSED section (from CLOSED to end)
+	closedSection := output[closedIdx:]
+
+	// Find positions of each closed issue in the CLOSED section
+	idx1 := strings.Index(closedSection, "closed1")
+	idx2 := strings.Index(closedSection, "closed2")
+	idx3 := strings.Index(closedSection, "closed3")
+	idx4 := strings.Index(closedSection, "closed4")
+	idx5 := strings.Index(closedSection, "closed5")
+
+	// Verify all closed issues are present
+	if idx1 == -1 || idx2 == -1 || idx3 == -1 || idx4 == -1 || idx5 == -1 {
+		t.Fatalf("expected all closed issues in CLOSED section, got: %s", closedSection)
+	}
+
+	// Verify order: newest to oldest by UpdatedAt (closed5, closed4, closed3, closed2, closed1)
+	if idx5 >= idx4 || idx4 >= idx3 || idx3 >= idx2 || idx2 >= idx1 {
+		t.Errorf("expected closed issues sorted by UpdatedAt (newest first): closed5(%d), closed4(%d), closed3(%d), closed2(%d), closed1(%d)\nclosed section:\n%s",
+			idx5, idx4, idx3, idx2, idx1, closedSection)
 	}
 }

@@ -4,6 +4,7 @@ import (
 	"context"
 	"fmt"
 	"os"
+	"sort"
 
 	"github.com/urfave/cli/v3"
 )
@@ -57,6 +58,15 @@ func listAction(_ context.Context, cmd *cli.Command) error {
 
 	openOnly := cmd.Bool("open")
 	readyOnly := cmd.Bool("ready")
+
+	// Sort issues by timestamps (only what we'll display)
+	sortByCreatedAt(readyIssues)
+	if !readyOnly {
+		sortByCreatedAt(blockedIssues)
+	}
+	if !openOnly && !readyOnly {
+		sortByUpdatedAt(closedIssues)
+	}
 
 	// Display READY section
 	if _, err := fmt.Fprintln(w); err != nil {
@@ -135,4 +145,16 @@ func listAction(_ context.Context, cmd *cli.Command) error {
 	}
 
 	return nil
+}
+
+func sortByCreatedAt(issues []*Issue) {
+	sort.Slice(issues, func(i, j int) bool {
+		return issues[i].CreatedAt.After(issues[j].CreatedAt)
+	})
+}
+
+func sortByUpdatedAt(issues []*Issue) {
+	sort.Slice(issues, func(i, j int) bool {
+		return issues[i].UpdatedAt.After(issues[j].UpdatedAt)
+	})
 }

@@ -142,6 +142,13 @@ The current unique part of an ID is always underlined for easy spotting.
 
 By default, issues will be given a prefix, like `mint-m3f`. But you can set the prefix to nothing and just use the nanoID for the issue IDs, like `m3f`.
 
+### Issue sorting
+
+When you run `mint list`, issues are automatically sorted by timestamps:
+
+- **Ready and blocked issues**: Sorted by creation date, with the newest issues at the top
+- **Closed issues**: Sorted by last update date, with the most recently updated at the top
+
 ## Issue storage
 
 Issues are stored as plain text in a single YAML file (`mint-issues.yaml`), and I recommend tracking it in version control. If an issue file isn't found, it's created when the first issue is added.
