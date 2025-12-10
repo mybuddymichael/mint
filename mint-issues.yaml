@@ -4,22 +4,30 @@ issues:
     id: 03kn
     title: Add single-letter aliases for common subcommands
     status: closed
+    created_at: 0001-01-01T00:00:00Z
+    updated_at: 0001-01-01T00:00:00Z
     comments:
     - "Closed with reason: Added"
   3zpw65:
     id: 3zpw65
     title: Add a '--open' flag to 'list' to only show open issues
     status: closed
+    created_at: 0001-01-01T00:00:00Z
+    updated_at: 0001-01-01T00:00:00Z
   535v:
     id: 535v
     title: Add delete subcommand
     status: closed
+    created_at: 0001-01-01T00:00:00Z
+    updated_at: 0001-01-01T00:00:00Z
     comments:
     - "Closed with reason: Implemented"
   5zdpgt:
     id: 5zdpgt
     title: Show minimum unique ID when listing issues
     status: closed
+    created_at: 0001-01-01T00:00:00Z
+    updated_at: 0001-01-01T00:00:00Z
     blocks:
     - wjigoz
     comments:
@@ -28,18 +36,24 @@ issues:
     id: 6yx9is
     title: Add the set-prefix subcommand
     status: closed
+    created_at: 0001-01-01T00:00:00Z
+    updated_at: 0001-01-01T00:00:00Z
     comments:
     - "Closed with reason: Implemented set-prefix subcommand"
   7d04s1s:
     id: 7d04s1s
     title: Remove timestamps from error messages
     status: closed
+    created_at: 0001-01-01T00:00:00Z
+    updated_at: 0001-01-01T00:00:00Z
     comments:
     - "Closed with reason: Fixed"
   7rgp:
     id: 7rgp
     title: Audit codebase for inadequate stale reference handling
     status: closed
+    created_at: 0001-01-01T00:00:00Z
+    updated_at: 0001-01-01T00:00:00Z
     depends_on:
     - perf
     comments:
@@ -49,44 +63,62 @@ issues:
     id: 87x5oz8
     title: Make formatting nicer when listing issues
     status: closed
+    created_at: 0001-01-01T00:00:00Z
+    updated_at: 0001-01-01T00:00:00Z
   89q2:
     id: 89q2
     title: Add 'new' as an alias for 'create' and 'add'
     status: open
+    created_at: 0001-01-01T00:00:00Z
+    updated_at: 0001-01-01T00:00:00Z
   ab8q1f:
     id: ab8q1f
     title: Show comments with the 'show' subcommand
     status: closed
+    created_at: 0001-01-01T00:00:00Z
+    updated_at: 0001-01-01T00:00:00Z
   an7no0:
     id: an7no0
     title: Show relationships when running 'show' on an issue
     status: closed
+    created_at: 0001-01-01T00:00:00Z
+    updated_at: 0001-01-01T00:00:00Z
   butl:
     id: butl
     title: Add newlines to show command output
     status: closed
+    created_at: 0001-01-01T00:00:00Z
+    updated_at: 0001-01-01T00:00:00Z
   c4jg:
     id: c4jg
     title: Add newlines before and after the content when running `mint list`
     status: closed
+    created_at: 0001-01-01T00:00:00Z
+    updated_at: 0001-01-01T00:00:00Z
     comments:
     - "Closed with reason: Done"
   chay:
     id: chay
     title: Show the title in the confirmation message when adding an issue
     status: closed
+    created_at: 0001-01-01T00:00:00Z
+    updated_at: 0001-01-01T00:00:00Z
     comments:
     - "Closed with reason: Implemented"
   d69q:
     id: d69q
     title: Show full issue details when closing an issue
     status: closed
+    created_at: 0001-01-01T00:00:00Z
+    updated_at: 0001-01-01T00:00:00Z
     comments:
     - "Closed with reason: Done"
   d6iu:
     id: d6iu
     title: Make error handling less verbose
     status: closed
+    created_at: 0001-01-01T00:00:00Z
+    updated_at: 0001-01-01T00:00:00Z
     comments:
     - Right now, every line is printed individually, And every call to print line is checked for an error. Ideally, we would only need to check for an error once, maybe by creating a string and then printing it all together.
     - "Closed with reason: Done"
@@ -94,6 +126,8 @@ issues:
     id: f3ai
     title: Store updated timestamp on issues
     status: open
+    created_at: 0001-01-01T00:00:00Z
+    updated_at: 0001-01-01T00:00:00Z
     depends_on:
     - rmxy
     blocks:
@@ -102,6 +136,8 @@ issues:
     id: g4uq
     title: Add single-letter aliases for update's flags
     status: closed
+    created_at: 0001-01-01T00:00:00Z
+    updated_at: 0001-01-01T00:00:00Z
     comments:
     - We should add single-letter versions of the various flags to the update command to make it a little bit easier to type out by hand.
     - "https://cli.urfave.org/v3/examples/flags/basics/#version-flags"
@@ -110,6 +146,8 @@ issues:
     id: j5tx
     title: Add --sort flag to list command with id/created/updated options
     status: open
+    created_at: 0001-01-01T00:00:00Z
+    updated_at: 0001-01-01T00:00:00Z
     depends_on:
     - xu1v
     - f3ai
@@ -119,6 +157,8 @@ issues:
     id: j8k2
     title: Calculate ID length dynamically based on issue count
     status: closed
+    created_at: 0001-01-01T00:00:00Z
+    updated_at: 0001-01-01T00:00:00Z
     comments:
     - "Implemented dynamic ID length calculation using birthday paradox formula. IDs now start at 3 chars minimum and grow based on issue count (0.1% collision probability): 0-9 issues=3 chars, 10-49=4 chars, 50-99=5 chars, etc. Changes: Added CalculateIDLength() in id.go, updated GenerateID() signature, modified store.go AddIssue(), added comprehensive tests."
     - "Closed with reason: Implementation complete and all tests passing"
@@ -126,10 +166,14 @@ issues:
     id: jlv9eob
     title: Make the color of the extraneous id characters color 8
     status: closed
+    created_at: 0001-01-01T00:00:00Z
+    updated_at: 0001-01-01T00:00:00Z
   l38ut0u:
     id: l38ut0u
     title: Highlight the unique part of an ID when printing it
     status: closed
+    created_at: 0001-01-01T00:00:00Z
+    updated_at: 0001-01-01T00:00:00Z
     blocks:
     - u8jkhre
     comments:
@@ -138,12 +182,16 @@ issues:
     id: larw
     title: Show the relationship issue statuses when showing issue details
     status: closed
+    created_at: 0001-01-01T00:00:00Z
+    updated_at: 0001-01-01T00:00:00Z
     comments:
     - "Closed with reason: Implemented status display in relationship sections"
   mfv0us:
     id: mfv0us
     title: Allow setting relationships when an issue is created
     status: closed
+    created_at: 0001-01-01T00:00:00Z
+    updated_at: 0001-01-01T00:00:00Z
     comments:
     - E.g., `mint create 'fix the bug' --blocks mint-a8`
     - "Closed with reason: Implemented --depends-on/-d and --blocks/-b flags for create command with full test coverage"
@@ -151,12 +199,16 @@ issues:
     id: ncc1dk
     title: Add a type field to issues
     status: closed
+    created_at: 0001-01-01T00:00:00Z
+    updated_at: 0001-01-01T00:00:00Z
     comments:
     - "Closed with reason: Not right now?"
   njhr:
     id: njhr
     title: When printing issue details, make the keys for each detail bold and ANSI color 5
     status: closed
+    created_at: 0001-01-01T00:00:00Z
+    updated_at: 0001-01-01T00:00:00Z
     comments:
     - And we shouldn't have a colon after each of the keys.
     - "Closed with reason: completed"
@@ -164,12 +216,16 @@ issues:
     id: oz4u20
     title: Add 'ready' subcommand
     status: closed
+    created_at: 0001-01-01T00:00:00Z
+    updated_at: 0001-01-01T00:00:00Z
     comments:
     - "Closed with reason: Added"
   perf:
     id: perf
     title: Show command crashes when displaying issues with stale relationship references
     status: closed
+    created_at: 0001-01-01T00:00:00Z
+    updated_at: 0001-01-01T00:00:00Z
     blocks:
     - 7rgp
     comments:
@@ -179,10 +235,14 @@ issues:
     id: piyjpq
     title: Don't put quotes around the title when listing or showing issues
     status: closed
+    created_at: 0001-01-01T00:00:00Z
+    updated_at: 0001-01-01T00:00:00Z
   pwyu:
     id: pwyu
     title: Use the proper method for storing the version
     status: closed
+    created_at: 0001-01-01T00:00:00Z
+    updated_at: 0001-01-01T00:00:00Z
     comments:
     - "https://cli.urfave.org/v3/examples/flags/basics/#version-flags"
     - "Closed with reason: Implemented proper version handling using cli.Command.Version field"
@@ -190,12 +250,16 @@ issues:
     id: riq2
     title: Allow setting no prefix
     status: closed
+    created_at: 0001-01-01T00:00:00Z
+    updated_at: 0001-01-01T00:00:00Z
     comments:
     - If the user chooses no prefix, then issues should only have an ID that is the unique nano ID with no prefix and no hyphen before that.
   rmxy:
     id: rmxy
     title: Add a migration system to handle issue schema migration
     status: closed
+    created_at: 0001-01-01T00:00:00Z
+    updated_at: 0001-01-01T00:00:00Z
     blocks:
     - xu1v
     - f3ai
@@ -205,34 +269,46 @@ issues:
     id: rn8qjx
     title: Allow adding a description when creating an issue
     status: closed
+    created_at: 0001-01-01T00:00:00Z
+    updated_at: 0001-01-01T00:00:00Z
     comments:
     - "Closed with reason: Added"
   rp6w:
     id: rp6w
     title: Unblock an issue when all blocking issues are closed
     status: closed
+    created_at: 0001-01-01T00:00:00Z
+    updated_at: 0001-01-01T00:00:00Z
     comments:
     - "Closed with reason: Added"
   s3lm:
     id: s3lm
     title: Detect circular dependencies when adding relationships and showing issues
     status: open
+    created_at: 0001-01-01T00:00:00Z
+    updated_at: 0001-01-01T00:00:00Z
   s5az:
     id: s5az
     title: Update README with list --sort documentation
     status: open
+    created_at: 0001-01-01T00:00:00Z
+    updated_at: 0001-01-01T00:00:00Z
     depends_on:
     - j5tx
   tsw5qkb:
     id: tsw5qkb
     title: When adding a comment, show a clearer success message
     status: closed
+    created_at: 0001-01-01T00:00:00Z
+    updated_at: 0001-01-01T00:00:00Z
     comments:
     - We should show the text of the comment in the success message, similar to how we show the title when adding a new issue.
   u8jkhre:
     id: u8jkhre
     title: Subcommands don't print the full ID when responding
     status: closed
+    created_at: 0001-01-01T00:00:00Z
+    updated_at: 0001-01-01T00:00:00Z
     depends_on:
     - mint-l
     comments:
@@ -241,20 +317,28 @@ issues:
     id: ufovp7
     title: Allow 'add' as an alias for the 'create' subcommand
     status: closed
+    created_at: 0001-01-01T00:00:00Z
+    updated_at: 0001-01-01T00:00:00Z
   vu2td8t:
     id: vu2td8t
     title: Comments should appear below relationships in the show subcommand
     status: closed
+    created_at: 0001-01-01T00:00:00Z
+    updated_at: 0001-01-01T00:00:00Z
     comments:
     - "Closed with reason: fixed"
   vvjkxz:
     id: vvjkxz
     title: Change all references of 'mt' to 'mint'
     status: closed
+    created_at: 0001-01-01T00:00:00Z
+    updated_at: 0001-01-01T00:00:00Z
   vx94mev:
     id: vx94mev
     title: Help docs for mint update are confusing
     status: closed
+    created_at: 0001-01-01T00:00:00Z
+    updated_at: 0001-01-01T00:00:00Z
     comments:
     - The --depends-on and --blocks flag documentation is confusing in its presentation.
     - "Closed with reason: Won't fix"
@@ -262,12 +346,16 @@ issues:
     id: wjigoz
     title: Allow selecting issues by typing the minimum unique ID
     status: closed
+    created_at: 0001-01-01T00:00:00Z
+    updated_at: 0001-01-01T00:00:00Z
     depends_on:
     - 5zdpgt
   xu1v:
     id: xu1v
     title: Store created timestamp on issues
     status: open
+    created_at: 0001-01-01T00:00:00Z
+    updated_at: 0001-01-01T00:00:00Z
     depends_on:
     - rmxy
     blocks:
@@ -276,6 +364,8 @@ issues:
     id: zn27bxh
     title: "SetPrefix bug: drops first nanoid character when old prefix includes hyphen"
     status: closed
+    created_at: 0001-01-01T00:00:00Z
+    updated_at: 0001-01-01T00:00:00Z
     comments:
     - "Bug in store.go:238 - SetPrefix function has 'suffix := oldID[len(oldPrefix)+1:]' which adds +1 to skip the hyphen separator. When old prefix was 'mt-' (included hyphen), this skipped 4 chars instead of 3, dropping first nanoid char. Example: 'mt-0ncc1dk' became 'mint-ncc1dk' (lost '0'). Affected issues: mint-3zpw65, mint-5zdpgt, mint-6yx9is, mint-ab8q1f, mint-an7no0, mint-mfv0us, mint-ncc1dk, mint-oz4u20, mint-piyjpq, mint-rn8qjx, mint-ufovp7, mint-vvjkxz. All have 6-char nanoids instead of 7. Newer issues (jlv9eob, l38ut0u, etc.) created after commit 6de96ff are correct with 7 chars."
     - Fixed in store.go:239 by changing 'suffix := oldID[len(oldPrefix)+1:]' to 'suffix := strings.TrimPrefix(oldID[len(oldPrefix):], "-")'. This handles both prefixes with and without trailing hyphens. Added regression test TestStoreSetPrefix_OldPrefixWithHyphen to prevent future occurrences.
@@ -284,3 +374,5 @@ issues:
     id: zsbb
     title: Make a way to remove dependencies from an issue
     status: closed
+    created_at: 0001-01-01T00:00:00Z
+    updated_at: 0001-01-01T00:00:00Z
