@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.9.0] - 2025-12-10
+
+### Features
+- Add --limit flag to list command
+- Show relative timestamps on issue times
+- Add 'n' as an alias for create
+
 ## [0.8.0] - 2025-12-10
 
 ### Features
@@ -161,6 +168,7 @@
 - Add a basic program that will run
 - Add mise.toml
 
+[0.9.0]: https://github.com/mybuddymichael/mint/compare/v0.8.0..v0.9.0
 [0.8.0]: https://github.com/mybuddymichael/mint/compare/v0.7.0..v0.8.0
 [0.7.0]: https://github.com/mybuddymichael/mint/compare/v0.6.0..v0.7.0
 [0.6.0]: https://github.com/mybuddymichael/mint/compare/v0.5.1..v0.6.0
