@@ -66,6 +66,10 @@ func newCommand() *cli.Command {
 						Name:  "ready",
 						Usage: "Only show ready issues",
 					},
+					&cli.IntFlag{
+						Name:  "limit",
+						Usage: "Limit the number of issues shown per section",
+					},
 				},
 				Action: listAction,
 			},

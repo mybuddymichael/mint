@@ -93,6 +93,21 @@ READY
 ```
 
 ```bash
+→ mint list --limit 1
+READY (1 of 2)
+
+   mint-j0 open Add initial code structure
+
+BLOCKED (1 of 1)
+
+   mint-a8 open Support closing issues
+
+CLOSED (1 of 1)
+
+   mint-8G closed Write tests for closing issues
+```
+
+```bash
 → mint update mint-a8 --comment "The problem is in main.go:123."
 Added a comment to issue mint-a8 with text "The problem is in main.go:123."
 ```

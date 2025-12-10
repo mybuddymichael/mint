@@ -58,6 +58,7 @@ func listAction(_ context.Context, cmd *cli.Command) error {
 
 	openOnly := cmd.Bool("open")
 	readyOnly := cmd.Bool("ready")
+	limit := cmd.Int("limit")
 
 	// Sort issues by timestamps (only what we'll display)
 	sortByCreatedAt(readyIssues)
@@ -68,11 +69,33 @@ func listAction(_ context.Context, cmd *cli.Command) error {
 		sortByUpdatedAt(closedIssues)
 	}
 
+	// Track original counts before applying limit
+	readyTotalCount := len(readyIssues)
+	blockedTotalCount := len(blockedIssues)
+	closedTotalCount := len(closedIssues)
+
+	// Apply limit to each section (if limit > 0)
+	if limit > 0 {
+		if len(readyIssues) > limit {
+			readyIssues = readyIssues[:limit]
+		}
+		if len(blockedIssues) > limit {
+			blockedIssues = blockedIssues[:limit]
+		}
+		if len(closedIssues) > limit {
+			closedIssues = closedIssues[:limit]
+		}
+	}
+
 	// Display READY section
 	if _, err := fmt.Fprintln(w); err != nil {
 		return err
 	}
 	readyHeader := "\033[48;5;2m\033[38;5;0m READY \033[0m"
+	// Add limit indicator if section is actually limited
+	if limit > 0 && len(readyIssues) < readyTotalCount {
+		readyHeader += fmt.Sprintf(" \033[38;5;8m(%d of %d)\033[0m", len(readyIssues), readyTotalCount)
+	}
 	if _, err := fmt.Fprintln(w, readyHeader); err != nil {
 		return err
 	}
@@ -97,6 +120,10 @@ func listAction(_ context.Context, cmd *cli.Command) error {
 		}
 
 		blockedHeader := "\033[48;5;1m\033[38;5;0m BLOCKED \033[0m"
+		// Add limit indicator if section is actually limited
+		if limit > 0 && len(blockedIssues) < blockedTotalCount {
+			blockedHeader += fmt.Sprintf(" \033[38;5;8m(%d of %d)\033[0m", len(blockedIssues), blockedTotalCount)
+		}
 		if _, err := fmt.Fprintln(w, blockedHeader); err != nil {
 			return err
 		}
@@ -122,6 +149,10 @@ func listAction(_ context.Context, cmd *cli.Command) error {
 		}
 
 		closedHeader := "\033[48;5;0m\033[38;5;15m CLOSED \033[0m"
+		// Add limit indicator if section is actually limited
+		if limit > 0 && len(closedIssues) < closedTotalCount {
+			closedHeader += fmt.Sprintf(" \033[38;5;8m(%d of %d)\033[0m", len(closedIssues), closedTotalCount)
+		}
 		if _, err := fmt.Fprintln(w, closedHeader); err != nil {
 			return err
 		}

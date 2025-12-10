@@ -84,11 +84,12 @@ issues:
   9eqf:
     id: 9eqf
     title: Add a --limit flag to limit how many issues are shown
-    status: open
+    status: closed
     created_at: 2025-12-10T11:00:28.393033-08:00
-    updated_at: 2025-12-10T11:00:28.393034-08:00
+    updated_at: 2025-12-10T11:37:52.03495-08:00
     comments:
     - It should also have a -L flag as a flag alias. The limit should apply to each section. So if I pass --limit 10, then in each ready section it would show a maximum of 10 issues.
+    - "Closed with reason: Implemented --limit flag"
   ab8q1f:
     id: ab8q1f
     title: Show comments with the 'show' subcommand

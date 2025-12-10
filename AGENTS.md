@@ -4,3 +4,4 @@
 - Use `mise` for all build, test, etc. commands.
 - Always run `mise run check` when you're done.
 - Use `mint` for all task tracking and issue management. Run `mint -h` to see all available commands.
+- Use `jj`, not `git`, for all git commands.

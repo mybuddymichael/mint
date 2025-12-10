@@ -3,6 +3,7 @@ package main
 import (
 	"bytes"
 	"context"
+	"fmt"
 	"path/filepath"
 	"strings"
 	"testing"
@@ -807,5 +808,323 @@ func TestListSortsClosedByUpdatedAt(t *testing.T) {
 	if idx5 >= idx4 || idx4 >= idx3 || idx3 >= idx2 || idx2 >= idx1 {
 		t.Errorf("expected closed issues sorted by UpdatedAt (newest first): closed5(%d), closed4(%d), closed3(%d), closed2(%d), closed1(%d)\nclosed section:\n%s",
 			idx5, idx4, idx3, idx2, idx1, closedSection)
+	}
+}
+
+func TestListCommandWithLimitFlag(t *testing.T) {
+	tmpDir := t.TempDir()
+	filePath := filepath.Join(tmpDir, "mint-issues.yaml")
+	t.Setenv("MINT_STORE_FILE", filePath)
+
+	store := NewStore()
+	now := time.Now()
+
+	// Create 5 ready issues
+	for i := 1; i <= 5; i++ {
+		store.Issues[fmt.Sprintf("ready%d", i)] = &Issue{
+			ID:        fmt.Sprintf("ready%d", i),
+			Title:     fmt.Sprintf("Ready issue %d", i),
+			Status:    "open",
+			CreatedAt: now.Add(-time.Duration(i) * time.Hour),
+		}
+	}
+
+	// Create a blocker and 5 blocked issues
+	store.Issues["blocker"] = &Issue{
+		ID:        "blocker",
+		Title:     "Blocker issue",
+		Status:    "open",
+		CreatedAt: now.Add(-10 * time.Hour),
+	}
+	for i := 1; i <= 5; i++ {
+		store.Issues[fmt.Sprintf("blocked%d", i)] = &Issue{
+			ID:        fmt.Sprintf("blocked%d", i),
+			Title:     fmt.Sprintf("Blocked issue %d", i),
+			Status:    "open",
+			CreatedAt: now.Add(-time.Duration(5+i) * time.Hour),
+			DependsOn: []string{"blocker"},
+		}
+	}
+
+	// Create 5 closed issues
+	for i := 1; i <= 5; i++ {
+		store.Issues[fmt.Sprintf("closed%d", i)] = &Issue{
+			ID:        fmt.Sprintf("closed%d", i),
+			Title:     fmt.Sprintf("Closed issue %d", i),
+			Status:    "closed",
+			CreatedAt: now.Add(-time.Duration(15+i) * time.Hour),
+			UpdatedAt: now.Add(-time.Duration(i) * time.Hour),
+		}
+	}
+
+	_ = store.Save(filePath)
+
+	cmd := newCommand()
+	var buf bytes.Buffer
+	cmd.Writer = &buf
+
+	err := cmd.Run(context.Background(), []string{"mint", "list", "--limit", "2"})
+	if err != nil {
+		t.Fatalf("list --limit command failed: %v", err)
+	}
+
+	output := stripANSI(buf.String())
+
+	// Count issues in each section
+	readyIdx := strings.Index(output, "READY")
+	blockedIdx := strings.Index(output, "BLOCKED")
+	closedIdx := strings.Index(output, "CLOSED")
+
+	readySection := output[readyIdx:blockedIdx]
+	blockedSection := output[blockedIdx:closedIdx]
+	closedSection := output[closedIdx:]
+
+	// Count ready issues (should be max 2)
+	readyCount := 0
+	for i := 1; i <= 5; i++ {
+		if strings.Contains(readySection, fmt.Sprintf("ready%d", i)) {
+			readyCount++
+		}
+	}
+	if readyCount != 2 {
+		t.Errorf("expected 2 ready issues with --limit 2, got %d in section:\n%s", readyCount, readySection)
+	}
+
+	// Count blocked issues (should be max 2)
+	blockedCount := 0
+	for i := 1; i <= 5; i++ {
+		if strings.Contains(blockedSection, fmt.Sprintf("blocked%d", i)) {
+			blockedCount++
+		}
+	}
+	if blockedCount != 2 {
+		t.Errorf("expected 2 blocked issues with --limit 2, got %d in section:\n%s", blockedCount, blockedSection)
+	}
+
+	// Count closed issues (should be max 2)
+	closedIssueCount := 0
+	for i := 1; i <= 5; i++ {
+		if strings.Contains(closedSection, fmt.Sprintf("closed%d", i)) {
+			closedIssueCount++
+		}
+	}
+	if closedIssueCount != 2 {
+		t.Errorf("expected 2 closed issues with --limit 2, got %d in section:\n%s", closedIssueCount, closedSection)
+	}
+}
+
+func TestListCommandWithLimitZero(t *testing.T) {
+	tmpDir := t.TempDir()
+	filePath := filepath.Join(tmpDir, "mint-issues.yaml")
+	t.Setenv("MINT_STORE_FILE", filePath)
+
+	store, _ := LoadStore(filePath)
+	_, _ = store.AddIssue("Ready issue")
+	_ = store.Save(filePath)
+
+	cmd := newCommand()
+	var buf bytes.Buffer
+	cmd.Writer = &buf
+
+	err := cmd.Run(context.Background(), []string{"mint", "list", "--limit", "0"})
+	if err != nil {
+		t.Fatalf("list --limit 0 command failed: %v", err)
+	}
+
+	output := stripANSI(buf.String())
+
+	// With limit 0 (ignored), all issues should be shown
+	if !strings.Contains(output, "Ready issue") {
+		t.Errorf("expected issue to be shown when limit is 0 (ignored), got: %s", output)
+	}
+}
+
+func TestListCommandWithNegativeLimit(t *testing.T) {
+	tmpDir := t.TempDir()
+	filePath := filepath.Join(tmpDir, "mint-issues.yaml")
+	t.Setenv("MINT_STORE_FILE", filePath)
+
+	store, _ := LoadStore(filePath)
+	_, _ = store.AddIssue("Ready issue")
+	_ = store.Save(filePath)
+
+	cmd := newCommand()
+	var buf bytes.Buffer
+	cmd.Writer = &buf
+
+	err := cmd.Run(context.Background(), []string{"mint", "list", "--limit", "-5"})
+	if err != nil {
+		t.Fatalf("list --limit -5 command failed: %v", err)
+	}
+
+	output := stripANSI(buf.String())
+
+	// With negative limit (ignored), all issues should be shown
+	if !strings.Contains(output, "Ready issue") {
+		t.Errorf("expected issue to be shown when limit is negative (ignored), got: %s", output)
+	}
+}
+
+func TestListCommandWithLimitAndReady(t *testing.T) {
+	tmpDir := t.TempDir()
+	filePath := filepath.Join(tmpDir, "mint-issues.yaml")
+	t.Setenv("MINT_STORE_FILE", filePath)
+
+	store, _ := LoadStore(filePath)
+	now := time.Now()
+
+	// Create 5 ready issues
+	for i := 1; i <= 5; i++ {
+		store.Issues[fmt.Sprintf("ready%d", i)] = &Issue{
+			ID:        fmt.Sprintf("ready%d", i),
+			Title:     fmt.Sprintf("Ready issue %d", i),
+			Status:    "open",
+			CreatedAt: now.Add(-time.Duration(i) * time.Hour),
+		}
+	}
+	_ = store.Save(filePath)
+
+	cmd := newCommand()
+	var buf bytes.Buffer
+	cmd.Writer = &buf
+
+	err := cmd.Run(context.Background(), []string{"mint", "list", "--limit", "2", "--ready"})
+	if err != nil {
+		t.Fatalf("list --limit --ready command failed: %v", err)
+	}
+
+	output := stripANSI(buf.String())
+
+	// Count ready issues (should be max 2)
+	readyCount := 0
+	for i := 1; i <= 5; i++ {
+		if strings.Contains(output, fmt.Sprintf("ready%d", i)) {
+			readyCount++
+		}
+	}
+	if readyCount != 2 {
+		t.Errorf("expected 2 ready issues with --limit 2 --ready, got %d\noutput: %s", readyCount, output)
+	}
+
+	// Should not show BLOCKED or CLOSED sections
+	if strings.Contains(output, "BLOCKED") {
+		t.Error("expected no BLOCKED section with --ready flag")
+	}
+	if strings.Contains(output, "CLOSED") {
+		t.Error("expected no CLOSED section with --ready flag")
+	}
+}
+
+func TestListCommandLimitIndicator(t *testing.T) {
+	tmpDir := t.TempDir()
+	filePath := filepath.Join(tmpDir, "mint-issues.yaml")
+	t.Setenv("MINT_STORE_FILE", filePath)
+
+	store := NewStore()
+	now := time.Now()
+
+	// Create 5 ready issues
+	for i := 1; i <= 5; i++ {
+		store.Issues[fmt.Sprintf("ready%d", i)] = &Issue{
+			ID:        fmt.Sprintf("ready%d", i),
+			Title:     fmt.Sprintf("Ready issue %d", i),
+			Status:    "open",
+			CreatedAt: now.Add(-time.Duration(i) * time.Hour),
+		}
+	}
+
+	// Create a blocker and 3 blocked issues
+	store.Issues["blocker"] = &Issue{
+		ID:        "blocker",
+		Title:     "Blocker issue",
+		Status:    "open",
+		CreatedAt: now.Add(-10 * time.Hour),
+	}
+	for i := 1; i <= 3; i++ {
+		store.Issues[fmt.Sprintf("blocked%d", i)] = &Issue{
+			ID:        fmt.Sprintf("blocked%d", i),
+			Title:     fmt.Sprintf("Blocked issue %d", i),
+			Status:    "open",
+			CreatedAt: now.Add(-time.Duration(5+i) * time.Hour),
+			DependsOn: []string{"blocker"},
+		}
+	}
+
+	// Create 7 closed issues
+	for i := 1; i <= 7; i++ {
+		store.Issues[fmt.Sprintf("closed%d", i)] = &Issue{
+			ID:        fmt.Sprintf("closed%d", i),
+			Title:     fmt.Sprintf("Closed issue %d", i),
+			Status:    "closed",
+			CreatedAt: now.Add(-time.Duration(15+i) * time.Hour),
+			UpdatedAt: now.Add(-time.Duration(i) * time.Hour),
+		}
+	}
+
+	_ = store.Save(filePath)
+
+	cmd := newCommand()
+	var buf bytes.Buffer
+	cmd.Writer = &buf
+
+	err := cmd.Run(context.Background(), []string{"mint", "list", "--limit", "2"})
+	if err != nil {
+		t.Fatalf("list --limit command failed: %v", err)
+	}
+
+	output := buf.String()
+	strippedOutput := stripANSI(output)
+
+	// READY section: 5 ready + 1 blocker (no deps) = 6 total, limited to 2 - should show indicator
+	if !strings.Contains(strippedOutput, "READY  (2 of 6)") {
+		t.Errorf("expected 'READY  (2 of 6)' in output, got:\n%s", strippedOutput)
+	}
+
+	// BLOCKED section: 3 blocked issues (all depend on blocker), limited to 2 - should show indicator
+	if !strings.Contains(strippedOutput, "BLOCKED  (2 of 3)") {
+		t.Errorf("expected 'BLOCKED  (2 of 3)' in output, got:\n%s", strippedOutput)
+	}
+
+	// CLOSED section: 7 total, limited to 2 - should show indicator
+	if !strings.Contains(strippedOutput, "CLOSED  (2 of 7)") {
+		t.Errorf("expected 'CLOSED  (2 of 7)' in output, got:\n%s", strippedOutput)
+	}
+}
+
+func TestListCommandLimitIndicatorNotShown(t *testing.T) {
+	tmpDir := t.TempDir()
+	filePath := filepath.Join(tmpDir, "mint-issues.yaml")
+	t.Setenv("MINT_STORE_FILE", filePath)
+
+	store := NewStore()
+	now := time.Now()
+
+	// Create 2 ready issues (limit is 5, so no indicator should show)
+	for i := 1; i <= 2; i++ {
+		store.Issues[fmt.Sprintf("ready%d", i)] = &Issue{
+			ID:        fmt.Sprintf("ready%d", i),
+			Title:     fmt.Sprintf("Ready issue %d", i),
+			Status:    "open",
+			CreatedAt: now.Add(-time.Duration(i) * time.Hour),
+		}
+	}
+
+	_ = store.Save(filePath)
+
+	cmd := newCommand()
+	var buf bytes.Buffer
+	cmd.Writer = &buf
+
+	err := cmd.Run(context.Background(), []string{"mint", "list", "--limit", "5"})
+	if err != nil {
+		t.Fatalf("list --limit command failed: %v", err)
+	}
+
+	output := buf.String()
+	strippedOutput := stripANSI(output)
+
+	// READY section: 2 total, limit 5 (not limited) - should NOT show indicator
+	if strings.Contains(strippedOutput, "READY (") {
+		t.Errorf("expected no limit indicator for READY when limit is not reached, got:\n%s", strippedOutput)
 	}
 }
