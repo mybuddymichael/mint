@@ -49,7 +49,7 @@ func (s *Store) RemoveDependency(issueID, dependsOnID string) error {
 	}
 
 	// Remove dependsOnID from issue.DependsOn
-	newDeps := make([]string, 0, len(issue.DependsOn)-1)
+	newDeps := make([]string, 0, len(issue.DependsOn))
 	for _, depID := range issue.DependsOn {
 		if depID != dependsOnID {
 			newDeps = append(newDeps, depID)
@@ -58,7 +58,7 @@ func (s *Store) RemoveDependency(issueID, dependsOnID string) error {
 	issue.DependsOn = newDeps
 
 	// Remove issueID from blocker.Blocks
-	newBlocks := make([]string, 0, len(blocker.Blocks)-1)
+	newBlocks := make([]string, 0, len(blocker.Blocks))
 	for _, blockID := range blocker.Blocks {
 		if blockID != issueID {
 			newBlocks = append(newBlocks, blockID)
@@ -83,7 +83,7 @@ func (s *Store) RemoveBlocker(issueID, blockedID string) error {
 	}
 
 	// Remove blockedID from issue.Blocks
-	newBlocks := make([]string, 0, len(issue.Blocks)-1)
+	newBlocks := make([]string, 0, len(issue.Blocks))
 	for _, blockID := range issue.Blocks {
 		if blockID != blockedID {
 			newBlocks = append(newBlocks, blockID)
@@ -92,7 +92,7 @@ func (s *Store) RemoveBlocker(issueID, blockedID string) error {
 	issue.Blocks = newBlocks
 
 	// Remove issueID from blocked.DependsOn
-	newDeps := make([]string, 0, len(blocked.DependsOn)-1)
+	newDeps := make([]string, 0, len(blocked.DependsOn))
 	for _, depID := range blocked.DependsOn {
 		if depID != issueID {
 			newDeps = append(newDeps, depID)

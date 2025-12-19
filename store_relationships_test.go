@@ -270,3 +270,45 @@ func TestStoreRemoveBlocker_UpdatesBothTimestamps(t *testing.T) {
 		t.Error("issue2 UpdatedAt should be updated")
 	}
 }
+
+func TestStoreRemoveBlocker_EmptyBlocks(t *testing.T) {
+	store := NewStore()
+	issue1, _ := store.AddIssue("Issue 1")
+	issue2, _ := store.AddIssue("Issue 2")
+
+	// Try to remove a blocker when issue1 has no blockers
+	// This should not panic even though issue1.Blocks is empty
+	err := store.RemoveBlocker(issue1.ID, issue2.ID)
+	if err != nil {
+		t.Fatalf("RemoveBlocker() failed: %v", err)
+	}
+
+	// Verify slices are still empty
+	if len(issue1.Blocks) != 0 {
+		t.Errorf("expected issue1 to have no blocks, got %d", len(issue1.Blocks))
+	}
+	if len(issue2.DependsOn) != 0 {
+		t.Errorf("expected issue2 to have no dependencies, got %d", len(issue2.DependsOn))
+	}
+}
+
+func TestStoreRemoveDependency_EmptyDependsOn(t *testing.T) {
+	store := NewStore()
+	issue1, _ := store.AddIssue("Issue 1")
+	issue2, _ := store.AddIssue("Issue 2")
+
+	// Try to remove a dependency when issue2 has no dependencies
+	// This should not panic even though issue2.DependsOn is empty
+	err := store.RemoveDependency(issue2.ID, issue1.ID)
+	if err != nil {
+		t.Fatalf("RemoveDependency() failed: %v", err)
+	}
+
+	// Verify slices are still empty
+	if len(issue2.DependsOn) != 0 {
+		t.Errorf("expected issue2 to have no dependencies, got %d", len(issue2.DependsOn))
+	}
+	if len(issue1.Blocks) != 0 {
+		t.Errorf("expected issue1 to have no blocks, got %d", len(issue1.Blocks))
+	}
+}
